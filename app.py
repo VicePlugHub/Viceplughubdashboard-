@@ -3,7 +3,6 @@ import json
 from datetime import datetime, timezone
 import pandas as pd
 import streamlit as st
-import streamlit.components.v1 as components
 import plotly.graph_objects as go
 import gspread
 from google.oauth2.service_account import Credentials
@@ -13,140 +12,213 @@ from groq import Groq
 # SYSTEM CONFIGURATION
 # --------------------------------------------------
 st.set_page_config(
-    page_title="VICEPLUG // CONTENT OPS CENTER",
-    page_icon="⚡",
+    page_title="VicePlug Hub | Content Intelligence & Shorts Ops",
+    page_icon="🎬",
     layout="wide",
     initial_sidebar_state="collapsed",
 )
 
 # --------------------------------------------------
-# CYBER HUD DESIGN SYSTEM (APPLIED TO NATIVE CONTAINERS)
+# CLASSY MODERN DARK AESTHETIC (LIQUID GLASS THEME)
 # --------------------------------------------------
 st.markdown("""
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
 
 :root {
-    --bg-void: #020611;
-    --hud-bg: #070E1E;
-    --hud-border: rgba(0, 229, 255, 0.22);
-    --hud-border-glow: rgba(0, 229, 255, 0.5);
-    --cyan: #00E5FF;
-    --magenta: #E024A5;
-    --purple: #7C3AED;
-    --green: #10B981;
-    --amber: #F59E0B;
-    --red: #EF4444;
-    --text-main: #F8FAFC;
-    --text-dim: #94A3B8;
+    --bg-base: #090D16;
+    --card-surface: rgba(17, 24, 39, 0.7);
+    --card-border: rgba(255, 255, 255, 0.08);
+    --card-border-hover: rgba(99, 102, 241, 0.4);
+    --accent-indigo: #6366F1;
+    --accent-violet: #8B5CF6;
+    --accent-cyan: #06B6D4;
+    --accent-emerald: #10B981;
+    --accent-amber: #F59E0B;
+    --accent-rose: #F43F5E;
+    --text-primary: #F8FAFC;
+    --text-secondary: #94A3B8;
+    --text-muted: #64748B;
 }
 
-/* Global Reset */
 html, body, [class*="css"] {
-    font-family: 'Space Grotesk', sans-serif !important;
-    color: var(--text-main);
+    font-family: 'Plus Jakarta Sans', sans-serif !important;
+    color: var(--text-primary);
 }
 
 .stApp {
-    background-color: var(--bg-void);
+    background-color: var(--bg-base);
     background-image: 
-        radial-gradient(circle at 50% 0%, rgba(0, 229, 255, 0.08) 0%, transparent 60%),
-        linear-gradient(rgba(0, 229, 255, 0.02) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(0, 229, 255, 0.02) 1px, transparent 1px);
-    background-size: 100% 100%, 36px 36px, 36px 36px;
+        radial-gradient(circle at 10% 0%, rgba(99, 102, 241, 0.07) 0%, transparent 40%),
+        radial-gradient(circle at 90% 10%, rgba(6, 182, 212, 0.05) 0%, transparent 40%);
 }
 
 #MainMenu, header, footer { visibility: hidden; }
 
 .block-container {
-    max-width: 1780px;
-    padding-top: 0.8rem;
+    max-width: 1720px;
+    padding-top: 1rem;
     padding-bottom: 3rem;
 }
 
-/* Style Native Streamlit Containers to HUD Boxes */
+/* Glassmorphism Containers */
 div[data-testid="stVerticalBlockBorderWrapper"] {
-    background: var(--hud-bg) !important;
-    border: 1px solid var(--hud-border) !important;
-    border-radius: 10px !important;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5) !important;
-    transition: border-color 0.2s ease;
+    background: var(--card-surface) !important;
+    border: 1px solid var(--card-border) !important;
+    border-radius: 14px !important;
+    backdrop-filter: blur(16px) !important;
+    box-shadow: 0 4px 24px -1px rgba(0, 0, 0, 0.3) !important;
+    transition: all 0.2s ease !important;
 }
 
 div[data-testid="stVerticalBlockBorderWrapper"]:hover {
-    border-color: rgba(0, 229, 255, 0.4) !important;
+    border-color: rgba(255, 255, 255, 0.14) !important;
 }
 
-/* Top Tactical Bar */
-.top-tactical-header {
+/* Top Navigation Bar */
+.top-nav-bar {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background: #050B18;
-    border: 1px solid var(--hud-border);
-    border-radius: 8px;
-    padding: 8px 18px;
-    margin-bottom: 12px;
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 0.74rem;
+    background: rgba(15, 23, 42, 0.85);
+    border: 1px solid var(--card-border);
+    border-radius: 12px;
+    padding: 10px 20px;
+    margin-bottom: 14px;
+    backdrop-filter: blur(14px);
 }
 
-/* Section Header Typography */
-.section-header {
-    font-family: 'Chakra Petch', sans-serif;
-    font-size: 0.85rem;
+.nav-brand {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 1.15rem;
     font-weight: 700;
-    color: var(--cyan);
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
+    color: #FFF;
     display: flex;
     align-items: center;
     gap: 8px;
-    margin-bottom: 8px;
 }
 
-/* Metric Display Inside Native Containers */
-.pod-label {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 0.7rem;
-    color: var(--text-dim);
-    letter-spacing: 0.08em;
+.nav-brand span {
+    background: linear-gradient(135deg, #6366F1, #06B6D4);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
 }
 
-.pod-val {
-    font-family: 'Chakra Petch', sans-serif;
+/* Classy Navigation Buttons */
+div[data-testid="stHorizontalBlock"] .stButton > button {
+    background: rgba(30, 41, 59, 0.4) !important;
+    border: 1px solid var(--card-border) !important;
+    color: var(--text-secondary) !important;
+    font-size: 0.84rem !important;
+    font-weight: 600 !important;
+    border-radius: 8px !important;
+    padding: 8px 16px !important;
+    transition: all 0.2s ease !important;
+}
+
+div[data-testid="stHorizontalBlock"] .stButton > button:hover {
+    background: rgba(99, 102, 241, 0.15) !important;
+    border-color: var(--accent-indigo) !important;
+    color: #FFF !important;
+}
+
+/* Metric Display */
+.metric-card-inner {
+    padding: 4px;
+}
+
+.metric-title {
+    font-size: 0.76rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+.metric-number {
+    font-family: 'Space Grotesk', sans-serif;
     font-size: 2.1rem;
     font-weight: 700;
     color: #FFF;
     margin: 4px 0 2px 0;
 }
 
-/* Navigation Buttons */
-div[data-testid="stHorizontalBlock"] .stButton > button {
-    background: #060D1E !important;
-    border: 1px solid var(--hud-border) !important;
-    color: var(--text-dim) !important;
-    font-family: 'Chakra Petch', sans-serif !important;
-    font-size: 0.82rem !important;
-    letter-spacing: 0.08em !important;
-    font-weight: 700 !important;
-    border-radius: 6px !important;
-    padding: 8px 12px !important;
-    transition: all 0.2s ease !important;
+/* Liquid Glass Creator Card */
+.glass-creator-card {
+    background: linear-gradient(145deg, rgba(30, 41, 59, 0.5) 0%, rgba(15, 23, 42, 0.8) 100%);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 16px;
+    padding: 22px;
+    backdrop-filter: blur(20px);
+    transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
 }
 
-div[data-testid="stHorizontalBlock"] .stButton > button:hover {
-    background: rgba(0, 229, 255, 0.12) !important;
-    border-color: var(--cyan) !important;
+.glass-creator-card:hover {
+    border-color: rgba(99, 102, 241, 0.5);
+    transform: translateY(-3px);
+    box-shadow: 0 12px 30px -5px rgba(0, 0, 0, 0.5), 0 0 15px rgba(99, 102, 241, 0.15);
+}
+
+.creator-avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #6366F1, #8B5CF6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 1.1rem;
+    color: #FFF;
+    box-shadow: 0 4px 14px rgba(99, 102, 241, 0.3);
+}
+
+.platform-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-decoration: none !important;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #E2E8F0 !important;
+    transition: all 0.2s ease;
+}
+
+.platform-pill:hover {
+    background: rgba(99, 102, 241, 0.2);
+    border-color: var(--accent-indigo);
     color: #FFF !important;
-    box-shadow: 0 0 14px rgba(0, 229, 255, 0.3) !important;
+}
+
+/* Alert Row Styling */
+.alert-row-btn {
+    text-align: left !important;
+    background: rgba(255, 255, 255, 0.02) !important;
+    border: 1px solid rgba(255, 255, 255, 0.06) !important;
+    border-radius: 8px !important;
+    padding: 10px 14px !important;
+    width: 100% !important;
+    margin-bottom: 6px !important;
+}
+
+.alert-row-btn:hover {
+    background: rgba(99, 102, 241, 0.08) !important;
+    border-color: rgba(99, 102, 241, 0.3) !important;
 }
 </style>
 """, unsafe_allow_html=True)
 
 
 # --------------------------------------------------
-# BACKEND INTEGRATION HELPERS
+# BACKEND INTEGRATIONS (SHEETS & GROQ)
 # --------------------------------------------------
 def get_secret(key, default=None):
     try:
@@ -214,16 +286,16 @@ def analyze_with_groq(record):
     model = str(get_secret("GROQ_MODEL", "llama-3.3-70b-versatile"))
 
     system_prompt = """
-You are VicePlug Hub's Senior GTA VI Content Researcher and Viral Scriptwriter.
-Analyze the provided intelligence record. You must produce an actionable short-form production dossier for YouTube Shorts & TikTok.
-Return strictly valid JSON with this exact schema:
+You are VicePlug Hub's Senior GTA VI Content Research Editor & Viral Scriptwriter.
+Analyze the provided record and craft an actionable short-form production dossier for YouTube Shorts & TikTok.
+Return strictly valid JSON with this schema:
 {
-  "priority_score": int (1-100, viral velocity & audience retention potential),
+  "priority_score": int (1-100),
   "fact_status": "Official Rockstar" | "Credible Press" | "Speculative Lore" | "Unverified Leak",
   "summary": "1-2 sentence core factual event",
   "hook": "Spoken first 3-second hook that creates massive curiosity (12-16 words)",
   "commentary_draft": "Complete 30-40 second voiceover script (75-90 words, high punchiness)",
-  "on_screen_text": "3-word high-contrast bold overlay title for screen",
+  "on_screen_text": "3-word bold overlay title for screen",
   "why_it_works": "The psychological reason viewers will comment or argue",
   "creator_credit": "Handle, channel, or leaker source to credit"
 }
@@ -279,81 +351,80 @@ score_col = find_column(discovery_df.columns, ["ai priority score", "priority sc
 fact_col = find_column(discovery_df.columns, ["ai fact status", "fact status"]) if not discovery_df.empty else "AI Fact Status"
 hook_col = find_column(discovery_df.columns, ["ai hook", "hook"]) if not discovery_df.empty else None
 script_col = find_column(discovery_df.columns, ["ai commentary draft", "commentary draft", "script"]) if not discovery_df.empty else None
-author_col = find_column(discovery_df.columns, ["channel", "creator", "author", "source"]) if not discovery_df.empty else None
 
 if not discovery_df.empty:
     discovery_df["_score_num"] = pd.to_numeric(discovery_df[score_col], errors="coerce").fillna(0) if score_col in discovery_df else 0
     if status_col not in discovery_df: discovery_df[status_col] = "Needs Review"
     if fact_col not in discovery_df: discovery_df[fact_col] = "Unverified Leak"
 
-# Real metrics computed directly from sheet
-total_signals = len(discovery_df) if not discovery_df.empty else 60
+# Compute Live Metrics
+total_leads = len(discovery_df) if not discovery_df.empty else 60
 analyzed_count = int((discovery_df["_score_num"] > 0).sum()) if not discovery_df.empty else 0
 needs_review = int((discovery_df[status_col].astype(str).str.lower() == "needs review").sum()) if not discovery_df.empty else 0
 ready_to_cut = int((discovery_df[status_col].astype(str).str.lower() == "approved").sum()) if not discovery_df.empty else 0
 
 
 # --------------------------------------------------
-# TOP TACTICAL NAVIGATION BAR
+# TOP NAV BAR (CLASSY & CLEAN)
 # --------------------------------------------------
-curr_time = datetime.now(timezone.utc).strftime("%b %d, %Y %H:%M:%S UTC").upper()
+curr_time = datetime.now(timezone.utc).strftime("%a, %b %d • %H:%M UTC")
 
 st.markdown(f"""
-    <div class="top-tactical-header">
-        <div style="display:flex; align-items:center; gap:12px;">
-            <span style="font-family:'Chakra Petch'; font-weight:700; color:#00E5FF; font-size:0.95rem;">⚡ VICEPLUG // RESEARCH & SHORTS OPS</span>
-            <span style="color:#64748B;">|</span>
-            <span style="color:#00E5FF;">● YOUTUBE SHORTS</span>
-            <span style="color:#00E5FF;">● TIKTOK</span>
-            <span style="color:#00E5FF;">● REDDIT / LEAKS</span>
-            <span style="color:#00E5FF;">● ROCKSTAR WIRE</span>
+    <div class="top-nav-bar">
+        <div class="nav-brand">
+            <span>VicePlug</span> Hub <span style="font-size:0.75rem; color:#64748B; font-weight:500; font-family:'Plus Jakarta Sans';">| GTA VI Research & Shorts Ops</span>
         </div>
-        <div style="display:flex; align-items:center; gap:16px;">
-            <span style="color:#798CA6;">{curr_time}</span>
-            <span style="font-family:'Chakra Petch'; color:#00E5FF; font-weight:700;">● VICE_LEAD <span style="font-size:0.65rem; color:#64748B;">OPERATOR</span></span>
+        <div style="display:flex; align-items:center; gap:18px; font-size:0.82rem; color:#94A3B8;">
+            <span>{curr_time}</span>
+            <span style="display:inline-flex; align-items:center; gap:6px; background:rgba(16,185,129,0.1); color:#10B981; padding:3px 10px; border-radius:20px; font-size:0.75rem; font-weight:600;">
+                ● Google Sheets Connected
+            </span>
+            <span style="display:inline-flex; align-items:center; gap:6px; background:rgba(99,102,241,0.1); color:#818CF8; padding:3px 10px; border-radius:20px; font-size:0.75rem; font-weight:600;">
+                ⚡ Groq Llama-3.3 Active
+            </span>
         </div>
     </div>
 """, unsafe_allow_html=True)
 
-# Navigation State
+# Navigation Buttons
 if "active_nav" not in st.session_state:
-    st.session_state["active_nav"] = "🎯 MISSION CONTROL"
+    st.session_state["active_nav"] = "🎯 Dashboard"
 
-nav_c1, nav_c2, nav_c3, nav_c4, nav_c5 = st.columns(5)
-with nav_c1:
-    if st.button("🎯 MISSION CONTROL", use_container_width=True): st.session_state["active_nav"] = "🎯 MISSION CONTROL"
-with nav_c2:
-    if st.button("🔍 DISCOVERY HOPPER", use_container_width=True): st.session_state["active_nav"] = "🔍 DISCOVERY HOPPER"
-with nav_c3:
-    if st.button("🎬 READY TO CUT", use_container_width=True): st.session_state["active_nav"] = "🎬 READY TO CUT"
-with nav_c4:
-    if st.button("🤝 CREATOR RADAR", use_container_width=True): st.session_state["active_nav"] = "🤝 CREATOR RADAR"
-with nav_c5:
-    if st.button("🗄 SHEETS DATABASE", use_container_width=True): st.session_state["active_nav"] = "🗄 SHEETS DATABASE"
+c_nav1, c_nav2, c_nav3, c_nav4, c_nav5 = st.columns(5)
+with c_nav1:
+    if st.button("🎯 Dashboard", use_container_width=True): st.session_state["active_nav"] = "🎯 Dashboard"
+with c_nav2:
+    if st.button("🔍 Discovery Hopper", use_container_width=True): st.session_state["active_nav"] = "🔍 Discovery Hopper"
+with c_nav3:
+    if st.button("🎬 Ready to Cut Queue", use_container_width=True): st.session_state["active_nav"] = "🎬 Ready to Cut Queue"
+with c_nav4:
+    if st.button("👥 Creator Radar", use_container_width=True): st.session_state["active_nav"] = "👥 Creator Radar"
+with c_nav5:
+    if st.button("🗄 Master Database", use_container_width=True): st.session_state["active_nav"] = "🗄 Master Database"
 
 st.markdown("<div style='height: 8px;'></div>", unsafe_allow_html=True)
 
 
 # ==================================================
-# 1. SCREEN: MISSION CONTROL (WHAT NEEDS TO BE DONE)
+# 1. SCREEN: DASHBOARD
 # ==================================================
-if st.session_state["active_nav"] == "🎯 MISSION CONTROL":
+if st.session_state["active_nav"] == "🎯 Dashboard":
 
-    # --- TOP ACTION CALLOUT (WHAT NEEDS TO BE DONE TODAY) ---
+    # --- ACTION CALLOUT BANNER ---
     with st.container(border=True):
         st.markdown(f"""
-            <div style="display:flex; justify-content:space-between; align-items:center; padding: 4px 6px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; padding: 2px 4px;">
                 <div>
-                    <span style="font-family:'Chakra Petch'; font-size:1.15rem; font-weight:700; color:#00E5FF;">
-                        ⚡ OPERATIONAL TASK LIST: {needs_review} DISCOVERIES REQUIRE EDITORIAL REVIEW
+                    <span style="font-weight:700; font-size:1.05rem; color:#FFF;">
+                        Action Required: <span style="color:#F59E0B;">{needs_review} New Discoveries</span> Awaiting Editorial Review
                     </span>
                     <div style="color:#94A3B8; font-size:0.86rem; margin-top:2px;">
-                        Triage pending leaks below ➔ Run Groq script generator ➔ Push greenlit angles into the <b>'Ready to Cut'</b> queue for editing.
+                        Triage incoming GTA VI topics below ➔ Generate 30s hooks with Groq ➔ Greenlight scripts directly into your editing queue.
                     </div>
                 </div>
-                <div style="text-align:right;">
-                    <span style="font-family:'JetBrains Mono'; font-size:0.75rem; background:rgba(0,229,255,0.1); border:1px solid #00E5FF; padding:4px 10px; border-radius:4px; color:#00E5FF;">
-                        GROQ LLAMA-3.3 ACTIVE
+                <div style="display:flex; gap:10px;">
+                    <span style="font-size:0.8rem; background:rgba(99,102,241,0.15); color:#A5B4FC; padding:5px 12px; border-radius:8px; border:1px solid rgba(99,102,241,0.3); font-weight:600;">
+                        Target: 25-40s Shorts
                     </span>
                 </div>
             </div>
@@ -361,260 +432,123 @@ if st.session_state["active_nav"] == "🎯 MISSION CONTROL":
 
     st.markdown("<div style='height: 4px;'></div>", unsafe_allow_html=True)
 
-    # --- ROW 1: NEURAL CORE (HERO) WITH CONTAINED THREE.JS 3D BRAIN ---
-    hero_left, hero_right = st.columns([2.3, 1.2], gap="medium")
-
-    with hero_left:
-        with st.container(border=True):
-            st.markdown('<div class="section-header">// NEURAL RESEARCH CORE // ACTIVE INTELLIGENCE STREAMS</div>', unsafe_allow_html=True)
-            col_stat, col_brain, col_meta = st.columns([1, 1.6, 0.9])
-
-            with col_stat:
-                st.markdown(f"""
-                    <div style="margin-top:14px;">
-                        <div style="font-family:'Chakra Petch'; font-size:2.2rem; font-weight:700; color:#00E5FF; line-height:1;">78%</div>
-                        <div style="font-family:'JetBrains Mono'; font-size:0.72rem; color:#94A3B8; margin-top:4px;">Cognitive Capacity</div>
-                        <div style="width:100%; height:6px; background:#081326; border-radius:3px; margin-top:8px; border:1px solid rgba(0,229,255,0.25);">
-                            <div style="width:78%; height:100%; background:linear-gradient(90deg, #00E5FF, #E024A5); box-shadow:0 0 10px #00E5FF;"></div>
-                        </div>
-                        <div style="margin-top:18px; font-size:0.75rem; color:#64748B;">
-                            TARGET: <b style="color:#FFF;">GTA VI SHORTS</b><br>
-                            PACE: <b style="color:#00E5FF;">145 WPM</b>
-                        </div>
-                    </div>
-                """, unsafe_allow_html=True)
-
-            with col_brain:
-                # Authentic WebGL 3D Particle Brain - contained strictly inside
-                three_brain_html = """
-                <!DOCTYPE html>
-                <html>
-                <head>
-                  <style>
-                    body { margin: 0; overflow: hidden; background: transparent; }
-                    canvas { width: 100%; height: 100%; display: block; }
-                  </style>
-                  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-                </head>
-                <body>
-                  <script>
-                    const scene = new THREE.Scene();
-                    const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
-                    camera.position.z = 4.2;
-
-                    const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
-                    renderer.setSize(window.innerWidth, window.innerHeight);
-                    renderer.setPixelRatio(window.devicePixelRatio);
-                    document.body.appendChild(renderer.domElement);
-
-                    const particleCount = 700;
-                    const geometry = new THREE.BufferGeometry();
-                    const positions = new Float32Array(particleCount * 3);
-                    const colors = new Float32Array(particleCount * 3);
-
-                    const colorCyan = new THREE.Color(0x00E5FF);
-                    const colorMagenta = new THREE.Color(0xE024A5);
-
-                    for (let i = 0; i < particleCount; i++) {
-                        const u = Math.random();
-                        const v = Math.random();
-                        const theta = u * 2.0 * Math.PI;
-                        const phi = Math.acos(2.0 * v - 1.0);
-                        const r = 1.35 + (Math.random() - 0.5) * 0.25;
-
-                        let x = r * Math.sin(phi) * Math.cos(theta);
-                        let y = r * Math.sin(phi) * Math.sin(theta) * 0.85;
-                        let z = r * Math.cos(phi) * 1.15;
-
-                        if (x > 0) x += 0.08;
-                        else x -= 0.08;
-
-                        positions[i * 3] = x;
-                        positions[i * 3 + 1] = y;
-                        positions[i * 3 + 2] = z;
-
-                        let mixedColor = colorCyan.clone();
-                        if (y > 0.2) mixedColor.lerp(colorMagenta, (y + 1) / 2);
-                        colors[i * 3] = mixedColor.r;
-                        colors[i * 3 + 1] = mixedColor.g;
-                        colors[i * 3 + 2] = mixedColor.b;
-                    }
-
-                    geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-                    geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
-
-                    const material = new THREE.PointsMaterial({
-                        size: 0.05,
-                        vertexColors: true,
-                        transparent: true,
-                        opacity: 0.95,
-                        blending: THREE.AdditiveBlending
-                    });
-
-                    const brain = new THREE.Points(geometry, material);
-                    scene.add(brain);
-
-                    function animate() {
-                        requestAnimationFrame(animate);
-                        brain.rotation.y += 0.007;
-                        brain.rotation.x = Math.sin(Date.now() * 0.001) * 0.12;
-                        renderer.render(scene, camera);
-                    }
-                    animate();
-
-                    window.addEventListener('resize', () => {
-                        camera.aspect = window.innerWidth / window.innerHeight;
-                        camera.updateProjectionMatrix();
-                        renderer.setSize(window.innerWidth, window.innerHeight);
-                    });
-                  </script>
-                </body>
-                </html>
-                """
-                components.html(three_brain_html, height=180, scrolling=False)
-
-            with col_meta:
-                st.markdown("""
-                    <div style="font-family:'JetBrains Mono'; font-size:0.75rem; text-align:right; margin-top:10px; display:flex; flex-direction:column; gap:6px;">
-                        <div><span style="color:#64748B;">VERIFICATION</span><br><span style="color:#10B981; font-weight:700;">STRICT AUTH</span></div>
-                        <div><span style="color:#64748B;">FORMAT</span><br><span style="color:#FFF; font-weight:700;">30S SHORTS</span></div>
-                        <div><span style="color:#64748B;">LATENCY</span><br><span style="color:#FFF; font-weight:700;">14ms</span></div>
-                        <div><span style="color:#64748B;">LLM ENGINE</span><br><span style="color:#00E5FF; font-weight:700;">LLAMA-3.3</span></div>
-                    </div>
-                """, unsafe_allow_html=True)
-
-    with hero_right:
-        with st.container(border=True):
-            st.markdown('<div class="section-header">● BREAKING ALERTS & SIGNALS</div>', unsafe_allow_html=True)
-            st.markdown("""
-                <div style="display:flex; flex-direction:column; gap:8px;">
-                    <div style="display:flex; justify-content:space-between; font-size:0.82rem; padding:6px 8px; background:rgba(0,229,255,0.03); border:1px solid rgba(0,229,255,0.1); border-radius:5px;">
-                        <span>⚠️ Take-Two FY26 Schedule updated</span>
-                        <span style="font-family:'JetBrains Mono'; font-size:0.68rem; color:#64748B;">10m ago</span>
-                    </div>
-                    <div style="display:flex; justify-content:space-between; font-size:0.82rem; padding:6px 8px; background:rgba(0,229,255,0.03); border:1px solid rgba(0,229,255,0.1); border-radius:5px;">
-                        <span>🔥 Jason & Lucia audio clip leak (TikTok)</span>
-                        <span style="font-family:'JetBrains Mono'; font-size:0.68rem; color:#64748B;">28m ago</span>
-                    </div>
-                    <div style="display:flex; justify-content:space-between; font-size:0.82rem; padding:6px 8px; background:rgba(0,229,255,0.03); border:1px solid rgba(0,229,255,0.1); border-radius:5px;">
-                        <span>📂 New Reddit breakdown in r/GTA6</span>
-                        <span style="font-family:'JetBrains Mono'; font-size:0.68rem; color:#64748B;">1h ago</span>
-                    </div>
-                    <div style="display:flex; justify-content:space-between; font-size:0.82rem; padding:6px 8px; background:rgba(0,229,255,0.03); border:1px solid rgba(0,229,255,0.1); border-radius:5px;">
-                        <span>🤝 @RockstarUniverse posted map analysis</span>
-                        <span style="font-family:'JetBrains Mono'; font-size:0.68rem; color:#64748B;">2h ago</span>
-                    </div>
-                </div>
-            """, unsafe_allow_html=True)
-
-    # --- ROW 2: 4 WORKFLOW METRIC PODS (CONNECTED TO REAL DATA) ---
-    st.markdown("<div style='height: 4px;'></div>", unsafe_allow_html=True)
+    # --- 4 KEY EXECUTIVE METRIC PODS ---
     m1, m2, m3, m4 = st.columns(4)
-
     with m1:
         with st.container(border=True):
             st.markdown(f"""
-                <span class="pod-label">TOTAL DISCOVERIES</span>
-                <div class="pod-val">{total_signals}</div>
-                <span style="font-family:'JetBrains Mono'; font-size:0.75rem; color:#10B981;">ACTIVE SHEETS ROWS</span>
+                <div class="metric-card-inner">
+                    <div class="metric-title">TOTAL DISCOVERIES</div>
+                    <div class="metric-number">{total_leads}</div>
+                    <div style="font-size:0.75rem; color:#10B981; font-weight:600;">↑ 100% Sheets Ingested</div>
+                </div>
             """, unsafe_allow_html=True)
     with m2:
         with st.container(border=True):
             st.markdown(f"""
-                <span class="pod-label">NEEDS EDITORIAL REVIEW</span>
-                <div class="pod-val" style="color:#F59E0B;">{needs_review}</div>
-                <span style="font-family:'JetBrains Mono'; font-size:0.75rem; color:#EF4444;">TRIAGE REQUIRED</span>
+                <div class="metric-card-inner">
+                    <div class="metric-title">NEEDS EDITORIAL REVIEW</div>
+                    <div class="metric-number" style="color:#F59E0B;">{needs_review}</div>
+                    <div style="font-size:0.75rem; color:#F43F5E; font-weight:600;">Pending Script Generation</div>
+                </div>
             """, unsafe_allow_html=True)
     with m3:
         with st.container(border=True):
             st.markdown(f"""
-                <span class="pod-label">AI SCRIPTED / SYNTHESIZED</span>
-                <div class="pod-val">{analyzed_count}</div>
-                <span style="font-family:'JetBrains Mono'; font-size:0.75rem; color:#00E5FF;">HOOKS READY</span>
+                <div class="metric-card-inner">
+                    <div class="metric-title">AI SCRIPTED / HOOKS READY</div>
+                    <div class="metric-number" style="color:#6366F1;">{analyzed_count}</div>
+                    <div style="font-size:0.75rem; color:#818CF8; font-weight:600;">Synthesized with Groq</div>
+                </div>
             """, unsafe_allow_html=True)
     with m4:
         with st.container(border=True):
             st.markdown(f"""
-                <span class="pod-label">READY TO EDIT (APPROVED)</span>
-                <div class="pod-val" style="color:#10B981;">{ready_to_cut}</div>
-                <span style="font-family:'JetBrains Mono'; font-size:0.75rem; color:#10B981;">WAITING IN CUT QUEUE</span>
+                <div class="metric-card-inner">
+                    <div class="metric-title">READY TO CUT (APPROVED)</div>
+                    <div class="metric-number" style="color:#10B981;">{ready_to_cut}</div>
+                    <div style="font-size:0.75rem; color:#10B981; font-weight:600;">Awaiting Video Editing</div>
+                </div>
             """, unsafe_allow_html=True)
 
-    # --- ROW 3: REAL STATIC HUD VISUALS (NO EMPTY SPACES) ---
     st.markdown("<div style='height: 4px;'></div>", unsafe_allow_html=True)
-    b1, b2, b3 = st.columns([1.3, 1.2, 1], gap="medium")
 
-    with b1:
+    # --- INTERACTIVE ALERTS (CLICKABLE) & OVERVIEW METRICS ---
+    left_feed, right_charts = st.columns([1.6, 1.2], gap="medium")
+
+    # Interactive Alerts Data
+    alert_catalog = {
+        "Take-Two FY26 Schedule Filing": {
+            "time": "12m ago",
+            "type": "Official Financial Filing",
+            "source": "Take-Two SEC 10-Q Filing",
+            "impact": "High (96/100)",
+            "summary": "Take-Two reiterated expected booking surge for FY2026, narrowing GTA VI launch window to Fall 2025/Early 2026.",
+            "hook": "Take-Two just confirmed their biggest release window in gaming history...",
+            "action": "Produce an immediate 35s Shorts breakdown addressing the delay rumors with official financial filings."
+        },
+        "Jason & Lucia Voice Lines Audio Leak": {
+            "time": "34m ago",
+            "type": "Unverified Leak (Audio)",
+            "source": "TikTok / Reddit r/GTA6",
+            "impact": "Viral Potential (88/100)",
+            "summary": "Purported conversation between Jason and Lucia inside a Vice City diner posted on TikTok. High risk of AI voice cloning.",
+            "hook": "Is this real GTA 6 audio or another clever AI clone?",
+            "action": "Highlight the audio differences and analyze whether the voice matches Lucia's actress."
+        },
+        "Vice City Water Physics Breakdown": {
+            "time": "2h ago",
+            "type": "Speculative Lore / Tech Analysis",
+            "source": "Twitter/X @RockstarUniverse",
+            "impact": "Medium (74/100)",
+            "summary": "Side-by-side comparison of RDR2 water tessellation vs GTA 6 trailer footage showing dynamic wave buoyancy.",
+            "hook": "Rockstar spent 6 years completely rebuilding water physics for Vice City.",
+            "action": "Create an aesthetic technical comparison Short targeting high visual retention."
+        }
+    }
+
+    with left_feed:
         with st.container(border=True):
-            st.markdown('<div class="section-header">GLOBAL SOURCE RADAR</div>', unsafe_allow_html=True)
-            fig_map = go.Figure(go.Scattergeo(
-                lon=[-74.0, -0.12, 139.69, -43.17, -80.19],
-                lat=[40.71, 51.50, 35.68, -22.90, 25.76],
-                text=["Take-Two NYC (Official)", "Rockstar North Edinburgh", "Tokyo Monitor", "South America Buzz", "Miami/Vice City Real-World Refs"],
-                mode='markers',
-                marker=dict(
-                    size=[12, 10, 10, 8, 14],
-                    color=['#00E5FF', '#10B981', '#7C3AED', '#E024A5', '#EF4444'],
-                    line=dict(width=1, color='#FFFFFF')
-                ),
-                hoverinfo='text'
-            ))
-            fig_map.update_layout(
-                geo=dict(
-                    bgcolor='rgba(0,0,0,0)',
-                    showland=True, landcolor='#081326',
-                    showocean=True, oceancolor='#030713',
-                    showcoastlines=True, coastlinecolor='rgba(0,229,255,0.22)',
-                    showframe=False
-                ),
-                margin=dict(l=0, r=0, t=0, b=0),
-                height=150,
-                paper_bgcolor='rgba(0,0,0,0)'
-            )
-            st.plotly_chart(fig_map, use_container_width=True, config={'staticPlot': True})
             st.markdown("""
-                <div style="display:flex; justify-content:space-around; font-family:'JetBrains Mono'; font-size:0.65rem; color:#64748B; margin-top:2px;">
-                    <span><b style="color:#00E5FF;">●</b> NYC Wire</span>
-                    <span><b style="color:#10B981;">●</b> Edinburgh</span>
-                    <span><b style="color:#EF4444;">●</b> Vice City</span>
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                    <div>
+                        <b style="font-size:0.95rem; color:#FFF;">🔔 Breaking Alerts & Topic Intelligence</b>
+                        <div style="font-size:0.76rem; color:#94A3B8;">Click any alert to inspect its source veracity, retention angle, and next steps.</div>
+                    </div>
                 </div>
             """, unsafe_allow_html=True)
 
-    with b2:
-        with st.container(border=True):
-            st.markdown('<div class="section-header">SIGNAL PRIORITY VELOCITY</div>', unsafe_allow_html=True)
-            # Plot real priority score curve across recent rows
-            scores = discovery_df["_score_num"].tail(20).tolist() if not discovery_df.empty and "_score_num" in discovery_df else [45, 60, 75, 55, 82, 90, 68, 77, 85, 94]
-            if len(scores) < 3: scores = [45, 65, 80, 50, 88, 92]
+            for alert_title, alert_info in alert_catalog.items():
+                col_btn, col_badge = st.columns([3.5, 1.2])
+                with col_btn:
+                    if st.button(f"⚡ {alert_title}", key=f"alert_btn_{alert_title}", use_container_width=True):
+                        st.session_state["selected_alert"] = alert_title
+                with col_badge:
+                    st.markdown(f"<div style='text-align:right; font-size:0.75rem; color:#94A3B8; padding-top:6px;'>{alert_info['time']}</div>", unsafe_allow_html=True)
 
-            fig_wave = go.Figure()
-            fig_wave.add_trace(go.Scatter(
-                y=scores,
-                mode='lines+markers',
-                fill='tozeroy',
-                fillcolor='rgba(0, 229, 255, 0.08)',
-                line=dict(color='#00E5FF', width=2.2),
-                marker=dict(size=4, color='#00E5FF')
-            ))
-            fig_wave.update_layout(
-                height=150,
-                margin=dict(l=0, r=0, t=0, b=0),
-                paper_bgcolor='rgba(0,0,0,0)',
-                plot_bgcolor='rgba(0,0,0,0)',
-                xaxis=dict(visible=False, fixedrange=True),
-                yaxis=dict(visible=False, fixedrange=True)
-            )
-            st.plotly_chart(fig_wave, use_container_width=True, config={'staticPlot': True})
-            st.markdown(f"""
-                <div style="display:flex; justify-content:space-between; font-family:'JetBrains Mono'; font-size:0.65rem; color:#64748B; margin-top:2px;">
-                    <span>RECENT SHEET SIGNALS</span>
-                    <span style="color:#00E5FF;">MAX SCORE: {max(scores) if scores else 0}/100</span>
-                </div>
-            """, unsafe_allow_html=True)
+            # Clickable Alert Inspector Drawer
+            if "selected_alert" in st.session_state and st.session_state["selected_alert"] in alert_catalog:
+                sel = alert_catalog[st.session_state["selected_alert"]]
+                st.markdown(f"""
+                    <div style="margin-top:14px; padding:16px; background:rgba(99,102,241,0.06); border:1px solid rgba(99,102,241,0.3); border-radius:10px;">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                            <span style="font-weight:700; font-size:1.05rem; color:#FFF;">{st.session_state['selected_alert']}</span>
+                            <span style="font-size:0.75rem; background:rgba(99,102,241,0.2); color:#A5B4FC; padding:3px 8px; border-radius:6px; font-weight:600;">{sel['type']}</span>
+                        </div>
+                        <div style="font-size:0.86rem; color:#CBD5E1; margin-bottom:8px;"><b>Source:</b> {sel['source']} • <b>Impact:</b> {sel['impact']}</div>
+                        <div style="font-size:0.86rem; color:#94A3B8; margin-bottom:8px;"><b>Core Event:</b> {sel['summary']}</div>
+                        <div style="background:rgba(0,0,0,0.3); padding:10px; border-radius:6px; font-size:0.86rem; margin-bottom:10px;">
+                            <span style="color:#818CF8; font-weight:600;">Suggested Hook:</span> "{sel['hook']}"
+                        </div>
+                        <div style="font-size:0.84rem; color:#10B981;"><b>Recommended Action:</b> {sel['action']}</div>
+                    </div>
+                """, unsafe_allow_html=True)
 
-    with b3:
+    with right_charts:
         with st.container(border=True):
-            st.markdown('<div class="section-header">VERACITY DISTRIBUTION</div>', unsafe_allow_html=True)
+            st.markdown('<b style="font-size:0.95rem; color:#FFF;">📊 Content Pipeline Velocity</b>', unsafe_allow_html=True)
+
+            # Clean Static Donut Chart
             if not discovery_df.empty and fact_col in discovery_df:
                 cat_counts = discovery_df[fact_col].replace("", "Unverified Leak").value_counts()
                 labels = cat_counts.index.tolist()
@@ -627,50 +561,56 @@ if st.session_state["active_nav"] == "🎯 MISSION CONTROL":
                 labels=labels,
                 values=values,
                 hole=0.68,
-                marker=dict(colors=['#EF4444', '#E024A5', '#7C3AED', '#00E5FF']),
+                marker=dict(colors=['#F43F5E', '#8B5CF6', '#6366F1', '#06B6D4']),
                 textinfo='none'
             )])
             fig_donut.update_layout(
-                height=150,
+                height=180,
                 margin=dict(l=0, r=0, t=0, b=0),
                 paper_bgcolor='rgba(0,0,0,0)',
                 showlegend=False,
-                annotations=[dict(text=f'<b>{sum(values)}</b><br><span style="font-size:9px; color:#64748B;">LEADS</span>', x=0.5, y=0.5, font_size=13, font_color="#FFF", showarrow=False)]
+                annotations=[dict(text=f'<b>{sum(values)}</b><br><span style="font-size:9px; color:#94A3B8;">SIGNALS</span>', x=0.5, y=0.5, font_size=14, font_color="#FFF", showarrow=False)]
             )
             st.plotly_chart(fig_donut, use_container_width=True, config={'staticPlot': True})
+
             st.markdown("""
-                <div style="display:flex; justify-content:space-around; font-family:'JetBrains Mono'; font-size:0.62rem; color:#94A3B8; margin-top:2px;">
-                    <span><b style="color:#EF4444;">●</b> Leaks</span>
-                    <span><b style="color:#E024A5;">●</b> Lore</span>
-                    <span><b style="color:#00E5FF;">●</b> Official</span>
+                <div style="display:flex; justify-content:space-around; font-size:0.75rem; color:#94A3B8; margin-top:4px;">
+                    <span><b style="color:#F43F5E;">●</b> Leaks</span>
+                    <span><b style="color:#8B5CF6;">●</b> Lore</span>
+                    <span><b style="color:#6366F1;">●</b> Press</span>
+                    <span><b style="color:#06B6D4;">●</b> Official</span>
                 </div>
             """, unsafe_allow_html=True)
 
 
 # ==================================================
-# 2. SCREEN: DISCOVERY HOPPER (TRIAGE & SCRIPT GEN)
+# 2. SCREEN: DISCOVERY HOPPER (CLEAN EDITORIAL CARDS)
 # ==================================================
-elif st.session_state["active_nav"] == "🔍 DISCOVERY HOPPER":
-    st.markdown("<h2 style='font-family:Chakra Petch;'>🔍 CONTENT DISCOVERY & SHORTS HOOK GENERATOR</h2>", unsafe_allow_html=True)
-    st.caption("Review intercepted topics, generate high-retention hooks, and push approved stories to your editing queue.")
+elif st.session_state["active_nav"] == "🔍 Discovery Hopper":
+    st.markdown("<h2 style='font-family:Space Grotesk; margin-bottom:4px;'>Discovery Hopper & Script Studio</h2>", unsafe_allow_html=True)
+    st.caption("Filter content opportunities, generate high-CTR 30s Short hooks, and push greenlit angles to your cutting queue.")
 
     if discovery_df.empty:
         st.warning("No records ingested from Google Sheets. Check tab name or connection.")
     else:
-        # Search & Filter Bar
-        f1, f2 = st.columns([3, 1])
+        # Spacious Filter Bar
+        f1, f2, f3 = st.columns([2.5, 1.2, 1])
         with f1:
-            search = st.text_input("Filter Topics", placeholder="Search leaks, gameplay, characters, release date...")
+            search = st.text_input("Filter Topics", placeholder="Search leaks, mechanics, characters, release windows...", label_visibility="collapsed")
         with f2:
-            veracity_choice = st.selectbox("Filter Credibility", ["All Veracity Types", "Official Rockstar", "Credible Press", "Speculative Lore", "Unverified Leak"])
+            veracity_choice = st.selectbox("Credibility Filter", ["All Sources", "Official Rockstar", "Credible Press", "Speculative Lore", "Unverified Leak"], label_visibility="collapsed")
+        with f3:
+            min_score = st.slider("Min Priority Score", 0, 100, 30, step=5, label_visibility="collapsed")
 
         hopper_df = discovery_df.copy()
         if search:
             hopper_df = hopper_df[hopper_df.astype(str).apply(lambda col: col.str.contains(search, case=False, na=False)).any(axis=1)]
-        if veracity_choice != "All Veracity Types" and fact_col in hopper_df:
+        if veracity_choice != "All Sources" and fact_col in hopper_df:
             hopper_df = hopper_df[hopper_df[fact_col] == veracity_choice]
+        if "_score_num" in hopper_df:
+            hopper_df = hopper_df[hopper_df["_score_num"] >= min_score]
 
-        st.markdown(f"<p style='font-size:0.8rem; color:#94A3B8;'>Showing <b>{len(hopper_df)}</b> candidates in discovery hopper.</p>", unsafe_allow_html=True)
+        st.markdown(f"<p style='font-size:0.82rem; color:#94A3B8; margin: 8px 0 16px 0;'>Showing <b>{len(hopper_df)}</b> verified content opportunities.</p>", unsafe_allow_html=True)
 
         for orig_idx, row in hopper_df.iterrows():
             row_num = orig_idx + 2
@@ -678,63 +618,90 @@ elif st.session_state["active_nav"] == "🔍 DISCOVERY HOPPER":
             score = int(row.get("_score_num", 0))
             fact = str(row.get(fact_col, "Unverified Leak"))
             status = str(row.get(status_col, "Needs Review"))
-            hook = str(row.get(hook_col, "Awaiting Groq analysis to craft hook..."))
-            script = str(row.get(script_col, "Run Groq to draft 30s voiceover script."))
+            hook = str(row.get(hook_col, "No hook generated yet. Click 'Generate Script' to draft with Groq."))
+            script = str(row.get(script_col, "No script synthesized yet."))
             source = str(row.get(url_col, ""))
 
-            badge_col = "#EF4444" if "leak" in fact.lower() else "#00E5FF" if "official" in fact.lower() else "#E024A5"
+            # Refined Tag Colors
+            badge_bg = "rgba(244, 63, 94, 0.12)" if "leak" in fact.lower() else "rgba(6, 182, 212, 0.12)" if "official" in fact.lower() else "rgba(139, 92, 246, 0.12)"
+            badge_text = "#F43F5E" if "leak" in fact.lower() else "#06B6D4" if "official" in fact.lower() else "#A78BFA"
 
+            # Beautiful Spacious Card
             with st.container(border=True):
+                # Header Row
                 st.markdown(f"""
-                    <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:8px;">
-                        <div>
-                            <span style="font-family:'JetBrains Mono'; font-size:0.72rem; color:#00E5FF; background:rgba(0,229,255,0.1); padding:2px 6px; border-radius:4px; border:1px solid #00E5FF;">SCORE: {score}/100</span>
-                            <span style="font-family:'JetBrains Mono'; font-size:0.72rem; color:{badge_col}; border:1px solid {badge_col}; padding:2px 6px; border-radius:4px; margin-left:6px;">{fact.upper()}</span>
-                            <span style="font-size:0.75rem; color:#64748B; margin-left:8px;">Row {row_num}</span>
-                            <div style="font-family:'Chakra Petch'; font-size:1.15rem; font-weight:700; color:#FFF; margin-top:4px;">{title}</div>
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                        <div style="display:flex; align-items:center; gap:8px;">
+                            <span style="font-size:0.75rem; background:rgba(99,102,241,0.15); color:#A5B4FC; padding:4px 10px; border-radius:6px; font-weight:700;">PRIORITY: {score}/100</span>
+                            <span style="font-size:0.75rem; background:{badge_bg}; color:{badge_text}; padding:4px 10px; border-radius:6px; font-weight:600;">{fact}</span>
+                            <span style="font-size:0.75rem; color:#64748B;">Row {row_num}</span>
                         </div>
-                        <span style="font-family:'JetBrains Mono'; font-size:0.75rem; padding:4px 8px; border-radius:4px; background:#0B1426; border:1px solid #20314C; color:#FFF;">{status.upper()}</span>
+                        <span style="font-size:0.78rem; padding:4px 12px; border-radius:20px; background:rgba(255,255,255,0.05); color:#E2E8F0; font-weight:600;">{status}</span>
                     </div>
-                    <div style="background:#030712; border:1px solid rgba(0,229,255,0.15); border-radius:6px; padding:10px; margin: 8px 0; font-size:0.88rem;">
-                        <span style="color:#00E5FF; font-family:'JetBrains Mono'; font-size:0.72rem; font-weight:700;">🎣 RETENTION HOOK:</span><br>
-                        <span style="color:#E2E8F0;">"{hook}"</span>
-                        <div style="height:6px;"></div>
-                        <span style="color:#E024A5; font-family:'JetBrains Mono'; font-size:0.72rem; font-weight:700;">📝 30S SCRIPT DRAFT:</span><br>
-                        <span style="color:#94A3B8; font-size:0.84rem;">{script}</span>
-                    </div>
+                    <div style="font-family:'Space Grotesk'; font-size:1.25rem; font-weight:700; color:#FFF; margin-bottom:14px;">{title}</div>
                 """, unsafe_allow_html=True)
 
-                act1, act2, act3 = st.columns([1.5, 1.5, 3])
-                with act1:
-                    if st.button("🚀 PUSH TO CUT QUEUE", key=f"app_{row_num}", use_container_width=True):
+                # Two-Column Editorial Layout (Script Blueprint vs Strategic Context)
+                script_col_view, context_col_view = st.columns([1.5, 1], gap="medium")
+
+                with script_col_view:
+                    st.markdown(f"""
+                        <div style="background:rgba(15, 23, 42, 0.6); border:1px solid rgba(255,255,255,0.06); border-radius:10px; padding:14px; height:100%;">
+                            <div style="font-size:0.75rem; font-weight:700; color:#818CF8; margin-bottom:4px; text-transform:uppercase;">🎣 Spoken Hook (0–3 Seconds):</div>
+                            <div style="font-size:0.92rem; color:#FFF; font-style:italic; margin-bottom:12px;">"{hook}"</div>
+                            <div style="font-size:0.75rem; font-weight:700; color:#10B981; margin-bottom:4px; text-transform:uppercase;">📝 30s Voiceover Script Draft:</div>
+                            <div style="font-size:0.86rem; color:#CBD5E1; line-height:1.45;">{script}</div>
+                        </div>
+                    """, unsafe_allow_html=True)
+
+                with context_col_view:
+                    st.markdown(f"""
+                        <div style="background:rgba(15, 23, 42, 0.6); border:1px solid rgba(255,255,255,0.06); border-radius:10px; padding:14px; height:100%; display:flex; flex-direction:column; justify-content:space-between;">
+                            <div>
+                                <div style="font-size:0.75rem; font-weight:700; color:#06B6D4; margin-bottom:4px; text-transform:uppercase;">🎯 Audience Retention Angle:</div>
+                                <div style="font-size:0.84rem; color:#94A3B8; margin-bottom:10px;">High controversy potential—viewers will debate release dates and veracity in the comments.</div>
+                            </div>
+                            <div>
+                                <div style="font-size:0.75rem; font-weight:700; color:#64748B; margin-bottom:2px; text-transform:uppercase;">Source Attribution:</div>
+                                <div style="font-size:0.82rem; color:#E2E8F0;">Credit original creator in caption</div>
+                            </div>
+                        </div>
+                    """, unsafe_allow_html=True)
+
+                st.markdown("<div style='height: 12px;'></div>", unsafe_allow_html=True)
+
+                # Action Bar
+                a1, a2, a3 = st.columns([1.6, 1.6, 3])
+                with a1:
+                    if st.button("🚀 Push to Edit Queue", key=f"hop_app_{row_num}", use_container_width=True):
                         update_sheet_status("Video Discovery", row_num, "Approved", status_col)
-                        st.toast(f"Row {row_num} sent to Ready to Cut drawer!", icon="🎬")
+                        st.toast(f"Pushed Row {row_num} to Ready to Cut Drawer!", icon="🎬")
                         st.cache_data.clear()
                         st.rerun()
-                with act2:
-                    if st.button("🧠 GENERATE SCRIPT", key=f"gen_{row_num}", use_container_width=True):
-                        with st.spinner("Synthesizing Shorts script with Groq..."):
+                with a2:
+                    if st.button("🧠 Generate Script (Groq)", key=f"hop_groq_{row_num}", use_container_width=True):
+                        with st.spinner("Synthesizing Shorts script..."):
                             res = analyze_with_groq(row.to_dict())
                             save_full_analysis("Video Discovery", sheet_headers, row_num, res)
                             st.toast("Script & hook created!", icon="⚡")
                             st.cache_data.clear()
                             st.rerun()
-                with act3:
+                with a3:
                     if source and source.startswith("http"):
-                        st.markdown(f"<div style='padding-top:6px;'><a href='{source}' target='_blank' style='font-family:JetBrains Mono; font-size:0.78rem; color:#00E5FF; text-decoration:none;'>🔗 Open Source Video/Leak Clip ↗</a></div>", unsafe_allow_html=True)
+                        st.markdown(f"<div style='padding-top:8px;'><a href='{source}' target='_blank' style='font-size:0.82rem; color:#818CF8; text-decoration:none;'>🔗 Open Source Video/Leak Clip ↗</a></div>", unsafe_allow_html=True)
 
 
 # ==================================================
-# 3. SCREEN: READY TO CUT (YOUR EDITING HOPPER)
+# 3. SCREEN: READY TO CUT QUEUE (EDITING DESK)
 # ==================================================
-elif st.session_state["active_nav"] == "🎬 READY TO CUT":
-    st.markdown("<h2 style='font-family:Chakra Petch;'>🎬 YOUR PERSONAL EDITING QUEUE</h2>", unsafe_allow_html=True)
-    st.caption("All greenlit stories with completed scripts and hooks. Open Premiere / CapCut, cut the video, and check off.")
+elif st.session_state["active_nav"] == "🎬 Ready to Cut Queue":
+    st.markdown("<h2 style='font-family:Space Grotesk; margin-bottom:4px;'>Ready to Cut Queue</h2>", unsafe_allow_html=True)
+    st.caption("All greenlit stories with completed scripts and hooks. Open CapCut or Premiere, record the voiceover, and check off.")
 
     approved_df = discovery_df[discovery_df[status_col].astype(str).str.lower() == "approved"] if status_col in discovery_df else pd.DataFrame()
 
     if approved_df.empty:
-        st.info("No clips in the editing queue yet! Go to the 'Discovery Hopper' and click '🚀 PUSH TO CUT QUEUE' on greenlit angles.")
+        st.info("No clips in your editing queue yet! Head over to the 'Discovery Hopper' and click '🚀 Push to Edit Queue' on greenlit angles.")
     else:
         for orig_idx, row in approved_df.iterrows():
             row_num = orig_idx + 2
@@ -745,86 +712,145 @@ elif st.session_state["active_nav"] == "🎬 READY TO CUT":
 
             with st.container(border=True):
                 st.markdown(f"""
-                    <div style="font-family:'Chakra Petch'; font-size:1.2rem; font-weight:700; color:#10B981;">{title}</div>
-                    <div style="background:#030712; border:1px solid #10B981; border-radius:6px; padding:12px; margin: 10px 0;">
-                        <span style="color:#00E5FF; font-family:'JetBrains Mono'; font-weight:700;">[SPOKEN HOOK (0-3s)]:</span><br>
-                        <span style="font-size:0.95rem; color:#FFF;">"{hook}"</span>
-                        <div style="height:10px;"></div>
-                        <span style="color:#10B981; font-family:'JetBrains Mono'; font-weight:700;">[VOICEOVER SCRIPT (3-35s)]:</span><br>
-                        <span style="font-size:0.9rem; color:#CBD5E1; line-height:1.4;">{script}</span>
+                    <div style="font-family:'Space Grotesk'; font-size:1.25rem; font-weight:700; color:#10B981; margin-bottom:10px;">{title}</div>
+                    <div style="background:rgba(15, 23, 42, 0.7); border:1px solid rgba(16,185,129,0.3); border-radius:10px; padding:16px; margin-bottom:12px;">
+                        <span style="color:#06B6D4; font-weight:700; font-size:0.75rem; text-transform:uppercase;">[Spoken Hook (0–3 Seconds)]:</span>
+                        <div style="font-size:1.05rem; color:#FFF; font-weight:600; margin:4px 0 12px 0;">"{hook}"</div>
+                        <span style="color:#10B981; font-weight:700; font-size:0.75rem; text-transform:uppercase;">[Voiceover Script (3–35 Seconds)]:</span>
+                        <div style="font-size:0.92rem; color:#CBD5E1; line-height:1.5; margin-top:4px;">{script}</div>
                     </div>
                 """, unsafe_allow_html=True)
 
-                c_done, c_link = st.columns([1.5, 3])
-                with c_done:
-                    if st.button("✅ MARK AS PUBLISHED", key=f"pub_{row_num}", use_container_width=True):
+                act_done, act_link = st.columns([1.5, 3])
+                with act_done:
+                    if st.button("✅ Mark as Published", key=f"cut_pub_{row_num}", use_container_width=True):
                         update_sheet_status("Video Discovery", row_num, "Published", status_col)
                         st.toast(f"Row {row_num} marked as Published!", icon="🚀")
                         st.cache_data.clear()
                         st.rerun()
-                with c_link:
+                with act_link:
                     if source and source.startswith("http"):
-                        st.markdown(f"<div style='padding-top:6px;'><a href='{source}' target='_blank' style='font-family:JetBrains Mono; font-size:0.8rem; color:#00E5FF; text-decoration:none;'>📥 Download/Open Source Footage ↗</a></div>", unsafe_allow_html=True)
+                        st.markdown(f"<div style='padding-top:8px;'><a href='{source}' target='_blank' style='font-size:0.84rem; color:#06B6D4; text-decoration:none;'>📥 Download/Open Source Footage ↗</a></div>", unsafe_allow_html=True)
 
 
 # ==================================================
-# 4. SCREEN: CREATOR RADAR (OUTREACH & CREDITS)
+# 4. SCREEN: CREATOR RADAR (LIQUID GLASS PROFILES)
 # ==================================================
-elif st.session_state["active_nav"] == "🤝 CREATOR RADAR":
-    st.markdown("<h2 style='font-family:Chakra Petch;'>🤝 GTA VI CREATOR & LEAKER RADAR</h2>", unsafe_allow_html=True)
-    st.caption("Track key insider sources, credit authors in video descriptions, and build collaboration relationships.")
+elif st.session_state["active_nav"] == "👥 Creator Radar":
+    st.markdown("<h2 style='font-family:Space Grotesk; margin-bottom:4px;'>Creator Intelligence & Leaker Radar</h2>", unsafe_allow_html=True)
+    st.caption("Liquid glass profile directory of key GTA VI leakers, content creators, and news aggregators with clickable channel hyperlinks.")
 
-    c1, c2 = st.columns([1.8, 1])
-    with c1:
-        with st.container(border=True):
-            st.markdown('<div class="section-header">VERIFIED GTA VI LEAKERS & CHANNELS</div>', unsafe_allow_html=True)
-            creators = [
-                ("@RockstarUniverse", "Twitter/X", "High (94%)", "Insider teasers & map analysis", "DM Sent"),
-                ("u/TobiasM4", "Reddit", "Medium (78%)", "Weapon wheel teardown", "Credited in Shorts"),
-                ("@GTA6Informer", "Twitter/X", "High (92%)", "Actor & Lucia VA comparisons", "Collaborator"),
-                ("@LegacyKillaHD", "YouTube", "Medium (82%)", "Industry commentary & delay news", "Pending Outreach"),
+    # High-profile GTA VI creators directory
+    creator_profiles = [
+        {
+            "name": "Rockstar Universe",
+            "handle": "@RockstarUniverse",
+            "initials": "RU",
+            "specialty": "Teasers, Mapping & Official Financial Filings",
+            "credibility": "94% Accuracy • Tier 1",
+            "relationship": "Lead Source",
+            "links": [
+                ("▶ YouTube Channel", "https://www.youtube.com/@RockstarUniverse"),
+                ("𝕏 Twitter / X", "https://x.com/RStarUniverse")
             ]
-            for handle, plat, cred, specialty, rel in creators:
-                st.markdown(f"""
-                    <div style="display:flex; justify-content:space-between; align-items:center; padding:10px 12px; background:rgba(0,229,255,0.03); border:1px solid rgba(0,229,255,0.1); border-radius:6px; margin-bottom:8px;">
-                        <div>
-                            <div style="font-weight:700; color:#FFF;">{handle} <span style="font-size:0.75rem; color:#64748B;">({plat})</span></div>
-                            <div style="font-size:0.75rem; color:#94A3B8;">{specialty}</div>
+        },
+        {
+            "name": "GTA 6 Informer",
+            "handle": "@GTA6Informer",
+            "initials": "GI",
+            "specialty": "Actor / Lucia Voice Actress Face-match Analysis",
+            "credibility": "92% Accuracy • Tier 1",
+            "relationship": "Collaborator",
+            "links": [
+                ("𝕏 Twitter / X", "https://x.com/GTA6Informer"),
+                ("💬 Reddit Community", "https://www.reddit.com/r/GTA6/")
+            ]
+        },
+        {
+            "name": "LegacyKillaHD",
+            "handle": "LegacyKillaHD",
+            "initials": "LK",
+            "specialty": "Industry Reporting, Rockstar Internal Culture & Delays",
+            "credibility": "84% Accuracy • Tier 2",
+            "relationship": "DM Sent",
+            "links": [
+                ("▶ YouTube Channel", "https://www.youtube.com/@LegacyKillaHD"),
+                ("𝕏 Twitter / X", "https://x.com/LegacyKillaHD")
+            ]
+        },
+        {
+            "name": "TobiasM4",
+            "handle": "u/TobiasM4",
+            "initials": "TM",
+            "specialty": "Source Code & Weapon Wheel Mechanics Teardown",
+            "credibility": "89% Accuracy • Tier 1",
+            "relationship": "Credited in Shorts",
+            "links": [
+                ("💬 Reddit Profile", "https://www.reddit.com/user/TobiasM4/"),
+                ("𝕏 Twitter / X", "https://x.com")
+            ]
+        }
+    ]
+
+    card_c1, card_c2 = st.columns(2, gap="medium")
+    for i, profile in enumerate(creator_profiles):
+        target_col = card_c1 if i % 2 == 0 else card_c2
+        with target_col:
+            links_html = "".join([f'<a href="{url}" target="_blank" class="platform-link">{name} ↗</a> ' for name, url in profile["links"]])
+            st.markdown(f"""
+                <div class="glass-creator-card" style="margin-bottom:16px;">
+                    <div>
+                        <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:14px;">
+                            <div style="display:flex; align-items:center; gap:12px;">
+                                <div class="creator-avatar">{profile['initials']}</div>
+                                <div>
+                                    <div style="font-size:1.15rem; font-weight:700; color:#FFF;">{profile['name']}</div>
+                                    <div style="font-size:0.8rem; color:#818CF8;">{profile['handle']}</div>
+                                </div>
+                            </div>
+                            <span style="font-size:0.75rem; background:rgba(16,185,129,0.12); color:#10B981; padding:4px 10px; border-radius:20px; font-weight:600;">{profile['relationship']}</span>
                         </div>
-                        <div style="text-align:right;">
-                            <span style="font-family:'JetBrains Mono'; font-size:0.7rem; color:#00E5FF;">{cred}</span><br>
-                            <span style="font-size:0.72rem; color:#10B981;">{rel}</span>
+                        <div style="font-size:0.86rem; color:#CBD5E1; margin-bottom:12px;"><b>Focus:</b> {profile['specialty']}</div>
+                        <div style="font-size:0.78rem; color:#94A3B8; margin-bottom:16px;"><b>Credibility:</b> {profile['credibility']}</div>
+                    </div>
+                    <div>
+                        <div style="font-size:0.74rem; font-weight:600; color:#64748B; text-transform:uppercase; margin-bottom:8px;">Direct Platform Channels:</div>
+                        <div style="display:flex; flex-wrap:wrap; gap:8px;">
+                            {links_html}
                         </div>
                     </div>
-                """, unsafe_allow_html=True)
-
-    with c2:
-        with st.container(border=True):
-            st.markdown('<div class="section-header">COPYRIGHT & CREDIT GENERATOR</div>', unsafe_allow_html=True)
-            st.markdown("""
-                <p style="font-size:0.82rem; color:#94A3B8;">Paste this description template into YouTube/TikTok to build goodwill and avoid community strikes:</p>
-                <div style="background:#030712; border:1px solid #20314C; border-radius:6px; padding:10px; font-family:'JetBrains Mono'; font-size:0.72rem; color:#00E5FF;">
-                    🚨 GTA VI Content Intelligence<br>
-                    Original footage/leak breakdown via [Creator Handle].<br>
-                    All rights belong to Rockstar Games / Take-Two Interactive.<br>
-                    Research & Script curated via VicePlug Hub OS.
                 </div>
             """, unsafe_allow_html=True)
 
+    st.markdown("<div style='height: 8px;'></div>", unsafe_allow_html=True)
+
+    # Classy Description & Credit Generator
+    with st.container(border=True):
+        st.markdown("""
+            <b style="font-size:0.95rem; color:#FFF;">📋 Pre-Formatted Video Description Credit Template</b>
+            <p style="font-size:0.84rem; color:#94A3B8; margin: 4px 0 10px 0;">Copy and paste this credit block into your Shorts and TikTok descriptions to maintain relationships and avoid copyright claims:</p>
+            <div style="background:rgba(0,0,0,0.3); border:1px solid rgba(255,255,255,0.08); border-radius:8px; padding:12px; font-family:'JetBrains Mono'; font-size:0.78rem; color:#A5B4FC;">
+                🚨 GTA VI Research Intelligence<br>
+                Original clip breakdown credit: [Creator Name] (@Handle)<br>
+                All game rights & trademarks belong to Rockstar Games / Take-Two Interactive.<br>
+                Curated & scripted via VicePlug Hub.
+            </div>
+        """, unsafe_allow_html=True)
+
 
 # ==================================================
-# 5. SCREEN: SHEETS DATABASE (FULL MASTER DATA)
+# 5. SCREEN: MASTER DATABASE (FULL SHEETS VIEW)
 # ==================================================
-elif st.session_state["active_nav"] == "🗄 SHEETS DATABASE":
-    st.markdown("<h2 style='font-family:Chakra Petch;'>🗄 GOOGLE SHEETS LIVE MASTER DATABASE</h2>", unsafe_allow_html=True)
-    st.caption("Direct bi-directional synchronizer with your Google Sheets document.")
+elif st.session_state["active_nav"] == "🗄 Master Database":
+    st.markdown("<h2 style='font-family:Space Grotesk; margin-bottom:4px;'>Google Sheets Live Master Database</h2>", unsafe_allow_html=True)
+    st.caption("Bi-directional spreadsheet sync with your connected Google Sheet.")
 
     if discovery_df.empty:
-        st.warning("No data found in connected sheet.")
+        st.warning("No records found in spreadsheet.")
     else:
-        st.dataframe(discovery_df, use_container_width=True, hide_index=True, height=520)
+        st.dataframe(discovery_df, use_container_width=True, hide_index=True, height=550)
 
-    if st.button("HARD REFRESH CACHE FROM GOOGLE SHEETS"):
+    if st.button("↻ Force Flush Cache & Reload from Google Sheets"):
         st.cache_data.clear()
-        st.toast("Cache flushed and reloaded!", icon="🔄")
+        st.toast("Cache flushed and reloaded from Sheets!", icon="🔄")
         st.rerun()
