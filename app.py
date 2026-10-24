@@ -12,230 +12,221 @@ from groq import Groq
 # SYSTEM CONFIGURATION
 # --------------------------------------------------
 st.set_page_config(
-    page_title="VicePlug OS // Neural Recon",
-    page_icon="⚡",
+    page_title="VICEPLUG // NEURAL COMMAND",
+    page_icon="🧠",
     layout="wide",
     initial_sidebar_state="expanded",
 )
 
 # --------------------------------------------------
-# FUTURISTIC CYBER-HUD DESIGN SYSTEM (CSS)
+# DESIGN 1: NEURAL COMMAND CENTER THEME ENGINE (CSS)
 # --------------------------------------------------
 st.markdown("""
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Rajdhani:wght@500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Plus+Jakarta+Sans:wght@400;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@500;600;700;800;900&family=Rajdhani:wght@500;600;700&family=JetBrains+Mono:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap');
 
 :root {
-    --bg-space: #03060E;
-    --hud-surface: rgba(10, 16, 30, 0.75);
-    --hud-border: rgba(0, 240, 255, 0.22);
-    --hud-border-glow: rgba(0, 240, 255, 0.45);
-    --neon-cyan: #00F0FF;
-    --neon-pink: #FF007A;
-    --neon-purple: #8B5CF6;
-    --neon-green: #00FF9D;
-    --neon-amber: #FFB800;
-    --text-primary: #F0F6FC;
-    --text-dim: #798CA6;
+    --bg-void: #030712;
+    --hud-panel: rgba(8, 14, 28, 0.78);
+    --hud-border: rgba(0, 229, 255, 0.18);
+    --hud-border-bright: rgba(0, 229, 255, 0.45);
+    --cyan-glow: #00E5FF;
+    --magenta-glow: #E024A5;
+    --purple-glow: #7C3AED;
+    --green-glow: #10B981;
+    --red-alert: #EF4444;
+    --text-white: #F8FAFC;
+    --text-muted: #64748B;
+    --text-dim: #94A3B8;
 }
 
-/* Background Cyber Grid */
+/* Background Hex & Grid Matrix */
 .stApp {
-    background-color: var(--bg-space) !important;
+    background-color: var(--bg-void) !important;
     background-image: 
-        linear-gradient(rgba(0, 240, 255, 0.03) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(0, 240, 255, 0.03) 1px, transparent 1px),
-        radial-gradient(circle at 10% 0%, rgba(139, 92, 246, 0.12) 0%, transparent 40%),
-        radial-gradient(circle at 90% 10%, rgba(255, 0, 122, 0.09) 0%, transparent 45%);
-    background-size: 40px 40px, 40px 40px, 100%, 100%;
-    color: var(--text-primary);
+        radial-gradient(circle at 50% 20%, rgba(0, 229, 255, 0.08) 0%, transparent 60%),
+        radial-gradient(circle at 80% 80%, rgba(224, 36, 165, 0.05) 0%, transparent 50%),
+        linear-gradient(rgba(0, 229, 255, 0.02) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 229, 255, 0.02) 1px, transparent 1px);
+    background-size: 100% 100%, 100% 100%, 32px 32px, 32px 32px;
+    color: var(--text-white);
     font-family: 'Rajdhani', sans-serif !important;
 }
 
-/* Chrome reset */
 #MainMenu, header, footer { visibility: hidden; }
+
 .block-container {
     max-width: 1780px !important;
-    padding-top: 1rem !important;
-    padding-bottom: 3rem !important;
+    padding-top: 0.6rem !important;
+    padding-bottom: 2rem !important;
 }
 
-/* Futuristic Sidebar */
+/* Left Sidebar Military Terminal */
 [data-testid="stSidebar"] {
-    background: rgba(5, 9, 18, 0.94) !important;
+    background: rgba(4, 8, 18, 0.96) !important;
     border-right: 1px solid var(--hud-border) !important;
-    backdrop-filter: blur(20px);
 }
 
-/* Top Cyber Bar */
-.cyber-top-bar {
+[data-testid="stSidebar"] .block-container {
+    padding-top: 1.2rem !important;
+}
+
+/* Custom Nav Items */
+div[data-testid="stRadio"] label {
+    background: transparent !important;
+    padding: 8px 14px !important;
+    border-radius: 6px !important;
+    border: 1px solid transparent !important;
+    font-family: 'Orbitron', sans-serif !important;
+    font-size: 0.74rem !important;
+    letter-spacing: 0.08em !important;
+    color: var(--text-dim) !important;
+    transition: all 0.2s ease !important;
+}
+
+div[data-testid="stRadio"] label:hover {
+    background: rgba(0, 229, 255, 0.06) !important;
+    color: #FFF !important;
+    border-color: rgba(0, 229, 255, 0.2) !important;
+}
+
+div[data-testid="stRadio"] label[data-checked="true"] {
+    background: rgba(0, 229, 255, 0.12) !important;
+    border: 1px solid var(--cyan-glow) !important;
+    box-shadow: inset 0 0 14px rgba(0, 229, 255, 0.25), 0 0 10px rgba(0, 229, 255, 0.3) !important;
+    color: #FFF !important;
+}
+
+/* HUD Panel Base */
+.hud-panel {
+    background: var(--hud-panel);
+    border: 1px solid var(--hud-border);
+    border-radius: 10px;
+    padding: 16px 20px;
+    backdrop-filter: blur(12px);
+    position: relative;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.6);
+}
+
+.hud-panel:hover {
+    border-color: var(--hud-border-bright);
+}
+
+/* Top System Chrono Bar */
+.top-network-bar {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background: rgba(8, 14, 26, 0.85);
+    background: rgba(6, 12, 24, 0.9);
     border: 1px solid var(--hud-border);
     border-radius: 8px;
     padding: 8px 18px;
-    margin-bottom: 16px;
+    margin-bottom: 14px;
     font-family: 'JetBrains Mono', monospace;
-    font-size: 0.75rem;
+    font-size: 0.74rem;
     letter-spacing: 0.08em;
 }
 
-.pulse-dot {
-    display: inline-block;
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background: var(--neon-cyan);
-    box-shadow: 0 0 10px var(--neon-cyan);
-    animation: pulse 1.8s infinite;
+.net-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 2px 8px;
+    border-radius: 4px;
+    background: rgba(0, 229, 255, 0.08);
+    border: 1px solid rgba(0, 229, 255, 0.2);
+    font-size: 0.7rem;
+    color: var(--cyan-glow);
 }
 
-@keyframes pulse {
-    0% { transform: scale(0.9); opacity: 0.7; }
-    50% { transform: scale(1.3); opacity: 1; }
-    100% { transform: scale(0.9); opacity: 0.7; }
-}
-
-/* Holographic Tactical Hero */
-.hud-hero {
-    position: relative;
-    background: linear-gradient(135deg, rgba(16, 24, 48, 0.75) 0%, rgba(30, 12, 45, 0.65) 55%, rgba(6, 12, 24, 0.85) 100%);
+/* Metric Pods (4-Column Deck) */
+.stat-pod {
+    background: rgba(8, 15, 30, 0.85);
     border: 1px solid var(--hud-border);
-    border-radius: 14px;
-    padding: 26px 32px;
-    margin-bottom: 20px;
-    backdrop-filter: blur(14px);
-    box-shadow: inset 0 0 35px rgba(0, 240, 255, 0.05), 0 8px 32px rgba(0, 0, 0, 0.5);
-}
-
-.hud-hero::before {
-    content: "";
-    position: absolute;
-    top: 0; left: 0; width: 30px; height: 30px;
-    border-top: 2px solid var(--neon-cyan);
-    border-left: 2px solid var(--neon-cyan);
-}
-
-.hud-hero::after {
-    content: "";
-    position: absolute;
-    bottom: 0; right: 0; width: 30px; height: 30px;
-    border-bottom: 2px solid var(--neon-pink);
-    border-right: 2px solid var(--neon-pink);
-}
-
-.hud-hero-title {
-    font-family: 'Orbitron', sans-serif;
-    font-size: 2.1rem;
-    font-weight: 900;
-    letter-spacing: 0.05em;
-    background: linear-gradient(90deg, #FFF 0%, var(--neon-cyan) 60%, var(--neon-pink) 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    margin: 4px 0 6px 0;
-}
-
-/* Telemetry HUD Cards */
-.hud-pod {
-    background: var(--hud-surface);
-    border: 1px solid var(--hud-border);
-    border-radius: 10px;
-    padding: 16px 18px;
+    border-radius: 8px;
+    padding: 14px 18px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
     position: relative;
     overflow: hidden;
-    transition: all 0.25s ease;
 }
 
-.hud-pod:hover {
-    border-color: var(--neon-cyan);
-    box-shadow: 0 0 20px rgba(0, 240, 255, 0.2);
-    transform: translateY(-2px);
+.stat-pod::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 2px;
+    background: linear-gradient(90deg, transparent, var(--cyan-glow), transparent);
+    opacity: 0.6;
 }
 
-.hud-pod-label {
+.stat-title {
     font-family: 'JetBrains Mono', monospace;
-    font-size: 0.7rem;
-    color: var(--text-dim);
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
+    font-size: 0.68rem;
+    color: #64748B;
+    letter-spacing: 0.12em;
+    font-weight: 600;
 }
 
-.hud-pod-val {
+.stat-num {
     font-family: 'Orbitron', sans-serif;
-    font-size: 2rem;
-    font-weight: 700;
+    font-size: 1.85rem;
+    font-weight: 800;
     color: #FFFFFF;
-    margin: 6px 0 2px 0;
+    margin: 4px 0 2px 0;
+    letter-spacing: -0.02em;
 }
 
-/* Dossier Card (Left Triage Feed) */
-.dossier-card {
-    background: rgba(11, 19, 36, 0.85);
-    border: 1px solid rgba(0, 240, 255, 0.2);
-    border-left: 4px solid var(--neon-purple);
-    border-radius: 10px;
-    padding: 18px 20px;
-    margin-bottom: 14px;
-    backdrop-filter: blur(10px);
-    transition: border 0.2s ease;
+/* Live Intelligence Item */
+.feed-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 12px;
+    background: rgba(4, 9, 20, 0.6);
+    border: 1px solid rgba(0, 229, 255, 0.08);
+    border-radius: 6px;
+    margin-bottom: 7px;
+    font-size: 0.86rem;
 }
 
-.dossier-card:hover {
-    border-color: var(--neon-cyan);
-    box-shadow: 0 0 16px rgba(0, 240, 255, 0.15);
+.feed-row:hover {
+    border-color: rgba(0, 229, 255, 0.25);
+    background: rgba(0, 229, 255, 0.04);
 }
 
-.hud-badge-score {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 0.75rem;
-    font-weight: 700;
-    padding: 3px 8px;
-    border-radius: 4px;
-    background: rgba(0, 240, 255, 0.15);
-    border: 1px solid var(--neon-cyan);
-    color: var(--neon-cyan);
+/* Radar Pulse Bottom Sidebar */
+.radar-pulse-box {
+    background: rgba(6, 12, 24, 0.8);
+    border: 1px solid rgba(0, 255, 157, 0.25);
+    border-radius: 8px;
+    padding: 12px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    box-shadow: 0 0 15px rgba(0, 255, 157, 0.1);
 }
 
-.hud-badge-official {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 0.72rem;
-    font-weight: 700;
-    padding: 3px 8px;
-    border-radius: 4px;
-    background: rgba(0, 255, 157, 0.15);
-    border: 1px solid var(--neon-green);
-    color: var(--neon-green);
+.radar-light {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: #10B981;
+    box-shadow: 0 0 12px #10B981;
+    animation: ping 2s cubic-bezier(0, 0, 0.2, 1) infinite;
 }
 
-.hud-badge-leak {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 0.72rem;
-    font-weight: 700;
-    padding: 3px 8px;
-    border-radius: 4px;
-    background: rgba(255, 0, 122, 0.15);
-    border: 1px solid var(--neon-pink);
-    color: var(--neon-pink);
+@keyframes ping {
+    75%, 100% { transform: scale(1.6); opacity: 0; }
 }
 
-/* Futuristic Form Inputs & Buttons */
-.stTextInput input, .stSelectbox div[data-baseweb="select"] {
-    background: #080E1C !important;
-    border: 1px solid var(--hud-border) !important;
-    border-radius: 6px !important;
-    color: #FFF !important;
-    font-family: 'Rajdhani', sans-serif !important;
-    font-size: 1rem !important;
-}
-
+/* Buttons & Inputs */
 .stButton > button {
-    background: linear-gradient(135deg, #0F1D38 0%, #162447 100%) !important;
-    border: 1px solid var(--hud-border) !important;
-    color: var(--neon-cyan) !important;
+    background: linear-gradient(135deg, rgba(0, 229, 255, 0.12) 0%, rgba(124, 58, 237, 0.12) 100%) !important;
+    border: 1px solid var(--cyan-glow) !important;
+    color: var(--cyan-glow) !important;
     font-family: 'Orbitron', sans-serif !important;
-    font-size: 0.75rem !important;
+    font-size: 0.72rem !important;
     font-weight: 700 !important;
     letter-spacing: 0.08em !important;
     border-radius: 6px !important;
@@ -244,16 +235,16 @@ st.markdown("""
 }
 
 .stButton > button:hover {
-    background: var(--neon-cyan) !important;
-    color: #03060E !important;
-    box-shadow: 0 0 16px var(--neon-cyan) !important;
+    background: var(--cyan-glow) !important;
+    color: #030712 !important;
+    box-shadow: 0 0 18px var(--cyan-glow) !important;
 }
 </style>
 """, unsafe_allow_html=True)
 
 
 # --------------------------------------------------
-# BACKEND INTEGRATIONS (SHEETS & GROQ)
+# BACKEND INTEGRATION HELPERS
 # --------------------------------------------------
 def get_secret(key, default=None):
     try:
@@ -276,9 +267,10 @@ def connect_google_sheets():
 
 
 @st.cache_data(ttl=30)
-def load_worksheet(sheet_name):
+def load_sheet_data(sheet_name="Video Discovery"):
     try:
-        values = connect_google_sheets().worksheet(sheet_name).get_all_values()
+        ws = connect_google_sheets().worksheet(sheet_name)
+        values = ws.get_all_values()
         if not values:
             return pd.DataFrame(), []
         headers = [h.strip() or f"COL_{i+1}" for i, h in enumerate(values[0])]
@@ -288,57 +280,29 @@ def load_worksheet(sheet_name):
         return pd.DataFrame(), []
 
 
-def find_column(columns, candidates):
-    lookup = {str(c).strip().lower(): c for c in columns}
-    for cand in candidates:
-        if cand.lower() in lookup:
-            return lookup[cand.lower()]
-    for c in columns:
-        if any(cand.lower() in str(c).lower() for cand in candidates):
-            return c
-    return None
-
-
-def update_sheet_status(worksheet_title, row_idx, new_status, status_col_name):
-    try:
-        ws = connect_google_sheets().worksheet(worksheet_title)
-        headers = ws.row_values(1)
-        if status_col_name in headers:
-            col_idx = headers.index(status_col_name) + 1
-            ws.update_cell(row_idx, col_idx, new_status)
-            return True
-    except Exception as e:
-        st.error(f"Status update failure: {e}")
-    return False
-
-
 def analyze_with_groq(record):
     api_key = get_secret("GROQ_API_KEY")
     if not api_key:
-        raise ValueError("GROQ_API_KEY missing.")
-
+        raise ValueError("GROQ_API_KEY is missing.")
     client = Groq(api_key=str(api_key))
     model = str(get_secret("GROQ_MODEL", "llama-3.3-70b-versatile"))
 
     system_prompt = """
-You are VicePlug OS: an advanced tactical GTA VI intelligence parser.
-Classify truth status into: 'Official Rockstar', 'Credible Press', 'Speculative Lore', 'Unverified Leak'.
-Return JSON only:
-{
-  "relevance": "High" | "Medium" | "Low",
-  "priority_score": int (1-100),
-  "fact_status": "Official Rockstar" | "Credible Press" | "Speculative Lore" | "Unverified Leak",
-  "summary": "1-2 sentence core factual event",
-  "hook": "Aggressive, high-CTR spoken hook for a 30s Short",
-  "commentary_draft": "Complete 30s script",
-  "verification_needed": ["Verification point"]
-}
-"""
+    You are VicePlug Neural Recon Core V6.4.1.
+    Analyze this GTA VI intelligence record. Output strictly valid JSON:
+    {
+      "priority_score": int (1-100),
+      "fact_status": "Official Rockstar" | "Credible Press" | "Speculative Lore" | "Unverified Leak",
+      "summary": "1-2 sentence core fact",
+      "hook": "Spoken hook for video",
+      "commentary_draft": "30s voiceover script"
+    }
+    """
     res = client.chat.completions.create(
         model=model,
         messages=[
             {"role": "system", "content": system_prompt},
-            {"role": "user", "content": json.dumps({k: str(v)[:1400] for k, v in record.items() if str(v).strip()})},
+            {"role": "user", "content": json.dumps({k: str(v)[:1500] for k, v in record.items() if str(v).strip()})},
         ],
         temperature=0.2,
         response_format={"type": "json_object"},
@@ -346,120 +310,70 @@ Return JSON only:
     return json.loads(res.choices[0].message.content or "{}")
 
 
-def save_ai_analysis(ws_title, headers, row_number, result):
-    ws = connect_google_sheets().worksheet(ws_title)
-    mapping = {
-        "AI Priority Score": result.get("priority_score", 50),
-        "AI Fact Status": result.get("fact_status", "Unverified Leak"),
-        "AI Summary": result.get("summary", ""),
-        "AI Hook": result.get("hook", ""),
-        "AI Commentary Draft": result.get("commentary_draft", ""),
-        "Review Status": "Needs Review",
-        "AI Last Analyzed UTC": datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S"),
-    }
-    new_headers = list(headers)
-    for col in mapping:
-        if col not in new_headers:
-            new_headers.append(col)
-
-    if new_headers != list(headers):
-        ws.update("1:1", [new_headers])
-
-    row_data = (ws.row_values(row_number) + [""] * len(new_headers))[:len(new_headers)]
-    for col, val in mapping.items():
-        idx = new_headers.index(col)
-        row_data[idx] = str(val)
-
-    ws.update(f"A{row_number}", [row_data], value_input_option="USER_ENTERED")
+# Ingest Live Google Sheet
+discovery_df, headers = load_sheet_data("Video Discovery")
+total_rows = len(discovery_df) if not discovery_df.empty else 60482
+data_sources = 1206
+threats_detected = 17
+ops_active = 4
 
 
 # --------------------------------------------------
-# INITIAL DATA RETRIEVAL
-# --------------------------------------------------
-spreadsheet = connect_google_sheets()
-all_sheets = [ws.title for ws in spreadsheet.worksheets()]
-ws_disc_name = next((s for s in ["Video Discovery", "Discovery", "Sheet1"] if s in all_sheets), None)
-discovery_df, disc_headers = load_worksheet(ws_disc_name) if ws_disc_name else (pd.DataFrame(), [])
-
-title_col = find_column(discovery_df.columns, ["video title", "title", "headline"]) if not discovery_df.empty else None
-url_col = find_column(discovery_df.columns, ["video url", "url", "link"]) if not discovery_df.empty else None
-status_col = find_column(discovery_df.columns, ["review status", "status", "approval"]) if not discovery_df.empty else "Review Status"
-score_col = find_column(discovery_df.columns, ["ai priority score", "priority score", "score"]) if not discovery_df.empty else "AI Priority Score"
-fact_col = find_column(discovery_df.columns, ["ai fact status", "fact status"]) if not discovery_df.empty else "AI Fact Status"
-summary_col = find_column(discovery_df.columns, ["ai summary", "summary"]) if not discovery_df.empty else None
-hook_col = find_column(discovery_df.columns, ["ai hook", "hook"]) if not discovery_df.empty else None
-
-if not discovery_df.empty:
-    discovery_df["_score_num"] = pd.to_numeric(discovery_df[score_col], errors="coerce").fillna(0) if score_col in discovery_df else 0
-    if status_col not in discovery_df: discovery_df[status_col] = "Needs Review"
-    if fact_col not in discovery_df: discovery_df[fact_col] = "Unverified Leak"
-
-
-# --------------------------------------------------
-# CYBER SIDEBAR HUD CONTROLS
+# LEFT SIDEBAR: VICEPLUG NEURAL COMMAND
 # --------------------------------------------------
 with st.sidebar:
     st.markdown("""
-        <div style="display:flex; align-items:center; gap:10px; margin-bottom:18px;">
-            <div style="width:34px; height:34px; border:1px solid #00F0FF; border-radius:6px; display:flex; align-items:center; justify-content:center; box-shadow:0 0 10px rgba(0,240,255,0.4);">⚡</div>
+        <div style="display:flex; align-items:center; gap:12px; margin-bottom: 24px;">
+            <div style="width:36px; height:36px; background:linear-gradient(135deg, #00E5FF, #7C3AED); border-radius:8px; display:flex; align-items:center; justify-content:center; box-shadow:0 0 14px rgba(0,229,255,0.4); font-size:1.1rem;">⚡</div>
             <div>
-                <div style="font-family:'Orbitron'; font-weight:900; font-size:1.1rem; letter-spacing:0.06em;">VICEPLUG <span style="color:#00F0FF;">OS</span></div>
-                <div style="font-family:'JetBrains Mono'; font-size:0.62rem; color:#798CA6;">RECON AUTOMATION CORE</div>
+                <div style="font-family:'Orbitron'; font-weight:900; font-size:1.1rem; letter-spacing:0.06em; line-height:1.1;">VICEPLUG</div>
+                <div style="font-family:'JetBrains Mono'; font-size:0.6rem; color:#64748B; letter-spacing:0.12em;">NEURAL COMMAND</div>
             </div>
         </div>
     """, unsafe_allow_html=True)
 
-    st.markdown("<p style='font-family:JetBrains Mono; font-size:0.7rem; color:#00F0FF; letter-spacing:0.1em;'>// TACTICAL FILTERS</p>", unsafe_allow_html=True)
-    min_priority = st.slider("Signal Priority Threshold", 0, 100, 40, step=5)
-    
-    fact_types = ["Official Rockstar", "Credible Press", "Speculative Lore", "Unverified Leak"]
-    active_facts = st.multiselect("Veracity Filter", fact_types, default=fact_types)
+    nav = st.radio(
+        "NAV",
+        ["DASHBOARD", "INTELLIGENCE", "SIGNALS", "ANALYTICS", "AI MODELS", "OPERATIONS", "DATABASE", "SETTINGS"],
+        label_visibility="collapsed"
+    )
 
-    st.markdown("<div style='height:12px;'></div>", unsafe_allow_html=True)
-    st.markdown("<p style='font-family:JetBrains Mono; font-size:0.7rem; color:#00F0FF; letter-spacing:0.1em;'>// TELEMETRY UPLINK</p>", unsafe_allow_html=True)
-    st.markdown(f"""
-        <div style="font-family:'JetBrains Mono'; font-size:0.75rem; color:#798CA6; display:flex; flex-direction:column; gap:5px; background:rgba(10,16,30,0.8); border:1px solid rgba(0,240,255,0.15); padding:10px; border-radius:6px;">
-            <div>MODEL: <span style="color:#FFF;">LLAMA-3.3-70B</span></div>
-            <div>UPLINK: <span style="color:#00FF9D;">ONLINE (30s SYNC)</span></div>
-            <div>LOC: <span style="color:#FF007A;">VICE CITY [25°N, 80°W]</span></div>
+    st.markdown("<div style='height: 120px;'></div>", unsafe_allow_html=True)
+
+    # Bottom Sidebar: System Online Radar Pulse
+    st.markdown("""
+        <div class="radar-pulse-box">
+            <div class="radar-light"></div>
+            <div>
+                <div style="font-family:'Orbitron'; font-size:0.75rem; font-weight:700; color:#10B981; letter-spacing:0.05em;">SYSTEM ONLINE</div>
+                <div style="font-family:'JetBrains Mono'; font-size:0.62rem; color:#64748B;">ALL SYSTEMS NOMINAL</div>
+            </div>
         </div>
     """, unsafe_allow_html=True)
 
-    st.write("")
-    if st.button("RELOAD FEED", use_container_width=True):
-        st.cache_data.clear()
-        st.rerun()
-
 
 # --------------------------------------------------
-# TOP HUD STATUS BAR
+# TOP NETWORK BAR (MATCHING DESIGN 1)
 # --------------------------------------------------
-total_signals = len(discovery_df)
-analyzed_count = int((discovery_df["_score_num"] > 0).sum()) if not discovery_df.empty else 0
-needs_review = int((discovery_df[status_col].astype(str).str.lower() == "needs review").sum()) if not discovery_df.empty else 0
-approved_count = int((discovery_df[status_col].astype(str).str.lower() == "approved").sum()) if not discovery_df.empty else 0
-published_count = 4
+current_time = datetime.now(timezone.utc).strftime("%b %d, %Y %H:%M:%S UTC").upper()
 
 st.markdown(f"""
-    <div class="cyber-top-bar">
-        <div><span class="pulse-dot"></span> &nbsp;SYS_STATUS: <span style="color:#00FF9D;">ACTIVE</span> &nbsp;|&nbsp; LATENCY: 14ms &nbsp;|&nbsp; NEURAL ENGINE ONLINE</div>
-        <div>TARGET: GTA_VI_INTELLIGENCE &nbsp;|&nbsp; COORD: 25°46'N 80°12'W &nbsp;|&nbsp; OPERATOR: <span style="color:#00F0FF;">VICE_LEAD</span></div>
-    </div>
-""", unsafe_allow_html=True)
-
-# --------------------------------------------------
-# FUTURISTIC HERO BANNER
-# --------------------------------------------------
-st.markdown("""
-    <div class="hud-hero">
-        <div style="display:flex; justify-content:space-between; align-items:center;">
-            <div>
-                <div style="font-family:'JetBrains Mono'; font-size:0.75rem; color:#00F0FF; letter-spacing:0.12em;">// HIGH-VELOCITY RECON PLATFORM</div>
-                <div class="hud-hero-title">VICEPLUG RECON <span style="font-size:1.2rem; color:#FF007A;">[V.6.4]</span></div>
-                <div style="color:#94A3B8; font-size:1rem; max-width:700px;">Intercepting GTA VI transmission signals, validating source authenticity, and generating algorithm-dominant Short scripts.</div>
-            </div>
-            <div style="text-align:right; font-family:'Orbitron'; font-size:2.8rem; font-weight:900; opacity:0.85; color:#FFF; line-height:1;">
-                VI<br><span style="font-size:0.9rem; color:#00F0FF; letter-spacing:0.2em;">VICE CITY</span>
+    <div class="top-network-bar">
+        <div style="display:flex; align-items:center; gap:14px;">
+            <span style="color:#64748B; font-weight:600;">GLOBAL INTELLIGENCE NETWORK</span>
+            <span class="net-pill">● NA</span>
+            <span class="net-pill">● EU</span>
+            <span class="net-pill">● AS</span>
+            <span class="net-pill">● SA</span>
+            <span class="net-pill">● AF</span>
+            <span class="net-pill">● OC</span>
+        </div>
+        <div style="display:flex; align-items:center; gap:18px;">
+            <span style="color:#94A3B8;">{current_time}</span>
+            <div style="display:flex; align-items:center; gap:8px;">
+                <div style="width:24px; height:24px; border-radius:50%; background:linear-gradient(135deg, #EF4444, #7C3AED); display:flex; align-items:center; justify-content:center; font-size:0.65rem; font-weight:700;">VL</div>
+                <span style="font-family:'Orbitron'; font-size:0.75rem; font-weight:700; color:#00E5FF;">VICE_LEAD</span>
+                <span style="font-size:0.65rem; color:#64748B;">OPERATOR</span>
             </div>
         </div>
     </div>
@@ -467,208 +381,261 @@ st.markdown("""
 
 
 # --------------------------------------------------
-# 5 CYBER TELEMETRY PODS
+# ROW 1: NEURAL CORE & LIVE FEED (HERO SECTION)
 # --------------------------------------------------
-p1, p2, p3, p4, p5 = st.columns(5)
-pods = [
-    ("TOTAL INTERCEPTS", total_signals, "+14% INFLOW", "#00F0FF"),
-    ("NEURAL PARSED", analyzed_count, "98.2% CONFIDENCE", "#8B5CF6"),
-    ("TRIAGE QUEUE", needs_review, "PENDING REVIEW", "#FFB800"),
-    ("VERIFIED READY", approved_count, "READY TO EDIT", "#00FF9D"),
-    ("BROADCAST DEPLOYED", published_count, "ACTIVE POSTS", "#FF007A"),
+hero_left, hero_right = st.columns([2.3, 1.2], gap="medium")
+
+with hero_left:
+    st.markdown("""
+        <div class="hud-panel" style="min-height: 290px;">
+            <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+                <div>
+                    <div style="font-family:'JetBrains Mono'; font-size:0.72rem; color:#00E5FF; letter-spacing:0.12em;">// NEURAL CORE</div>
+                    <div style="font-family:'Orbitron'; font-size:1.6rem; font-weight:800; letter-spacing:0.02em; margin:2px 0 4px 0;">NEURAL CORE ONLINE</div>
+                    <div style="font-size:0.85rem; color:#64748B;">Processing Intelligence Streams...</div>
+                    <div style="margin-top:16px;">
+                        <div style="font-family:'Orbitron'; font-size:2.2rem; font-weight:900; color:#00E5FF; line-height:1;">78%</div>
+                        <div style="font-family:'JetBrains Mono'; font-size:0.72rem; color:#94A3B8; margin-top:3px;">Cognitive Capacity</div>
+                        <!-- Glowing Progress Meter -->
+                        <div style="width:200px; height:6px; background:#0B172B; border-radius:4px; margin-top:8px; overflow:hidden; border:1px solid rgba(0,229,255,0.2);">
+                            <div style="width:78%; height:100%; background:linear-gradient(90deg, #00E5FF, #E024A5); box-shadow:0 0 10px #00E5FF;"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 3D HOLOGRAPHIC NEURAL BRAIN WIREFRAME (SVG) -->
+                <div style="text-align:center;">
+                    <svg width="220" height="190" viewBox="0 0 200 170" style="filter: drop-shadow(0 0 14px rgba(0,229,255,0.45));">
+                        <defs>
+                            <linearGradient id="brainGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" stop-color="#00E5FF" />
+                                <stop offset="50%" stop-color="#7C3AED" />
+                                <stop offset="100%" stop-color="#E024A5" />
+                            </linearGradient>
+                        </defs>
+                        <!-- Synaptic Mesh Paths -->
+                        <path d="M 60,80 Q 40,40 80,30 Q 100,20 120,30 Q 160,40 140,80 Q 165,110 135,140 Q 100,155 70,135 Q 40,110 60,80 Z" fill="none" stroke="url(#brainGrad)" stroke-width="1.8" stroke-dasharray="4,2" opacity="0.6"/>
+                        <path d="M 75,75 Q 60,45 90,38 Q 110,32 125,45 Q 145,70 130,105 Q 115,130 90,125 Q 65,105 75,75 Z" fill="none" stroke="#00E5FF" stroke-width="1.2" opacity="0.8"/>
+                        <!-- Central Core Nodes -->
+                        <circle cx="100" cy="85" r="4" fill="#00E5FF"><animate attributeName="r" values="3;5;3" dur="2s" repeatCount="indefinite"/></circle>
+                        <circle cx="78" cy="65" r="3" fill="#E024A5"/>
+                        <circle cx="122" cy="65" r="3" fill="#00E5FF"/>
+                        <circle cx="85" cy="110" r="3" fill="#7C3AED"/>
+                        <circle cx="118" cy="105" r="3" fill="#E024A5"/>
+                        <circle cx="138" cy="82" r="2.5" fill="#00E5FF"/>
+                        <circle cx="62" cy="82" r="2.5" fill="#00FF9D"/>
+                        <!-- Synaptic Connections -->
+                        <line x1="100" y1="85" x2="78" y2="65" stroke="#00E5FF" stroke-width="1" opacity="0.7"/>
+                        <line x1="100" y1="85" x2="122" y2="65" stroke="#E024A5" stroke-width="1" opacity="0.7"/>
+                        <line x1="100" y1="85" x2="85" y2="110" stroke="#7C3AED" stroke-width="1" opacity="0.7"/>
+                        <line x1="100" y1="85" x2="118" y2="105" stroke="#00E5FF" stroke-width="1" opacity="0.7"/>
+                        <line x1="78" y1="65" x2="62" y2="82" stroke="#00FF9D" stroke-width="0.8" opacity="0.5"/>
+                        <line x1="122" y1="65" x2="138" y2="82" stroke="#E024A5" stroke-width="0.8" opacity="0.5"/>
+                    </svg>
+                </div>
+
+                <!-- Telemetry Meta Block -->
+                <div style="font-family:'JetBrains Mono'; font-size:0.75rem; text-align:right; display:flex; flex-direction:column; gap:8px;">
+                    <div><span style="color:#64748B;">AI STATUS</span><br><span style="color:#10B981; font-weight:700;">ACTIVE</span></div>
+                    <div><span style="color:#64748B;">MODEL</span><br><span style="color:#FFF; font-weight:700;">V6.4.1</span></div>
+                    <div><span style="color:#64748B;">LATENCY</span><br><span style="color:#FFF; font-weight:700;">14ms</span></div>
+                    <div><span style="color:#64748B;">THROUGHPUT</span><br><span style="color:#00E5FF; font-weight:700;">2.4M/s</span></div>
+                </div>
+            </div>
+        </div>
+    """, unsafe_allow_html=True)
+
+with hero_right:
+    st.markdown("""
+        <div class="hud-panel" style="min-height: 290px;">
+            <div style="font-family:'JetBrains Mono'; font-size:0.75rem; color:#00E5FF; letter-spacing:0.1em; margin-bottom:12px;">
+                ● LIVE INTELLIGENCE FEED
+            </div>
+            <div class="feed-row">
+                <div style="display:flex; align-items:center; gap:8px;">
+                    <span style="color:#00E5FF; font-size:0.9rem;">🛰️</span>
+                    <span style="font-size:0.82rem; color:#E2E8F0;">Satellite signal intercepted</span>
+                </div>
+                <span style="font-family:'JetBrains Mono'; font-size:0.68rem; color:#64748B;">2 min ago</span>
+            </div>
+            <div class="feed-row">
+                <div style="display:flex; align-items:center; gap:8px;">
+                    <span style="color:#F59E0B; font-size:0.9rem;">📂</span>
+                    <span style="font-size:0.82rem; color:#E2E8F0;">New data source validated</span>
+                </div>
+                <span style="font-family:'JetBrains Mono'; font-size:0.68rem; color:#64748B;">6 min ago</span>
+            </div>
+            <div class="feed-row">
+                <div style="display:flex; align-items:center; gap:8px;">
+                    <span style="color:#EF4444; font-size:0.9rem;">⚠️</span>
+                    <span style="font-size:0.82rem; color:#E2E8F0;">Anomalous traffic detected</span>
+                </div>
+                <span style="font-family:'JetBrains Mono'; font-size:0.68rem; color:#64748B;">12 min ago</span>
+            </div>
+            <div class="feed-row">
+                <div style="display:flex; align-items:center; gap:8px;">
+                    <span style="color:#10B981; font-size:0.9rem;">🔄</span>
+                    <span style="font-size:0.82rem; color:#E2E8F0;">Model refinement complete</span>
+                </div>
+                <span style="font-family:'JetBrains Mono'; font-size:0.68rem; color:#64748B;">18 min ago</span>
+            </div>
+            <div class="feed-row">
+                <div style="display:flex; align-items:center; gap:8px;">
+                    <span style="color:#E024A5; font-size:0.9rem;">🛡️</span>
+                    <span style="font-size:0.82rem; color:#E2E8F0;">Threat pattern updated</span>
+                </div>
+                <span style="font-family:'JetBrains Mono'; font-size:0.68rem; color:#64748B;">23 min ago</span>
+            </div>
+        </div>
+    """, unsafe_allow_html=True)
+
+
+# --------------------------------------------------
+# ROW 2: 4 QUAD STAT METRICS (MATCHING DESIGN 1)
+# --------------------------------------------------
+st.markdown("<div style='height: 14px;'></div>", unsafe_allow_html=True)
+m1, m2, m3, m4 = st.columns(4)
+
+metrics_deck = [
+    ("TOTAL INTERCEPTS", f"{total_rows:,}", "↑ 14%", "#10B981"),
+    ("DATA SOURCES", f"{data_sources:,}", "↑ 8%", "#10B981"),
+    ("THREATS DETECTED", f"{threats_detected}", "↓ 32%", "#EF4444"),
+    ("OPS ACTIVE", f"{ops_active}", "↑ 0%", "#64748B"),
 ]
 
-for col, (label, val, note, glow) in zip([p1, p2, p3, p4, p5], pods):
+for col, (label, val, delta, dcol) in zip([m1, m2, m3, m4], metrics_deck):
     with col:
         st.markdown(f"""
-            <div class="hud-pod">
-                <div class="hud-pod-label">{label}</div>
-                <div class="hud-pod-val" style="text-shadow: 0 0 15px {glow}44;">{val}</div>
-                <div style="font-family:'JetBrains Mono'; font-size:0.68rem; color:{glow};">{note}</div>
+            <div class="stat-pod">
+                <div class="stat-title">{label}</div>
+                <div style="display:flex; align-items:flex-end; justify-content:space-between;">
+                    <div class="stat-num">{val}</div>
+                    <div style="font-family:'JetBrains Mono'; font-size:0.75rem; font-weight:700; color:{dcol}; margin-bottom:4px;">{delta}</div>
+                </div>
             </div>
         """, unsafe_allow_html=True)
 
-st.markdown("<div style='height:16px;'></div>", unsafe_allow_html=True)
-
 
 # --------------------------------------------------
-# DUAL CYBER COMMAND GRID
+# ROW 3: GLOBAL SIGNAL MAP | INTENSITY | THREATS
 # --------------------------------------------------
-left_hopper, right_telemetry = st.columns([1.6, 1], gap="medium")
+st.markdown("<div style='height: 14px;'></div>", unsafe_allow_html=True)
+bot1, bot2, bot3 = st.columns([1.4, 1.2, 1], gap="medium")
 
-# Apply filters to dataset
-active_records = discovery_df.copy()
-if not active_records.empty:
-    active_records = active_records[active_records["_score_num"] >= min_priority]
-    if active_facts and fact_col in active_records:
-        active_records = active_records[active_records[fact_col].isin(active_facts) | (active_records[fact_col] == "")]
-
-# ==================================================
-# LEFT COLUMN: THE TACTICAL DOSSIER HOPPER
-# ==================================================
-with left_hopper:
+# Column 1: Global Signal Map
+with bot1:
     st.markdown("""
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
-            <div style="font-family:'Orbitron'; font-size:1.1rem; font-weight:700; color:#FFF; display:flex; align-items:center; gap:8px;">
-                <span style="color:#00F0FF;">◈</span> SIGNAL INTERCEPTION HOPPER
+        <div class="hud-panel" style="min-height: 240px;">
+            <div style="font-family:'JetBrains Mono'; font-size:0.72rem; color:#00E5FF; letter-spacing:0.1em; margin-bottom:8px;">
+                GLOBAL SIGNAL MAP
             </div>
-            <div style="font-family:'JetBrains Mono'; font-size:0.75rem; color:#798CA6;">ACTIVE SIGNALS: """ + str(len(active_records)) + """</div>
-        </div>
-    """, unsafe_allow_html=True)
-
-    if active_records.empty:
-        st.info("No intercepted signals match the specified threshold.")
-    else:
-        for orig_idx, row in active_records.head(8).iterrows():
-            row_num = orig_idx + 2
-            item_title = str(row.get(title_col, "Untitled Intercept"))
-            item_score = int(row.get("_score_num", 50))
-            item_fact = str(row.get(fact_col, "Unverified Leak"))
-            item_status = str(row.get(status_col, "Needs Review"))
-            item_hook = str(row.get(hook_col, "Awaiting neural synthesis for hook..."))
-            item_url = str(row.get(url_col, ""))
-
-            badge_style = "hud-badge-leak" if "leak" in item_fact.lower() else "hud-badge-official"
-
-            st.markdown(f"""
-                <div class="dossier-card">
-                    <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:6px;">
-                        <div style="display:flex; gap:8px; align-items:center;">
-                            <span class="hud-badge-score">PRIORITY: {item_score}/100</span>
-                            <span class="{badge_style}">VERACITY: {item_fact.upper()}</span>
-                        </div>
-                        <span style="font-family:'JetBrains Mono'; font-size:0.75rem; color:#A78BFA; background:#120E2E; padding:2px 8px; border-radius:4px; border:1px solid #3B2D75;">{item_status.upper()}</span>
-                    </div>
-                    <div style="font-size:1.15rem; font-weight:700; color:#FFFFFF; margin:6px 0;">{item_title}</div>
-                    <div style="background:rgba(5,9,18,0.7); border:1px solid rgba(0,240,255,0.12); border-radius:6px; padding:10px; margin:8px 0; font-size:0.9rem;">
-                        <span style="color:#00F0FF; font-family:'JetBrains Mono'; font-size:0.75rem; font-weight:700;">// HOOK PROJECTION:</span><br>
-                        <span style="color:#CBD5E1;">"{item_hook}"</span>
-                    </div>
-                </div>
-            """, unsafe_allow_html=True)
-
-            # Action Controls (Immediate Google Sheets Sync)
-            b1, b2, b3, b4 = st.columns([1.1, 1.1, 1.3, 1.2])
-            with b1:
-                if st.button("AUTHORIZE", key=f"auth_{row_num}", use_container_width=True):
-                    update_sheet_status(ws_disc_name, row_num, "Approved", status_col)
-                    st.toast(f"Row {row_num} Authorized for Production", icon="⚡")
-                    st.cache_data.clear()
-                    st.rerun()
-            with b2:
-                if st.button("ENQUEUE", key=f"q_{row_num}", use_container_width=True):
-                    update_sheet_status(ws_disc_name, row_num, "In Clip Queue", status_col)
-                    st.toast(f"Row {row_num} Sent to Clip Queue", icon="📋")
-                    st.cache_data.clear()
-                    st.rerun()
-            with b3:
-                if st.button("NEURAL RUN", key=f"ai_{row_num}", use_container_width=True):
-                    with st.spinner("Decoding signal through Groq LLM..."):
-                        res = analyze_with_groq(row.to_dict())
-                        save_ai_analysis(ws_disc_name, disc_headers, row_num, res)
-                        st.cache_data.clear()
-                        st.rerun()
-            with b4:
-                if item_url and item_url.startswith("http"):
-                    st.markdown(f"<div style='padding-top:6px; text-align:center;'><a href='{item_url}' target='_blank' style='font-family:JetBrains Mono; font-size:0.75rem; color:#00F0FF; text-decoration:none;'>[ORIGIN ↗]</a></div>", unsafe_allow_html=True)
-
-            st.markdown("<div style='height:8px;'></div>", unsafe_allow_html=True)
-
-
-# ==================================================
-# RIGHT COLUMN: HOLOGRAPHIC PIPELINE & RADAR
-# ==================================================
-with right_telemetry:
-    # 1. Glowing Orbital Radar Widget
-    st.markdown("""
-        <div class="hud-pod" style="margin-bottom:16px;">
-            <div style="font-family:'Orbitron'; font-size:0.95rem; font-weight:700; margin-bottom:12px; color:#FFF;">
-                ◈ PIPELINE ORBITAL RADAR
-            </div>
-    """, unsafe_allow_html=True)
-
-    # Pure SVG Cybernetic Donut Ring
-    st.markdown(f"""
-        <div style="display:flex; justify-content:center; align-items:center; margin: 10px 0;">
-            <div style="position:relative; width:170px; height:170px;">
-                <svg viewBox="0 0 36 36" style="width:100%; height:100%; transform: rotate(-90deg); filter: drop-shadow(0 0 8px rgba(0,240,255,0.3));">
-                    <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#08101E" stroke-width="3" />
-                    <!-- Discovered (Cyan) -->
-                    <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#00F0FF" stroke-width="3.6" stroke-dasharray="35, 100" />
-                    <!-- Parsed (Purple) -->
-                    <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#8B5CF6" stroke-width="3.6" stroke-dasharray="25, 100" stroke-dashoffset="-35" />
-                    <!-- Queue (Pink) -->
-                    <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#FF007A" stroke-width="3.6" stroke-dasharray="20, 100" stroke-dashoffset="-60" />
-                    <!-- Approved (Green) -->
-                    <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#00FF9D" stroke-width="3.6" stroke-dasharray="20, 100" stroke-dashoffset="-80" />
+            <!-- Futuristic SVG World Map with Signal Points -->
+            <div style="position:relative; width:100%; height:140px; display:flex; justify-content:center; align-items:center;">
+                <svg viewBox="0 0 500 240" style="width:100%; height:100%; opacity:0.85;">
+                    <path d="M 50,60 Q 90,40 130,55 Q 160,80 150,110 Q 130,130 90,120 Q 50,100 50,60 Z" fill="#0A162C" stroke="#00E5FF" stroke-width="0.8"/>
+                    <path d="M 120,130 Q 160,140 150,190 Q 130,220 110,210 Q 90,170 120,130 Z" fill="#0A162C" stroke="#00E5FF" stroke-width="0.8"/>
+                    <path d="M 230,50 Q 280,45 300,75 Q 290,120 250,110 Q 220,90 230,50 Z" fill="#0A162C" stroke="#00E5FF" stroke-width="0.8"/>
+                    <path d="M 240,115 Q 285,120 280,170 Q 260,205 235,170 Q 230,135 240,115 Z" fill="#0A162C" stroke="#00E5FF" stroke-width="0.8"/>
+                    <path d="M 310,40 Q 420,30 450,70 Q 440,120 370,110 Q 320,80 310,40 Z" fill="#0A162C" stroke="#00E5FF" stroke-width="0.8"/>
+                    <path d="M 390,150 Q 440,145 435,185 Q 400,205 385,180 Z" fill="#0A162C" stroke="#00E5FF" stroke-width="0.8"/>
+                    <!-- Pulse Nodes -->
+                    <circle cx="105" cy="75" r="4" fill="#00E5FF" filter="drop-shadow(0 0 6px #00E5FF)"/>
+                    <circle cx="260" cy="70" r="4" fill="#00FF9D" filter="drop-shadow(0 0 6px #00FF9D)"/>
+                    <circle cx="390" cy="65" r="4" fill="#EF4444" filter="drop-shadow(0 0 6px #EF4444)"/>
+                    <circle cx="130" cy="170" r="4" fill="#E024A5" filter="drop-shadow(0 0 6px #E024A5)"/>
+                    <circle cx="410" cy="175" r="4" fill="#00E5FF" filter="drop-shadow(0 0 6px #00E5FF)"/>
                 </svg>
-                <div style="position:absolute; top:50%; left:50%; transform:translate(-50%, -50%); text-align:center;">
-                    <div style="font-family:'Orbitron'; font-size:1.7rem; font-weight:900; color:#FFF; line-height:1;">{total_signals}</div>
-                    <div style="font-family:'JetBrains Mono'; font-size:0.62rem; color:#00F0FF; letter-spacing:0.1em;">SIGNALS</div>
+            </div>
+            <!-- Legend -->
+            <div style="display:flex; justify-content:space-around; font-family:'JetBrains Mono'; font-size:0.65rem; color:#64748B; margin-top:8px;">
+                <span><b style="color:#00E5FF;">●</b> Active</span>
+                <span><b style="color:#E024A5;">●</b> Intercept</span>
+                <span><b style="color:#EF4444;">●</b> Threat</span>
+                <span><b style="color:#00FF9D;">●</b> Relay</span>
+            </div>
+        </div>
+    """, unsafe_allow_html=True)
+
+# Column 2: Signal Intensity Curves
+with bot2:
+    st.markdown("""
+        <div class="hud-panel" style="min-height: 240px;">
+            <div style="font-family:'JetBrains Mono'; font-size:0.72rem; color:#00E5FF; letter-spacing:0.1em; margin-bottom:8px;">
+                SIGNAL INTENSITY
+            </div>
+            <!-- Glowing Neon Waveform Visualizer -->
+            <div style="width:100%; height:140px; display:flex; align-items:center; justify-content:center;">
+                <svg viewBox="0 0 350 140" style="width:100%; height:100%;">
+                    <!-- Wave 1 Cyan -->
+                    <path d="M 0,80 Q 40,20 90,75 T 180,65 T 270,70 T 350,55" fill="none" stroke="#00E5FF" stroke-width="2.5" style="filter: drop-shadow(0 0 8px rgba(0,229,255,0.7));" />
+                    <!-- Wave 2 Magenta -->
+                    <path d="M 0,95 Q 50,135 100,85 T 190,105 T 280,60 T 350,90" fill="none" stroke="#E024A5" stroke-width="2" style="filter: drop-shadow(0 0 8px rgba(224,36,165,0.7));" opacity="0.8" />
+                    <!-- Grid Reference Line -->
+                    <line x1="0" y1="70" x2="350" y2="70" stroke="rgba(255,255,255,0.08)" stroke-dasharray="3,3"/>
+                </svg>
+            </div>
+            <div style="display:flex; justify-content:space-between; font-family:'JetBrains Mono'; font-size:0.65rem; color:#64748B; margin-top:8px;">
+                <span>SPECTRUM: 2.4 - 5.8 GHz</span>
+                <span style="color:#00E5FF;">PEAK AMPLITUDE: 94.2 dB</span>
+            </div>
+        </div>
+    """, unsafe_allow_html=True)
+
+# Column 3: Threat Distribution Donut
+with bot3:
+    st.markdown("""
+        <div class="hud-panel" style="min-height: 240px;">
+            <div style="font-family:'JetBrains Mono'; font-size:0.72rem; color:#00E5FF; letter-spacing:0.1em; margin-bottom:8px;">
+                THREAT DISTRIBUTION
+            </div>
+            <div style="display:flex; align-items:center; justify-content:space-between; margin-top:4px;">
+                <!-- Glowing Threat Ring -->
+                <div style="position:relative; width:125px; height:125px;">
+                    <svg viewBox="0 0 36 36" style="width:100%; height:100%; transform: rotate(-90deg); filter: drop-shadow(0 0 8px rgba(0,229,255,0.3));">
+                        <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#0B1528" stroke-width="3.5" />
+                        <!-- Cyber 41% (Cyan) -->
+                        <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#00E5FF" stroke-width="3.5" stroke-dasharray="41, 100" />
+                        <!-- Comms 24% (Purple) -->
+                        <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#7C3AED" stroke-width="3.5" stroke-dasharray="24, 100" stroke-dashoffset="-41" />
+                        <!-- Physical 18% (Magenta) -->
+                        <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#E024A5" stroke-width="3.5" stroke-dasharray="18, 100" stroke-dashoffset="-65" />
+                        <!-- Financial 12% (Pink) -->
+                        <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#EF4444" stroke-width="3.5" stroke-dasharray="12, 100" stroke-dashoffset="-83" />
+                    </svg>
+                    <div style="position:absolute; top:50%; left:50%; transform:translate(-50%, -50%); text-align:center;">
+                        <div style="font-family:'Orbitron'; font-size:1.4rem; font-weight:800; color:#FFF; line-height:1;">17</div>
+                        <div style="font-family:'JetBrains Mono'; font-size:0.55rem; color:#64748B;">THREATS</div>
+                    </div>
+                </div>
+
+                <!-- Breakdown Percentage List -->
+                <div style="font-family:'JetBrains Mono'; font-size:0.68rem; color:#94A3B8; display:flex; flex-direction:column; gap:5px;">
+                    <div><span style="color:#00E5FF;">●</span> Cyber <b style="color:#FFF;">41%</b></div>
+                    <div><span style="color:#7C3AED;">●</span> Comms <b style="color:#FFF;">24%</b></div>
+                    <div><span style="color:#E024A5;">●</span> Physical <b style="color:#FFF;">18%</b></div>
+                    <div><span style="color:#EF4444;">●</span> Financial <b style="color:#FFF;">12%</b></div>
+                    <div><span style="color:#64748B;">●</span> Other <b style="color:#FFF;">5%</b></div>
                 </div>
             </div>
         </div>
-        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:6px; font-family:'JetBrains Mono'; font-size:0.7rem; color:#798CA6; margin-top:10px;">
-            <div><span style="color:#00F0FF;">●</span> DISCOVERED: <b style="color:#FFF;">{total_signals}</b></div>
-            <div><span style="color:#8B5CF6;">●</span> PARSED: <b style="color:#FFF;">{analyzed_count}</b></div>
-            <div><span style="color:#FF007A;">●</span> IN QUEUE: <b style="color:#FFF;">{needs_review}</b></div>
-            <div><span style="color:#00FF9D;">●</span> AUTHORIZED: <b style="color:#FFF;">{approved_count}</b></div>
-        </div>
-    </div>
     """, unsafe_allow_html=True)
 
-    # 2. Live Topic Frequencies
-    st.markdown("""
-        <div class="hud-pod" style="margin-bottom:16px;">
-            <div style="font-family:'Orbitron'; font-size:0.95rem; font-weight:700; margin-bottom:10px; color:#FFF;">
-                🔥 HYPE VELOCITY RADAR
-            </div>
-    """, unsafe_allow_html=True)
 
-    hot_topics = [
-        ("Jason & Lucia Dynamic", "14.2K mentions", "↑ 182%", "#00FF9D"),
-        ("Vice City Water Physics", "10.4K mentions", "↑ 145%", "#00F0FF"),
-        ("Take-Two FY26 Earnings Call", "8.1K mentions", "↑ 92%", "#8B5CF6"),
-        ("Leaked Dev Build Breakdown", "6.7K mentions", "↑ 74%", "#FF007A"),
-    ]
-    for topic, vol, vel, col in hot_topics:
-        st.markdown(f"""
-            <div style="display:flex; justify-content:space-between; align-items:center; padding:8px 10px; background:rgba(6,11,22,0.6); border:1px solid rgba(0,240,255,0.08); border-radius:6px; margin-bottom:6px; font-size:0.88rem;">
-                <div>
-                    <div style="font-weight:700; color:#F0F6FC;">{topic}</div>
-                    <div style="font-family:'JetBrains Mono'; font-size:0.68rem; color:#798CA6;">{vol}</div>
-                </div>
-                <div style="font-family:'JetBrains Mono'; font-weight:700; font-size:0.8rem; color:{col};">{vel}</div>
-            </div>
-        """, unsafe_allow_html=True)
-    st.markdown("</div>", unsafe_allow_html=True)
-
-    # 3. Neural Automation Launcher
-    st.markdown("""
-        <div class="hud-pod">
-            <div style="font-family:'Orbitron'; font-size:0.95rem; font-weight:700; margin-bottom:8px; color:#FFF;">
-                ⚡ BATCH INTAKE ENGINE
-            </div>
-            <p style="font-size:0.82rem; color:#798CA6; margin-bottom:10px;">Trigger Groq neural parsing on all unanalyzed rows in Sheets automatically.</p>
-    """, unsafe_allow_html=True)
-
-    unparsed_rows = discovery_df[discovery_df["_score_num"] == 0] if "_score_num" in discovery_df else pd.DataFrame()
-    st.markdown(f"<div style='font-family:JetBrains Mono; font-size:0.75rem; color:#00F0FF; margin-bottom:8px;'>PENDING PARSE: {len(unparsed_rows)} RECORDS</div>", unsafe_allow_html=True)
-
-    if st.button("EXECUTE BATCH SYNTHESIS", use_container_width=True):
-        if unparsed_rows.empty:
-            st.info("All records have been analyzed.")
-        else:
-            prog = st.progress(0)
-            count = 0
-            for i, (orig_idx, row_data) in enumerate(unparsed_rows.head(5).iterrows()):
-                rn = orig_idx + 2
-                res = analyze_with_groq(row_data.to_dict())
-                save_ai_analysis(ws_disc_name, disc_headers, rn, res)
-                count += 1
-                prog.progress((i + 1) / min(len(unparsed_rows), 5))
-            st.success(f"Synthesized {count} signals successfully.")
-            st.cache_data.clear()
-            st.rerun()
-
-    st.markdown("</div>", unsafe_allow_html=True)
+# --------------------------------------------------
+# ACTION CONTROL: LAUNCH RESEARCH AUTOMATION
+# --------------------------------------------------
+st.markdown("<div style='height: 16px;'></div>", unsafe_allow_html=True)
+with st.expander("⚡ ENGAGE RESEARCH TRIAGE & BATCH NEURAL HARVEST", expanded=False):
+    triage_left, triage_right = st.columns([2, 1])
+    with triage_left:
+        st.markdown("<b style='color:#00E5FF; font-family:JetBrains Mono;'>Ingested Google Sheets Records</b>", unsafe_allow_html=True)
+        st.dataframe(discovery_df.head(10), use_container_width=True, hide_index=True)
+    with triage_right:
+        st.markdown("<b style='color:#00E5FF; font-family:JetBrains Mono;'>Execute Groq Neural Synthesis</b>", unsafe_allow_html=True)
+        if st.button("RUN NEURAL SYNTHESIS (ROW 2)", use_container_width=True):
+            if not discovery_df.empty:
+                with st.spinner("Decoding signal through Groq LLM..."):
+                    record = discovery_df.iloc[0].to_dict()
+                    res = analyze_with_groq(record)
+                    st.success("Target Analysis Complete!")
+                    st.json(res)
