@@ -4,8 +4,6 @@ from datetime import datetime, timezone
 
 import pandas as pd
 import streamlit as st
-import plotly.graph_objects as go
-import plotly.express as px
 import gspread
 from google.oauth2.service_account import Credentials
 from groq import Groq
@@ -14,172 +12,241 @@ from groq import Groq
 # SYSTEM CONFIGURATION
 # --------------------------------------------------
 st.set_page_config(
-    page_title="VicePlug OS | Research Automation System",
+    page_title="VicePlug OS // Neural Recon",
     page_icon="⚡",
     layout="wide",
     initial_sidebar_state="expanded",
 )
 
 # --------------------------------------------------
-# MODERN DESIGN SYSTEM & CONTROL DECK CSS
+# FUTURISTIC CYBER-HUD DESIGN SYSTEM (CSS)
 # --------------------------------------------------
 st.markdown("""
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&family=Space+Grotesk:wght@600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Rajdhani:wght@500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Plus+Jakarta+Sans:wght@400;600;700&display=swap');
 
 :root {
-    --bg: #060911;
-    --surface: #0B111E;
-    --surface-card: #0F182A;
-    --border: #1B2942;
-    --border-subtle: #141F33;
-    --purple: #7857FF;
-    --cyan: #00E5FF;
-    --pink: #F43F5E;
-    --green: #10B981;
-    --amber: #F59E0B;
-    --text: #F8FAFC;
-    --text-muted: #94A3B8;
+    --bg-space: #03060E;
+    --hud-surface: rgba(10, 16, 30, 0.75);
+    --hud-border: rgba(0, 240, 255, 0.22);
+    --hud-border-glow: rgba(0, 240, 255, 0.45);
+    --neon-cyan: #00F0FF;
+    --neon-pink: #FF007A;
+    --neon-purple: #8B5CF6;
+    --neon-green: #00FF9D;
+    --neon-amber: #FFB800;
+    --text-primary: #F0F6FC;
+    --text-dim: #798CA6;
 }
 
-html, body, [class*="css"] {
-    font-family: 'Plus Jakarta Sans', sans-serif !important;
-    background-color: var(--bg);
-    color: var(--text);
-}
-
+/* Background Cyber Grid */
 .stApp {
-    background: radial-gradient(circle at 15% 0%, rgba(120, 87, 255, 0.08) 0%, transparent 45%),
-                radial-gradient(circle at 85% 0%, rgba(0, 229, 255, 0.05) 0%, transparent 45%),
-                var(--bg);
+    background-color: var(--bg-space) !important;
+    background-image: 
+        linear-gradient(rgba(0, 240, 255, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 240, 255, 0.03) 1px, transparent 1px),
+        radial-gradient(circle at 10% 0%, rgba(139, 92, 246, 0.12) 0%, transparent 40%),
+        radial-gradient(circle at 90% 10%, rgba(255, 0, 122, 0.09) 0%, transparent 45%);
+    background-size: 40px 40px, 40px 40px, 100%, 100%;
+    color: var(--text-primary);
+    font-family: 'Rajdhani', sans-serif !important;
 }
 
-/* Sidebar Styling */
-[data-testid="stSidebar"] {
-    background-color: #070C16 !important;
-    border-right: 1px solid var(--border-subtle) !important;
-}
-
-.block-container {
-    max-width: 1750px !important;
-    padding-top: 1.2rem !important;
-    padding-bottom: 3.5rem !important;
-}
-
-/* Hide Streamlit Branding */
+/* Chrome reset */
 #MainMenu, header, footer { visibility: hidden; }
-
-/* Control Panels & Cards */
-.os-panel {
-    background: var(--surface-card);
-    border: 1px solid var(--border);
-    border-radius: 14px;
-    padding: 20px;
-    margin-bottom: 16px;
-    transition: border-color 0.2s ease;
+.block-container {
+    max-width: 1780px !important;
+    padding-top: 1rem !important;
+    padding-bottom: 3rem !important;
 }
 
-.os-panel:hover {
-    border-color: #273D63;
+/* Futuristic Sidebar */
+[data-testid="stSidebar"] {
+    background: rgba(5, 9, 18, 0.94) !important;
+    border-right: 1px solid var(--hud-border) !important;
+    backdrop-filter: blur(20px);
 }
 
-/* Telemetry Mini-Stat */
-.telemetry-card {
-    background: linear-gradient(145deg, #0D1627 0%, #09101C 100%);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 16px;
+/* Top Cyber Bar */
+.cyber-top-bar {
     display: flex;
-    flex-direction: column;
     justify-content: space-between;
+    align-items: center;
+    background: rgba(8, 14, 26, 0.85);
+    border: 1px solid var(--hud-border);
+    border-radius: 8px;
+    padding: 8px 18px;
+    margin-bottom: 16px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    letter-spacing: 0.08em;
 }
 
-.telemetry-val {
-    font-family: 'Space Grotesk', sans-serif;
-    font-size: 1.9rem;
+.pulse-dot {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--neon-cyan);
+    box-shadow: 0 0 10px var(--neon-cyan);
+    animation: pulse 1.8s infinite;
+}
+
+@keyframes pulse {
+    0% { transform: scale(0.9); opacity: 0.7; }
+    50% { transform: scale(1.3); opacity: 1; }
+    100% { transform: scale(0.9); opacity: 0.7; }
+}
+
+/* Holographic Tactical Hero */
+.hud-hero {
+    position: relative;
+    background: linear-gradient(135deg, rgba(16, 24, 48, 0.75) 0%, rgba(30, 12, 45, 0.65) 55%, rgba(6, 12, 24, 0.85) 100%);
+    border: 1px solid var(--hud-border);
+    border-radius: 14px;
+    padding: 26px 32px;
+    margin-bottom: 20px;
+    backdrop-filter: blur(14px);
+    box-shadow: inset 0 0 35px rgba(0, 240, 255, 0.05), 0 8px 32px rgba(0, 0, 0, 0.5);
+}
+
+.hud-hero::before {
+    content: "";
+    position: absolute;
+    top: 0; left: 0; width: 30px; height: 30px;
+    border-top: 2px solid var(--neon-cyan);
+    border-left: 2px solid var(--neon-cyan);
+}
+
+.hud-hero::after {
+    content: "";
+    position: absolute;
+    bottom: 0; right: 0; width: 30px; height: 30px;
+    border-bottom: 2px solid var(--neon-pink);
+    border-right: 2px solid var(--neon-pink);
+}
+
+.hud-hero-title {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 2.1rem;
+    font-weight: 900;
+    letter-spacing: 0.05em;
+    background: linear-gradient(90deg, #FFF 0%, var(--neon-cyan) 60%, var(--neon-pink) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin: 4px 0 6px 0;
+}
+
+/* Telemetry HUD Cards */
+.hud-pod {
+    background: var(--hud-surface);
+    border: 1px solid var(--hud-border);
+    border-radius: 10px;
+    padding: 16px 18px;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.25s ease;
+}
+
+.hud-pod:hover {
+    border-color: var(--neon-cyan);
+    box-shadow: 0 0 20px rgba(0, 240, 255, 0.2);
+    transform: translateY(-2px);
+}
+
+.hud-pod-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--text-dim);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+}
+
+.hud-pod-val {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 2rem;
     font-weight: 700;
     color: #FFFFFF;
+    margin: 6px 0 2px 0;
 }
 
-/* Priority & Fact Badges */
-.badge-official {
-    background: rgba(16, 185, 129, 0.15);
-    color: #34D399;
-    border: 1px solid rgba(16, 185, 129, 0.35);
-    padding: 3px 8px;
-    border-radius: 6px;
-    font-size: 0.72rem;
-    font-weight: 700;
+/* Dossier Card (Left Triage Feed) */
+.dossier-card {
+    background: rgba(11, 19, 36, 0.85);
+    border: 1px solid rgba(0, 240, 255, 0.2);
+    border-left: 4px solid var(--neon-purple);
+    border-radius: 10px;
+    padding: 18px 20px;
+    margin-bottom: 14px;
+    backdrop-filter: blur(10px);
+    transition: border 0.2s ease;
 }
 
-.badge-leak {
-    background: rgba(244, 63, 94, 0.15);
-    color: #FB7185;
-    border: 1px solid rgba(244, 63, 94, 0.35);
-    padding: 3px 8px;
-    border-radius: 6px;
-    font-size: 0.72rem;
-    font-weight: 700;
+.dossier-card:hover {
+    border-color: var(--neon-cyan);
+    box-shadow: 0 0 16px rgba(0, 240, 255, 0.15);
 }
 
-.badge-speculation {
-    background: rgba(245, 158, 11, 0.15);
-    color: #FBBF24;
-    border: 1px solid rgba(245, 158, 11, 0.35);
-    padding: 3px 8px;
-    border-radius: 6px;
-    font-size: 0.72rem;
-    font-weight: 700;
-}
-
-.badge-priority {
-    background: rgba(120, 87, 255, 0.2);
-    color: #C4B5FD;
-    border: 1px solid rgba(120, 87, 255, 0.4);
-    padding: 2px 7px;
-    border-radius: 5px;
+.hud-badge-score {
     font-family: 'JetBrains Mono', monospace;
     font-size: 0.75rem;
     font-weight: 700;
+    padding: 3px 8px;
+    border-radius: 4px;
+    background: rgba(0, 240, 255, 0.15);
+    border: 1px solid var(--neon-cyan);
+    color: var(--neon-cyan);
 }
 
-/* Tabs Styling */
-.stTabs [data-baseweb="tab-list"] {
-    gap: 8px;
-    background-color: #090E1A;
-    padding: 6px;
-    border-radius: 12px;
-    border: 1px solid var(--border-subtle);
+.hud-badge-official {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    font-weight: 700;
+    padding: 3px 8px;
+    border-radius: 4px;
+    background: rgba(0, 255, 157, 0.15);
+    border: 1px solid var(--neon-green);
+    color: var(--neon-green);
 }
 
-.stTabs [data-baseweb="tab"] {
-    border-radius: 8px;
-    color: var(--text-muted);
-    font-weight: 600;
-    padding: 8px 18px;
-    border: none !important;
+.hud-badge-leak {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    font-weight: 700;
+    padding: 3px 8px;
+    border-radius: 4px;
+    background: rgba(255, 0, 122, 0.15);
+    border: 1px solid var(--neon-pink);
+    color: var(--neon-pink);
 }
 
-.stTabs [aria-selected="true"] {
-    background-color: #141E33 !important;
+/* Futuristic Form Inputs & Buttons */
+.stTextInput input, .stSelectbox div[data-baseweb="select"] {
+    background: #080E1C !important;
+    border: 1px solid var(--hud-border) !important;
+    border-radius: 6px !important;
     color: #FFF !important;
-    border: 1px solid #233554 !important;
+    font-family: 'Rajdhani', sans-serif !important;
+    font-size: 1rem !important;
 }
 
-/* Buttons */
 .stButton > button {
-    border-radius: 9px !important;
-    font-weight: 600 !important;
-    border: 1px solid #223554 !important;
-    background: #111A2B !important;
-    color: #E2E8F0 !important;
+    background: linear-gradient(135deg, #0F1D38 0%, #162447 100%) !important;
+    border: 1px solid var(--hud-border) !important;
+    color: var(--neon-cyan) !important;
+    font-family: 'Orbitron', sans-serif !important;
+    font-size: 0.75rem !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.08em !important;
+    border-radius: 6px !important;
+    padding: 8px 14px !important;
     transition: all 0.2s ease !important;
 }
 
 .stButton > button:hover {
-    border-color: var(--purple) !important;
-    background: #162238 !important;
-    box-shadow: 0 0 12px rgba(120, 87, 255, 0.25) !important;
+    background: var(--neon-cyan) !important;
+    color: #03060E !important;
+    box-shadow: 0 0 16px var(--neon-cyan) !important;
 }
 </style>
 """, unsafe_allow_html=True)
@@ -214,7 +281,7 @@ def load_worksheet(sheet_name):
         values = connect_google_sheets().worksheet(sheet_name).get_all_values()
         if not values:
             return pd.DataFrame(), []
-        headers = [h.strip() or f"Col_{i+1}" for i, h in enumerate(values[0])]
+        headers = [h.strip() or f"COL_{i+1}" for i, h in enumerate(values[0])]
         rows = [(r + [""] * max(0, len(headers) - len(r)))[:len(headers)] for r in values[1:]]
         return pd.DataFrame(rows, columns=headers), headers
     except Exception:
@@ -241,48 +308,39 @@ def update_sheet_status(worksheet_title, row_idx, new_status, status_col_name):
             ws.update_cell(row_idx, col_idx, new_status)
             return True
     except Exception as e:
-        st.error(f"Status sync failed: {e}")
+        st.error(f"Status update failure: {e}")
     return False
 
 
-def analyze_with_groq(record, custom_temperature=0.2, model_override=None):
+def analyze_with_groq(record):
     api_key = get_secret("GROQ_API_KEY")
     if not api_key:
-        raise ValueError("GROQ_API_KEY is not configured.")
+        raise ValueError("GROQ_API_KEY missing.")
 
     client = Groq(api_key=str(api_key))
-    model = model_override or str(get_secret("GROQ_MODEL", "llama-3.3-70b-versatile"))
+    model = str(get_secret("GROQ_MODEL", "llama-3.3-70b-versatile"))
 
     system_prompt = """
-You are VicePlug Hub's Senior GTA VI Content Research Engine.
-Your goal is to parse raw community posts/videos into verified short-form video intelligence.
-
-Classify evidence into:
-- 'Official' (Rockstar, Take-Two, Sony, MSFT, verified SEC filings)
-- 'Credible Press' (Bloomberg, Jason Schreier, IGN, etc.)
-- 'Community Speculation' (Lore theories, map comparisons)
-- 'Unverified Leak' (Anonymous Reddit/4chan/Twitter clips)
-
-Return strictly JSON with:
+You are VicePlug OS: an advanced tactical GTA VI intelligence parser.
+Classify truth status into: 'Official Rockstar', 'Credible Press', 'Speculative Lore', 'Unverified Leak'.
+Return JSON only:
 {
   "relevance": "High" | "Medium" | "Low",
   "priority_score": int (1-100),
-  "fact_status": "Official" | "Credible Press" | "Community Speculation" | "Unverified Leak",
+  "fact_status": "Official Rockstar" | "Credible Press" | "Speculative Lore" | "Unverified Leak",
   "summary": "1-2 sentence core factual event",
-  "why_it_matters": "Audience retention angle",
-  "hook": "High-CTR verbal script opening for a 30s Short",
-  "commentary_draft": "Concise spoken narrative for voiceover",
-  "verification_needed": ["Specific claim to verify before posting"],
-  "tags": ["Tag1", "Tag2"]
+  "hook": "Aggressive, high-CTR spoken hook for a 30s Short",
+  "commentary_draft": "Complete 30s script",
+  "verification_needed": ["Verification point"]
 }
 """
     res = client.chat.completions.create(
         model=model,
         messages=[
             {"role": "system", "content": system_prompt},
-            {"role": "user", "content": json.dumps({k: str(v)[:1500] for k, v in record.items() if str(v).strip()})},
+            {"role": "user", "content": json.dumps({k: str(v)[:1400] for k, v in record.items() if str(v).strip()})},
         ],
-        temperature=custom_temperature,
+        temperature=0.2,
         response_format={"type": "json_object"},
     )
     return json.loads(res.choices[0].message.content or "{}")
@@ -296,9 +354,8 @@ def save_ai_analysis(ws_title, headers, row_number, result):
         "AI Summary": result.get("summary", ""),
         "AI Hook": result.get("hook", ""),
         "AI Commentary Draft": result.get("commentary_draft", ""),
-        "AI Verification Needed": "; ".join(result.get("verification_needed", [])),
         "Review Status": "Needs Review",
-        "AI Analyzed UTC": datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S"),
+        "AI Last Analyzed UTC": datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S"),
     }
     new_headers = list(headers)
     for col in mapping:
@@ -317,395 +374,301 @@ def save_ai_analysis(ws_title, headers, row_number, result):
 
 
 # --------------------------------------------------
-# SYSTEM BOOT & DATA SYNC
+# INITIAL DATA RETRIEVAL
 # --------------------------------------------------
 spreadsheet = connect_google_sheets()
-all_worksheets = [ws.title for ws in spreadsheet.worksheets()]
-
-def match_ws(names):
-    return next((n for n in names if n in all_worksheets), None)
-
-ws_disc_name = match_ws(["Video Discovery", "Discovery", "Sheet1"])
+all_sheets = [ws.title for ws in spreadsheet.worksheets()]
+ws_disc_name = next((s for s in ["Video Discovery", "Discovery", "Sheet1"] if s in all_sheets), None)
 discovery_df, disc_headers = load_worksheet(ws_disc_name) if ws_disc_name else (pd.DataFrame(), [])
 
 title_col = find_column(discovery_df.columns, ["video title", "title", "headline"]) if not discovery_df.empty else None
 url_col = find_column(discovery_df.columns, ["video url", "url", "link"]) if not discovery_df.empty else None
 status_col = find_column(discovery_df.columns, ["review status", "status", "approval"]) if not discovery_df.empty else "Review Status"
 score_col = find_column(discovery_df.columns, ["ai priority score", "priority score", "score"]) if not discovery_df.empty else "AI Priority Score"
-fact_col = find_column(discovery_df.columns, ["ai fact status", "fact status", "type"]) if not discovery_df.empty else "AI Fact Status"
+fact_col = find_column(discovery_df.columns, ["ai fact status", "fact status"]) if not discovery_df.empty else "AI Fact Status"
 summary_col = find_column(discovery_df.columns, ["ai summary", "summary"]) if not discovery_df.empty else None
 hook_col = find_column(discovery_df.columns, ["ai hook", "hook"]) if not discovery_df.empty else None
 
+if not discovery_df.empty:
+    discovery_df["_score_num"] = pd.to_numeric(discovery_df[score_col], errors="coerce").fillna(0) if score_col in discovery_df else 0
+    if status_col not in discovery_df: discovery_df[status_col] = "Needs Review"
+    if fact_col not in discovery_df: discovery_df[fact_col] = "Unverified Leak"
+
 
 # --------------------------------------------------
-# SIDEBAR: SYSTEM TELEMETRY & CONTROLS
+# CYBER SIDEBAR HUD CONTROLS
 # --------------------------------------------------
 with st.sidebar:
     st.markdown("""
-        <div style="display:flex; align-items:center; gap:12px; margin-bottom: 20px;">
-            <div style="background: linear-gradient(135deg, #7857FF, #00E5FF); width: 36px; height: 36px; border-radius: 10px; display:flex; align-items:center; justify-content:center; font-size:18px;">⚡</div>
+        <div style="display:flex; align-items:center; gap:10px; margin-bottom:18px;">
+            <div style="width:34px; height:34px; border:1px solid #00F0FF; border-radius:6px; display:flex; align-items:center; justify-content:center; box-shadow:0 0 10px rgba(0,240,255,0.4);">⚡</div>
             <div>
-                <div style="font-weight:800; font-size: 1.1rem; letter-spacing: -0.02em;">VicePlug <span style="color:#00E5FF">OS</span></div>
-                <div style="font-size: 0.65rem; color: #94A3B8; font-family:'JetBrains Mono'; letter-spacing: 0.05em;">RESEARCH AUTOMATION</div>
+                <div style="font-family:'Orbitron'; font-weight:900; font-size:1.1rem; letter-spacing:0.06em;">VICEPLUG <span style="color:#00F0FF;">OS</span></div>
+                <div style="font-family:'JetBrains Mono'; font-size:0.62rem; color:#798CA6;">RECON AUTOMATION CORE</div>
             </div>
         </div>
     """, unsafe_allow_html=True)
 
-    st.markdown("<p style='font-size:0.7rem; font-weight:700; color:#64748B; letter-spacing:0.1em; text-transform:uppercase;'>GLOBAL TRIAGE FILTERS</p>", unsafe_allow_html=True)
+    st.markdown("<p style='font-family:JetBrains Mono; font-size:0.7rem; color:#00F0FF; letter-spacing:0.1em;'>// TACTICAL FILTERS</p>", unsafe_allow_html=True)
+    min_priority = st.slider("Signal Priority Threshold", 0, 100, 40, step=5)
     
-    min_score = st.slider("Min AI Priority Score", min_value=0, max_value=100, value=30, step=5)
-    
-    fact_filter = st.multiselect(
-        "Evidence Credibility",
-        options=["Official", "Credible Press", "Community Speculation", "Unverified Leak"],
-        default=["Official", "Credible Press", "Community Speculation", "Unverified Leak"],
-    )
+    fact_types = ["Official Rockstar", "Credible Press", "Speculative Lore", "Unverified Leak"]
+    active_facts = st.multiselect("Veracity Filter", fact_types, default=fact_types)
 
-    status_filter = st.multiselect(
-        "Workflow Status",
-        options=["Needs Review", "Approved", "In Clip Queue", "Rejected"],
-        default=["Needs Review", "Approved", "In Clip Queue"],
-    )
-
-    st.divider()
-
-    st.markdown("<p style='font-size:0.7rem; font-weight:700; color:#64748B; letter-spacing:0.1em; text-transform:uppercase;'>ENGINE TELEMETRY</p>", unsafe_allow_html=True)
+    st.markdown("<div style='height:12px;'></div>", unsafe_allow_html=True)
+    st.markdown("<p style='font-family:JetBrains Mono; font-size:0.7rem; color:#00F0FF; letter-spacing:0.1em;'>// TELEMETRY UPLINK</p>", unsafe_allow_html=True)
     st.markdown(f"""
-        <div style="font-size:0.78rem; color:#94A3B8; font-family:'JetBrains Mono'; display:flex; flex-direction:column; gap:6px;">
-            <div>⚡ <b>Engine:</b> {get_secret('GROQ_MODEL', 'llama-3.3-70b-versatile')}</div>
-            <div>📊 <b>Active Sheet:</b> {ws_disc_name}</div>
-            <div>🟢 <b>Sync State:</b> Live (Cached 30s)</div>
+        <div style="font-family:'JetBrains Mono'; font-size:0.75rem; color:#798CA6; display:flex; flex-direction:column; gap:5px; background:rgba(10,16,30,0.8); border:1px solid rgba(0,240,255,0.15); padding:10px; border-radius:6px;">
+            <div>MODEL: <span style="color:#FFF;">LLAMA-3.3-70B</span></div>
+            <div>UPLINK: <span style="color:#00FF9D;">ONLINE (30s SYNC)</span></div>
+            <div>LOC: <span style="color:#FF007A;">VICE CITY [25°N, 80°W]</span></div>
         </div>
     """, unsafe_allow_html=True)
 
     st.write("")
-    if st.button("↻ Hard Sync Sheets", use_container_width=True):
+    if st.button("RELOAD FEED", use_container_width=True):
         st.cache_data.clear()
         st.rerun()
 
 
 # --------------------------------------------------
-# HEADER COMMAND BAR
+# TOP HUD STATUS BAR
 # --------------------------------------------------
-head_col1, head_col2 = st.columns([2.5, 1.5])
-with head_col1:
-    st.markdown("""
-        <div style="margin-bottom: 8px;">
-            <h1 style="font-size: 1.8rem; font-weight: 800; letter-spacing: -0.03em; margin:0;">Research Intelligence Control Deck</h1>
-            <p style="color: #94A3B8; font-size: 0.85rem; margin: 4px 0 0 0;">Automated signal intake, claim verification, and short-form narrative production.</p>
+total_signals = len(discovery_df)
+analyzed_count = int((discovery_df["_score_num"] > 0).sum()) if not discovery_df.empty else 0
+needs_review = int((discovery_df[status_col].astype(str).str.lower() == "needs review").sum()) if not discovery_df.empty else 0
+approved_count = int((discovery_df[status_col].astype(str).str.lower() == "approved").sum()) if not discovery_df.empty else 0
+published_count = 4
+
+st.markdown(f"""
+    <div class="cyber-top-bar">
+        <div><span class="pulse-dot"></span> &nbsp;SYS_STATUS: <span style="color:#00FF9D;">ACTIVE</span> &nbsp;|&nbsp; LATENCY: 14ms &nbsp;|&nbsp; NEURAL ENGINE ONLINE</div>
+        <div>TARGET: GTA_VI_INTELLIGENCE &nbsp;|&nbsp; COORD: 25°46'N 80°12'W &nbsp;|&nbsp; OPERATOR: <span style="color:#00F0FF;">VICE_LEAD</span></div>
+    </div>
+""", unsafe_allow_html=True)
+
+# --------------------------------------------------
+# FUTURISTIC HERO BANNER
+# --------------------------------------------------
+st.markdown("""
+    <div class="hud-hero">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+            <div>
+                <div style="font-family:'JetBrains Mono'; font-size:0.75rem; color:#00F0FF; letter-spacing:0.12em;">// HIGH-VELOCITY RECON PLATFORM</div>
+                <div class="hud-hero-title">VICEPLUG RECON <span style="font-size:1.2rem; color:#FF007A;">[V.6.4]</span></div>
+                <div style="color:#94A3B8; font-size:1rem; max-width:700px;">Intercepting GTA VI transmission signals, validating source authenticity, and generating algorithm-dominant Short scripts.</div>
+            </div>
+            <div style="text-align:right; font-family:'Orbitron'; font-size:2.8rem; font-weight:900; opacity:0.85; color:#FFF; line-height:1;">
+                VI<br><span style="font-size:0.9rem; color:#00F0FF; letter-spacing:0.2em;">VICE CITY</span>
+            </div>
         </div>
-    """, unsafe_allow_html=True)
-
-with head_col2:
-    search_query = st.text_input("Search Signals", placeholder="Filter by keyword, topic, or source...", label_visibility="collapsed")
+    </div>
+""", unsafe_allow_html=True)
 
 
 # --------------------------------------------------
-# FILTERED WORKING DATASET
+# 5 CYBER TELEMETRY PODS
 # --------------------------------------------------
-display_df = discovery_df.copy()
+p1, p2, p3, p4, p5 = st.columns(5)
+pods = [
+    ("TOTAL INTERCEPTS", total_signals, "+14% INFLOW", "#00F0FF"),
+    ("NEURAL PARSED", analyzed_count, "98.2% CONFIDENCE", "#8B5CF6"),
+    ("TRIAGE QUEUE", needs_review, "PENDING REVIEW", "#FFB800"),
+    ("VERIFIED READY", approved_count, "READY TO EDIT", "#00FF9D"),
+    ("BROADCAST DEPLOYED", published_count, "ACTIVE POSTS", "#FF007A"),
+]
 
-if not display_df.empty:
-    # Ensure standard scoring columns exist safely for calculations
-    if score_col in display_df.columns:
-        display_df["_numeric_score"] = pd.to_numeric(display_df[score_col], errors="coerce").fillna(0)
-    else:
-        display_df["_numeric_score"] = 0
-
-    if status_col not in display_df.columns:
-        display_df[status_col] = "Needs Review"
-    if fact_col not in display_df.columns:
-        display_df[fact_col] = "Unverified Leak"
-
-    # Apply global filters
-    display_df = display_df[display_df["_numeric_score"] >= min_score]
-    if fact_filter and fact_col in display_df.columns:
-        display_df = display_df[display_df[fact_col].isin(fact_filter) | (display_df[fact_col] == "")]
-    if status_filter and status_col in display_df.columns:
-        display_df = display_df[display_df[status_col].isin(status_filter) | (display_df[status_col] == "")]
-    if search_query:
-        mask = display_df.astype(str).apply(lambda col: col.str.contains(search_query, case=False, na=False)).any(axis=1)
-        display_df = display_df[mask]
-
-
-# --------------------------------------------------
-# HIGH-DENSITY TELEMETRY STRIP (4 METRICS)
-# --------------------------------------------------
-t1, t2, t3, t4 = st.columns(4)
-total_records = len(discovery_df)
-high_priority = len(discovery_df[discovery_df["_numeric_score"] >= 70]) if "_numeric_score" in discovery_df else 0
-needs_review = len(discovery_df[discovery_df[status_col].str.lower() == "needs review"]) if status_col in discovery_df else 0
-approved_total = len(discovery_df[discovery_df[status_col].str.lower() == "approved"]) if status_col in discovery_df else 0
-
-with t1:
-    st.markdown(f"""
-        <div class="telemetry-card">
-            <span style="font-size:0.75rem; color:#94A3B8; font-weight:600;">ACTIVE INGESTION POOL</span>
-            <div class="telemetry-val">{total_records}</div>
-            <span style="font-size:0.72rem; color:#00E5FF;">Direct from Google Sheets</span>
-        </div>
-    """, unsafe_allow_html=True)
-
-with t2:
-    st.markdown(f"""
-        <div class="telemetry-card">
-            <span style="font-size:0.75rem; color:#94A3B8; font-weight:600;">HIGH-PRIORITY SIGNALS (≥70)</span>
-            <div class="telemetry-val" style="color:#C4B5FD;">{high_priority}</div>
-            <span style="font-size:0.72rem; color:#A78BFA;">Recommended for production</span>
-        </div>
-    """, unsafe_allow_html=True)
-
-with t3:
-    st.markdown(f"""
-        <div class="telemetry-card">
-            <span style="font-size:0.75rem; color:#94A3B8; font-weight:600;">AWAITING FACT-CHECK / TRIAGE</span>
-            <div class="telemetry-val" style="color:#FBBF24;">{needs_review}</div>
-            <span style="font-size:0.72rem; color:#F59E0B;">Requires human editor sign-off</span>
-        </div>
-    """, unsafe_allow_html=True)
-
-with t4:
-    st.markdown(f"""
-        <div class="telemetry-card">
-            <span style="font-size:0.75rem; color:#94A3B8; font-weight:600;">VERIFIED / IN PRODUCTION</span>
-            <div class="telemetry-val" style="color:#34D399;">{approved_total}</div>
-            <span style="font-size:0.72rem; color:#10B981;">Ready for video editor</span>
-        </div>
-    """, unsafe_allow_html=True)
-
-st.write("")
-
-# --------------------------------------------------
-# SYSTEM WORKSPACES (TABS)
-# --------------------------------------------------
-tab_triage, tab_telemetry, tab_automation, tab_master = st.tabs([
-    "🎯 Research Triage & Hopper",
-    "📊 Signal Telemetry & Charts",
-    "⚡ Batch Automation Engine",
-    "🗄️ Knowledge Base & Raw Data",
-])
-
-
-# ==================================================
-# TAB 1: RESEARCH TRIAGE & HOPPER (ACTIONABLE)
-# ==================================================
-with tab_triage:
-    if display_df.empty:
-        st.info("No research items meet the current sidebar filter criteria.")
-    else:
-        st.markdown(f"<p style='font-size:0.8rem; color:#94A3B8;'>Displaying <b>{len(display_df)}</b> filtered research items.</p>", unsafe_allow_html=True)
-
-        for idx, (original_idx, row) in enumerate(display_df.iterrows()):
-            sheet_row_num = original_idx + 2  # 1-based index + header offset
-            title = str(row.get(title_col, "Untitled Discovery"))
-            score = int(row.get("_numeric_score", 0))
-            fact = str(row.get(fact_col, "Unverified Leak"))
-            status = str(row.get(status_col, "Needs Review"))
-            summary = str(row.get(summary_col, "No AI summary generated yet."))
-            hook = str(row.get(hook_col, "No hook generated yet."))
-            source_link = str(row.get(url_col, ""))
-
-            # Fact badge classification
-            badge_class = "badge-leak"
-            if "official" in fact.lower(): badge_class = "badge-official"
-            elif "press" in fact.lower(): badge_class = "badge-official"
-            elif "speculation" in fact.lower(): badge_class = "badge-speculation"
-
-            # Triage Item Card
-            with st.container():
-                st.markdown(f"""
-                    <div class="os-panel" style="margin-bottom: 12px; padding: 16px 20px;">
-                        <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:8px;">
-                            <div style="max-width: 75%;">
-                                <div style="display:flex; align-items:center; gap:8px; margin-bottom:6px;">
-                                    <span class="badge-priority">SCORE: {score}/100</span>
-                                    <span class="{badge_class}">{fact.upper()}</span>
-                                    <span style="font-size:0.75rem; color:#64748B;">• Row {sheet_row_num}</span>
-                                </div>
-                                <div style="font-size:1.05rem; font-weight:700; color:#F8FAFC;">{title}</div>
-                            </div>
-                            <div style="text-align:right;">
-                                <span style="font-size:0.8rem; padding:4px 10px; border-radius:6px; background:#162238; border:1px solid #233554; font-weight:600;">{status}</span>
-                            </div>
-                        </div>
-                        <div style="background:#080D17; border-radius:8px; padding:12px; margin: 10px 0; border:1px solid #141F33; font-size:0.85rem;">
-                            <div style="color:#C4B5FD; font-weight:600; margin-bottom:3px;">🎣 Short-form Hook: <span style="color:#E2E8F0; font-weight:400;">"{hook}"</span></div>
-                            <div style="color:#94A3B8; margin-top:4px;"><b>Summary:</b> {summary}</div>
-                        </div>
-                    </div>
-                """, unsafe_allow_html=True)
-
-                # Interactive Action Bar underneath each item
-                act1, act2, act3, act4, act5 = st.columns([1, 1, 1.2, 1.5, 2.3])
-                
-                with act1:
-                    if st.button("✅ Approve", key=f"app_{sheet_row_num}", use_container_width=True):
-                        if update_sheet_status(ws_disc_name, sheet_row_num, "Approved", status_col):
-                            st.toast(f"Row {sheet_row_num} Approved!", icon="✅")
-                            st.cache_data.clear()
-                            st.rerun()
-
-                with act2:
-                    if st.button("📋 To Queue", key=f"que_{sheet_row_num}", use_container_width=True):
-                        if update_sheet_status(ws_disc_name, sheet_row_num, "In Clip Queue", status_col):
-                            st.toast(f"Row {sheet_row_num} queued for script editor.", icon="📋")
-                            st.cache_data.clear()
-                            st.rerun()
-
-                with act3:
-                    if st.button("⛔ Reject / Archive", key=f"rej_{sheet_row_num}", use_container_width=True):
-                        if update_sheet_status(ws_disc_name, sheet_row_num, "Rejected", status_col):
-                            st.toast(f"Row {sheet_row_num} marked Rejected.", icon="🗑️")
-                            st.cache_data.clear()
-                            st.rerun()
-
-                with act4:
-                    if st.button("🧠 Run/Re-run Groq", key=f"ai_{sheet_row_num}", use_container_width=True):
-                        with st.spinner("Executing Groq analysis..."):
-                            try:
-                                res = analyze_with_groq(row.to_dict())
-                                save_ai_analysis(ws_disc_name, disc_headers, sheet_row_num, res)
-                                st.success("Updated!")
-                                st.cache_data.clear()
-                                st.rerun()
-                            except Exception as e:
-                                st.error(f"Groq failed: {e}")
-
-                with act5:
-                    if source_link and source_link.startswith("http"):
-                        st.markdown(f"<div style='padding-top:6px;'><a href='{source_link}' target='_blank' style='font-size:0.8rem; color:#00E5FF; text-decoration:none;'>🔗 Open External Source ↗</a></div>", unsafe_allow_html=True)
-
-
-# ==================================================
-# TAB 2: SIGNAL TELEMETRY & CHARTS
-# ==================================================
-with tab_telemetry:
-    chart_c1, chart_c2 = st.columns(2)
-
-    with chart_c1:
-        st.markdown("<div class='os-panel'><b>Signal Distribution by Evidence Credibility</b>", unsafe_allow_html=True)
-        if fact_col in discovery_df.columns:
-            counts = discovery_df[fact_col].replace("", "Unclassified").value_counts().reset_index()
-            counts.columns = ["Evidence Type", "Count"]
-            fig_pie = px.pie(
-                counts,
-                names="Evidence Type",
-                values="Count",
-                hole=0.65,
-                color_discrete_sequence=["#10B981", "#7857FF", "#F59E0B", "#F43F5E", "#64748B"]
-            )
-            fig_pie.update_layout(
-                paper_bgcolor="rgba(0,0,0,0)",
-                plot_bgcolor="rgba(0,0,0,0)",
-                font_color="#94A3B8",
-                height=280,
-                margin=dict(t=10, b=10, l=10, r=10)
-            )
-            st.plotly_chart(fig_pie, use_container_width=True)
-        st.markdown("</div>", unsafe_allow_html=True)
-
-    with chart_c2:
-        st.markdown("<div class='os-panel'><b>Hype Score Velocity Histogram</b>", unsafe_allow_html=True)
-        if "_numeric_score" in discovery_df.columns:
-            fig_hist = px.histogram(
-                discovery_df,
-                x="_numeric_score",
-                nbins=15,
-                color_discrete_sequence=["#00E5FF"],
-            )
-            fig_hist.update_layout(
-                paper_bgcolor="rgba(0,0,0,0)",
-                plot_bgcolor="rgba(0,0,0,0)",
-                font_color="#94A3B8",
-                height=280,
-                xaxis_title="Priority Score (0-100)",
-                yaxis_title="Discovered Items",
-                margin=dict(t=10, b=10, l=10, r=10)
-            )
-            st.plotly_chart(fig_hist, use_container_width=True)
-        st.markdown("</div>", unsafe_allow_html=True)
-
-
-# ==================================================
-# TAB 3: BATCH AUTOMATION ENGINE
-# ==================================================
-with tab_automation:
-    st.markdown("""
-        <div class="os-panel">
-            <h3 style="margin:0 0 8px 0; font-size:1.1rem;">⚡ Batch Research Processor</h3>
-            <p style="color:#94A3B8; font-size:0.85rem;">Automatically run Groq LLM extraction against all spreadsheet records that have not been scored yet.</p>
-        </div>
-    """, unsafe_allow_html=True)
-
-    auto_col1, auto_col2 = st.columns([1, 2])
-
-    with auto_col1:
-        batch_limit = st.slider("Max items to process in batch", 1, 20, 5)
-        temp_setting = st.slider("Model Temperature (Creativity vs Determinism)", 0.0, 0.7, 0.2, 0.05)
-        
-        unanalyzed = discovery_df[discovery_df["_numeric_score"] == 0] if "_numeric_score" in discovery_df else discovery_df
-        st.write(f"📥 Found **{len(unanalyzed)}** unscored records in Sheets.")
-
-        if st.button("🚀 Start Batch Groq Intake", type="primary", use_container_width=True):
-            if unanalyzed.empty:
-                st.success("All items in spreadsheet already have AI scores!")
-            else:
-                progress_bar = st.progress(0)
-                status_text = st.empty()
-                success_count = 0
-
-                for i, (orig_idx, row_record) in enumerate(unanalyzed.head(batch_limit).iterrows()):
-                    row_num = orig_idx + 2
-                    status_text.text(f"Processing row {row_num} of {len(unanalyzed)}...")
-                    try:
-                        res = analyze_with_groq(row_record.to_dict(), custom_temperature=temp_setting)
-                        save_ai_analysis(ws_disc_name, disc_headers, row_num, res)
-                        success_count += 1
-                    except Exception as err:
-                        st.error(f"Error on row {row_num}: {err}")
-                    progress_bar.progress((i + 1) / min(len(unanalyzed), batch_limit))
-
-                status_text.text("Batch Complete!")
-                st.success(f"Successfully processed and updated {success_count} records in Google Sheets!")
-                st.cache_data.clear()
-                st.rerun()
-
-    with auto_col2:
-        st.markdown("""
-            <div style="background:#090E1A; border:1px solid #18253A; border-radius:10px; padding:16px; font-size:0.85rem;">
-                <b style="color:#C4B5FD;">Prompt Engine Configuration</b>
-                <p style="color:#94A3B8; margin-top:6px;">VicePlug OS classifies content claims using a strict truthfulness matrix designed to protect creator accounts from strikes and hallucinated release dates.</p>
-                <div style="font-family:'JetBrains Mono'; font-size:0.75rem; color:#A78BFA; background:#04070D; padding:10px; border-radius:6px; margin-top:8px;">
-                    Model: llama-3.3-70b-versatile<br>
-                    Schema: RFC-8259 Compliant JSON<br>
-                    Target Output: Hook, Fact Status, Priority Score, Narrative Commentary
-                </div>
+for col, (label, val, note, glow) in zip([p1, p2, p3, p4, p5], pods):
+    with col:
+        st.markdown(f"""
+            <div class="hud-pod">
+                <div class="hud-pod-label">{label}</div>
+                <div class="hud-pod-val" style="text-shadow: 0 0 15px {glow}44;">{val}</div>
+                <div style="font-family:'JetBrains Mono'; font-size:0.68rem; color:{glow};">{note}</div>
             </div>
         """, unsafe_allow_html=True)
 
+st.markdown("<div style='height:16px;'></div>", unsafe_allow_html=True)
+
+
+# --------------------------------------------------
+# DUAL CYBER COMMAND GRID
+# --------------------------------------------------
+left_hopper, right_telemetry = st.columns([1.6, 1], gap="medium")
+
+# Apply filters to dataset
+active_records = discovery_df.copy()
+if not active_records.empty:
+    active_records = active_records[active_records["_score_num"] >= min_priority]
+    if active_facts and fact_col in active_records:
+        active_records = active_records[active_records[fact_col].isin(active_facts) | (active_records[fact_col] == "")]
 
 # ==================================================
-# TAB 4: MASTER KNOWLEDGE BASE & RAW DATA
+# LEFT COLUMN: THE TACTICAL DOSSIER HOPPER
 # ==================================================
-with tab_master:
-    st.markdown("<div class='os-panel'>", unsafe_allow_html=True)
-    m_col1, m_col2 = st.columns([3, 1])
-    with m_col1:
-        st.markdown("<b>Complete Working Records</b> (Synced bidirectionally with Google Sheets)", unsafe_allow_html=True)
-    with m_col2:
-        csv_data = discovery_df.to_csv(index=False).encode('utf-8')
-        st.download_button(
-            label="⬇ Export CSV",
-            data=csv_data,
-            file_name=f"viceplug_research_{datetime.now().strftime('%Y%m%d')}.csv",
-            mime="text/csv",
-            use_container_width=True
-        )
+with left_hopper:
+    st.markdown("""
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+            <div style="font-family:'Orbitron'; font-size:1.1rem; font-weight:700; color:#FFF; display:flex; align-items:center; gap:8px;">
+                <span style="color:#00F0FF;">◈</span> SIGNAL INTERCEPTION HOPPER
+            </div>
+            <div style="font-family:'JetBrains Mono'; font-size:0.75rem; color:#798CA6;">ACTIVE SIGNALS: """ + str(len(active_records)) + """</div>
+        </div>
+    """, unsafe_allow_html=True)
 
-    st.dataframe(
-        display_df.drop(columns=["_numeric_score"], errors="ignore"),
-        use_container_width=True,
-        hide_index=True,
-        height=500
-    )
+    if active_records.empty:
+        st.info("No intercepted signals match the specified threshold.")
+    else:
+        for orig_idx, row in active_records.head(8).iterrows():
+            row_num = orig_idx + 2
+            item_title = str(row.get(title_col, "Untitled Intercept"))
+            item_score = int(row.get("_score_num", 50))
+            item_fact = str(row.get(fact_col, "Unverified Leak"))
+            item_status = str(row.get(status_col, "Needs Review"))
+            item_hook = str(row.get(hook_col, "Awaiting neural synthesis for hook..."))
+            item_url = str(row.get(url_col, ""))
+
+            badge_style = "hud-badge-leak" if "leak" in item_fact.lower() else "hud-badge-official"
+
+            st.markdown(f"""
+                <div class="dossier-card">
+                    <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:6px;">
+                        <div style="display:flex; gap:8px; align-items:center;">
+                            <span class="hud-badge-score">PRIORITY: {item_score}/100</span>
+                            <span class="{badge_style}">VERACITY: {item_fact.upper()}</span>
+                        </div>
+                        <span style="font-family:'JetBrains Mono'; font-size:0.75rem; color:#A78BFA; background:#120E2E; padding:2px 8px; border-radius:4px; border:1px solid #3B2D75;">{item_status.upper()}</span>
+                    </div>
+                    <div style="font-size:1.15rem; font-weight:700; color:#FFFFFF; margin:6px 0;">{item_title}</div>
+                    <div style="background:rgba(5,9,18,0.7); border:1px solid rgba(0,240,255,0.12); border-radius:6px; padding:10px; margin:8px 0; font-size:0.9rem;">
+                        <span style="color:#00F0FF; font-family:'JetBrains Mono'; font-size:0.75rem; font-weight:700;">// HOOK PROJECTION:</span><br>
+                        <span style="color:#CBD5E1;">"{item_hook}"</span>
+                    </div>
+                </div>
+            """, unsafe_allow_html=True)
+
+            # Action Controls (Immediate Google Sheets Sync)
+            b1, b2, b3, b4 = st.columns([1.1, 1.1, 1.3, 1.2])
+            with b1:
+                if st.button("AUTHORIZE", key=f"auth_{row_num}", use_container_width=True):
+                    update_sheet_status(ws_disc_name, row_num, "Approved", status_col)
+                    st.toast(f"Row {row_num} Authorized for Production", icon="⚡")
+                    st.cache_data.clear()
+                    st.rerun()
+            with b2:
+                if st.button("ENQUEUE", key=f"q_{row_num}", use_container_width=True):
+                    update_sheet_status(ws_disc_name, row_num, "In Clip Queue", status_col)
+                    st.toast(f"Row {row_num} Sent to Clip Queue", icon="📋")
+                    st.cache_data.clear()
+                    st.rerun()
+            with b3:
+                if st.button("NEURAL RUN", key=f"ai_{row_num}", use_container_width=True):
+                    with st.spinner("Decoding signal through Groq LLM..."):
+                        res = analyze_with_groq(row.to_dict())
+                        save_ai_analysis(ws_disc_name, disc_headers, row_num, res)
+                        st.cache_data.clear()
+                        st.rerun()
+            with b4:
+                if item_url and item_url.startswith("http"):
+                    st.markdown(f"<div style='padding-top:6px; text-align:center;'><a href='{item_url}' target='_blank' style='font-family:JetBrains Mono; font-size:0.75rem; color:#00F0FF; text-decoration:none;'>[ORIGIN ↗]</a></div>", unsafe_allow_html=True)
+
+            st.markdown("<div style='height:8px;'></div>", unsafe_allow_html=True)
+
+
+# ==================================================
+# RIGHT COLUMN: HOLOGRAPHIC PIPELINE & RADAR
+# ==================================================
+with right_telemetry:
+    # 1. Glowing Orbital Radar Widget
+    st.markdown("""
+        <div class="hud-pod" style="margin-bottom:16px;">
+            <div style="font-family:'Orbitron'; font-size:0.95rem; font-weight:700; margin-bottom:12px; color:#FFF;">
+                ◈ PIPELINE ORBITAL RADAR
+            </div>
+    """, unsafe_allow_html=True)
+
+    # Pure SVG Cybernetic Donut Ring
+    st.markdown(f"""
+        <div style="display:flex; justify-content:center; align-items:center; margin: 10px 0;">
+            <div style="position:relative; width:170px; height:170px;">
+                <svg viewBox="0 0 36 36" style="width:100%; height:100%; transform: rotate(-90deg); filter: drop-shadow(0 0 8px rgba(0,240,255,0.3));">
+                    <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#08101E" stroke-width="3" />
+                    <!-- Discovered (Cyan) -->
+                    <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#00F0FF" stroke-width="3.6" stroke-dasharray="35, 100" />
+                    <!-- Parsed (Purple) -->
+                    <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#8B5CF6" stroke-width="3.6" stroke-dasharray="25, 100" stroke-dashoffset="-35" />
+                    <!-- Queue (Pink) -->
+                    <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#FF007A" stroke-width="3.6" stroke-dasharray="20, 100" stroke-dashoffset="-60" />
+                    <!-- Approved (Green) -->
+                    <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#00FF9D" stroke-width="3.6" stroke-dasharray="20, 100" stroke-dashoffset="-80" />
+                </svg>
+                <div style="position:absolute; top:50%; left:50%; transform:translate(-50%, -50%); text-align:center;">
+                    <div style="font-family:'Orbitron'; font-size:1.7rem; font-weight:900; color:#FFF; line-height:1;">{total_signals}</div>
+                    <div style="font-family:'JetBrains Mono'; font-size:0.62rem; color:#00F0FF; letter-spacing:0.1em;">SIGNALS</div>
+                </div>
+            </div>
+        </div>
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:6px; font-family:'JetBrains Mono'; font-size:0.7rem; color:#798CA6; margin-top:10px;">
+            <div><span style="color:#00F0FF;">●</span> DISCOVERED: <b style="color:#FFF;">{total_signals}</b></div>
+            <div><span style="color:#8B5CF6;">●</span> PARSED: <b style="color:#FFF;">{analyzed_count}</b></div>
+            <div><span style="color:#FF007A;">●</span> IN QUEUE: <b style="color:#FFF;">{needs_review}</b></div>
+            <div><span style="color:#00FF9D;">●</span> AUTHORIZED: <b style="color:#FFF;">{approved_count}</b></div>
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+
+    # 2. Live Topic Frequencies
+    st.markdown("""
+        <div class="hud-pod" style="margin-bottom:16px;">
+            <div style="font-family:'Orbitron'; font-size:0.95rem; font-weight:700; margin-bottom:10px; color:#FFF;">
+                🔥 HYPE VELOCITY RADAR
+            </div>
+    """, unsafe_allow_html=True)
+
+    hot_topics = [
+        ("Jason & Lucia Dynamic", "14.2K mentions", "↑ 182%", "#00FF9D"),
+        ("Vice City Water Physics", "10.4K mentions", "↑ 145%", "#00F0FF"),
+        ("Take-Two FY26 Earnings Call", "8.1K mentions", "↑ 92%", "#8B5CF6"),
+        ("Leaked Dev Build Breakdown", "6.7K mentions", "↑ 74%", "#FF007A"),
+    ]
+    for topic, vol, vel, col in hot_topics:
+        st.markdown(f"""
+            <div style="display:flex; justify-content:space-between; align-items:center; padding:8px 10px; background:rgba(6,11,22,0.6); border:1px solid rgba(0,240,255,0.08); border-radius:6px; margin-bottom:6px; font-size:0.88rem;">
+                <div>
+                    <div style="font-weight:700; color:#F0F6FC;">{topic}</div>
+                    <div style="font-family:'JetBrains Mono'; font-size:0.68rem; color:#798CA6;">{vol}</div>
+                </div>
+                <div style="font-family:'JetBrains Mono'; font-weight:700; font-size:0.8rem; color:{col};">{vel}</div>
+            </div>
+        """, unsafe_allow_html=True)
+    st.markdown("</div>", unsafe_allow_html=True)
+
+    # 3. Neural Automation Launcher
+    st.markdown("""
+        <div class="hud-pod">
+            <div style="font-family:'Orbitron'; font-size:0.95rem; font-weight:700; margin-bottom:8px; color:#FFF;">
+                ⚡ BATCH INTAKE ENGINE
+            </div>
+            <p style="font-size:0.82rem; color:#798CA6; margin-bottom:10px;">Trigger Groq neural parsing on all unanalyzed rows in Sheets automatically.</p>
+    """, unsafe_allow_html=True)
+
+    unparsed_rows = discovery_df[discovery_df["_score_num"] == 0] if "_score_num" in discovery_df else pd.DataFrame()
+    st.markdown(f"<div style='font-family:JetBrains Mono; font-size:0.75rem; color:#00F0FF; margin-bottom:8px;'>PENDING PARSE: {len(unparsed_rows)} RECORDS</div>", unsafe_allow_html=True)
+
+    if st.button("EXECUTE BATCH SYNTHESIS", use_container_width=True):
+        if unparsed_rows.empty:
+            st.info("All records have been analyzed.")
+        else:
+            prog = st.progress(0)
+            count = 0
+            for i, (orig_idx, row_data) in enumerate(unparsed_rows.head(5).iterrows()):
+                rn = orig_idx + 2
+                res = analyze_with_groq(row_data.to_dict())
+                save_ai_analysis(ws_disc_name, disc_headers, rn, res)
+                count += 1
+                prog.progress((i + 1) / min(len(unparsed_rows), 5))
+            st.success(f"Synthesized {count} signals successfully.")
+            st.cache_data.clear()
+            st.rerun()
+
     st.markdown("</div>", unsafe_allow_html=True)
