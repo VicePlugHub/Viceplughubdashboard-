@@ -1,12 +1,12 @@
 """
-VicePlug Hub // 2026 GTA VI Content Intelligence & Spatial Ops
-Designed for Streamlit Community Cloud (*.streamlit.app)
+VicePlug Hub // Vice City Sunset Noir Spatial Studio Edition
+Engineered for Streamlit Community Cloud (*.streamlit.app)
 """
 
 import os
 import json
 from datetime import datetime, timezone
-from typing import Dict, List, Tuple, Any, Optional
+from typing import Dict, List, Tuple, Any
 
 import pandas as pd
 import streamlit as st
@@ -31,32 +31,32 @@ except ImportError:
 # STREAMLIT PAGE CONFIGURATION
 # --------------------------------------------------
 st.set_page_config(
-    page_title="VicePlug Hub | GTA VI Content Ops",
-    page_icon="🎬",
+    page_title="VicePlug Studio // GTA VI Intelligence",
+    page_icon="🌴",
     layout="wide",
     initial_sidebar_state="collapsed",
 )
 
 # --------------------------------------------------
-# DESIGN SYSTEM: LIQUID GLASS & 2026 UI TOKENS (CSS)
+# UNIQUE "SUNSET NOIR" LIQUID GLASS DESIGN SYSTEM (CSS)
 # --------------------------------------------------
 st.markdown("""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
 
 :root {
-    --bg-base: #070b14;
-    --card-surface: rgba(15, 23, 42, 0.65);
+    --bg-deep: #040711;
+    --card-surface: rgba(13, 19, 36, 0.72);
     --card-border: rgba(255, 255, 255, 0.08);
-    --card-border-hover: rgba(99, 102, 241, 0.45);
-    --accent-indigo: #6366f1;
-    --accent-cyan: #06b6d4;
-    --accent-emerald: #10b981;
-    --accent-amber: #f59e0b;
-    --accent-rose: #f43f5e;
-    --text-primary: #f8fafc;
-    --text-secondary: #94a3b8;
-    --text-muted: #64748b;
+    --card-border-hover: rgba(0, 245, 255, 0.35);
+    --vice-purple: #7C3AED;
+    --vice-magenta: #FF2E93;
+    --vice-cyan: #00F5FF;
+    --vice-mint: #00FF88;
+    --vice-amber: #FFB800;
+    --text-primary: #F8FAFC;
+    --text-secondary: #94A3B8;
+    --text-dim: #64748B;
 }
 
 html, body, [class*="css"] {
@@ -65,10 +65,12 @@ html, body, [class*="css"] {
 }
 
 .stApp {
-    background-color: var(--bg-base);
+    background-color: var(--bg-deep);
     background-image: 
-        radial-gradient(circle at 12% 0%, rgba(99, 102, 241, 0.08) 0%, transparent 45%),
-        radial-gradient(circle at 88% 12%, rgba(6, 182, 212, 0.06) 0%, transparent 45%);
+        radial-gradient(circle at 12% 0%, rgba(124, 58, 237, 0.12) 0%, transparent 45%),
+        radial-gradient(circle at 88% 10%, rgba(255, 46, 147, 0.08) 0%, transparent 45%),
+        radial-gradient(circle at 50% 90%, rgba(0, 245, 255, 0.04) 0%, transparent 50%);
+    background-attachment: fixed;
 }
 
 #MainMenu, header, footer { visibility: hidden; }
@@ -79,51 +81,53 @@ html, body, [class*="css"] {
     padding-bottom: 3rem;
 }
 
-/* Scoped Native Streamlit Containers -> Frosted Glassmorphism */
+/* Scoped Native Streamlit Containers -> Sunset Frosted Glass */
 div[data-testid="stVerticalBlockBorderWrapper"] {
     background: var(--card-surface) !important;
     border: 1px solid var(--card-border) !important;
     border-radius: 16px !important;
-    backdrop-filter: blur(24px) !important;
-    -webkit-backdrop-filter: blur(24px) !important;
-    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.35) !important;
+    backdrop-filter: blur(28px) !important;
+    -webkit-backdrop-filter: blur(28px) !important;
+    box-shadow: 0 10px 36px 0 rgba(0, 0, 0, 0.45) !important;
     transition: all 0.25s ease !important;
 }
 
 div[data-testid="stVerticalBlockBorderWrapper"]:hover {
-    border-color: rgba(255, 255, 255, 0.16) !important;
+    border-color: rgba(255, 255, 255, 0.18) !important;
 }
 
-/* Executive Navigation Header */
-.top-nav-bar {
+/* Top Studio Navigation Header */
+.studio-nav-bar {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background: rgba(15, 23, 42, 0.85);
+    background: rgba(11, 16, 31, 0.85);
     border: 1px solid var(--card-border);
     border-radius: 14px;
-    padding: 10px 20px;
+    padding: 10px 22px;
     margin-bottom: 12px;
-    backdrop-filter: blur(20px);
+    backdrop-filter: blur(24px);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
 }
 
-.nav-brand {
+.studio-brand {
     font-family: 'Space Grotesk', sans-serif;
-    font-size: 1.15rem;
+    font-size: 1.25rem;
     font-weight: 700;
     color: #FFF;
     display: flex;
     align-items: center;
     gap: 8px;
+    letter-spacing: -0.02em;
 }
 
-.nav-brand span {
-    background: linear-gradient(135deg, #6366f1, #06b6d4);
+.studio-brand span {
+    background: linear-gradient(135deg, #00F5FF 0%, #FF2E93 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
 }
 
-/* Segmented Navigation Buttons */
+/* Navigation Segmented Controls */
 div[data-testid="stHorizontalBlock"] .stButton > button {
     background: rgba(255, 255, 255, 0.03) !important;
     border: 1px solid var(--card-border) !important;
@@ -131,13 +135,13 @@ div[data-testid="stHorizontalBlock"] .stButton > button {
     font-size: 0.84rem !important;
     font-weight: 600 !important;
     border-radius: 10px !important;
-    padding: 8px 16px !important;
+    padding: 9px 16px !important;
     transition: all 0.2s ease !important;
 }
 
 div[data-testid="stHorizontalBlock"] .stButton > button:hover {
-    background: rgba(99, 102, 241, 0.15) !important;
-    border-color: var(--accent-indigo) !important;
+    background: rgba(124, 58, 237, 0.18) !important;
+    border-color: var(--vice-purple) !important;
     color: #FFF !important;
     transform: translateY(-1px);
 }
@@ -151,19 +155,19 @@ div[data-testid="stHorizontalBlock"] .stButton > button:hover {
     font-size: 0.74rem;
     font-weight: 600;
     color: var(--text-secondary);
-    letter-spacing: 0.04em;
+    letter-spacing: 0.05em;
     text-transform: uppercase;
 }
 
 .metric-number {
     font-family: 'Space Grotesk', sans-serif;
-    font-size: 2.15rem;
+    font-size: 2.2rem;
     font-weight: 700;
     color: #FFF;
     margin: 4px 0 2px 0;
 }
 
-/* Liquid Glass Creator Profile Tile */
+/* Liquid Glass Creator Profile Tiles */
 .liquid-creator-tile {
     background: linear-gradient(135deg, rgba(255, 255, 255, 0.04) 0%, rgba(255, 255, 255, 0.01) 100%);
     border: 1px solid rgba(255, 255, 255, 0.08);
@@ -179,23 +183,23 @@ div[data-testid="stHorizontalBlock"] .stButton > button:hover {
 }
 
 .liquid-creator-tile:hover {
-    border-color: rgba(99, 102, 241, 0.45);
+    border-color: rgba(0, 245, 255, 0.4);
     transform: translateY(-4px);
-    box-shadow: 0 16px 36px -4px rgba(0, 0, 0, 0.5), 0 0 20px rgba(99, 102, 241, 0.12);
+    box-shadow: 0 16px 36px -4px rgba(0, 0, 0, 0.5), 0 0 24px rgba(0, 245, 255, 0.12);
 }
 
 .creator-avatar {
     width: 48px;
     height: 48px;
     border-radius: 12px;
-    background: linear-gradient(135deg, #6366f1, #06b6d4);
+    background: linear-gradient(135deg, #7C3AED, #FF2E93);
     display: flex;
     align-items: center;
     justify-content: center;
     font-weight: 700;
-    font-size: 1.1rem;
+    font-size: 1.15rem;
     color: #FFF;
-    box-shadow: 0 4px 16px rgba(99, 102, 241, 0.3);
+    box-shadow: 0 4px 18px rgba(255, 46, 147, 0.35);
 }
 
 .platform-pill {
@@ -214,19 +218,19 @@ div[data-testid="stHorizontalBlock"] .stButton > button:hover {
 }
 
 .platform-pill:hover {
-    background: rgba(99, 102, 241, 0.22);
-    border-color: var(--accent-indigo);
+    background: rgba(0, 245, 255, 0.2);
+    border-color: var(--vice-cyan);
     color: #FFF !important;
     transform: translateY(-1px);
 }
 </style>
 """, unsafe_allow_html=True)
 
+
 # --------------------------------------------------
 # CONFIG & SECRETS MANAGER (STREAMLIT CLOUD SAFE)
 # --------------------------------------------------
 def get_secret(key: str, default: Any = None) -> Any:
-    """Safe lookup in Streamlit Cloud secrets with env var fallback."""
     try:
         if key in st.secrets:
             return st.secrets[key]
@@ -234,14 +238,15 @@ def get_secret(key: str, default: Any = None) -> Any:
         pass
     return os.getenv(key, default)
 
+
 # --------------------------------------------------
-# DEFAULT SAMPLE DATASET (ZERO-FAIL ENGINE)
+# INITIAL DATASET (ZERO-CRASH FALLBACK)
 # --------------------------------------------------
-DEFAULT_LEADS: List[Dict[str, Any]] = [
+DEFAULT_LEADS = [
     {
         "id": "lead-1",
         "row_number": 2,
-        "title": "Take-Two Interactive FY26 SEC 10-Q Financial Filing Window",
+        "title": "Take-Two Interactive FY26 SEC 10-Q Filing Confirms Launch Window",
         "source_url": "https://www.sec.gov",
         "priority_score": 96,
         "fact_status": "Official Rockstar",
@@ -250,32 +255,32 @@ DEFAULT_LEADS: List[Dict[str, Any]] = [
         "hook": "Take-Two just confirmed their biggest release schedule in gaming history, and the date is locked in.",
         "commentary_draft": "Take-Two just dropped their latest official financial disclosure, and it confirms what insiders have been praying for. Their expected bookings surge for fiscal 2026 remains completely unchanged, meaning Rockstar is on strict track for their launch window.",
         "on_screen_text": "RELEASE WINDOW LOCKED",
-        "why_it_works": "Official SEC documents instantly silence delay rumors, triggering high retention and share rates.",
+        "why_it_works": "Official SEC documents instantly silence delay rumors, triggering high retention and comment velocity.",
         "creator_credit": "@TakeTwoSEC",
         "last_analyzed": "2026-10-24 14:10:00"
     },
     {
         "id": "lead-2",
         "row_number": 3,
-        "title": "Jason & Lucia Diner Dialogue Audio Clip (Acoustic Match Analysis)",
+        "title": "Jason & Lucia Diner Audio Clip (Forensic Acoustic Match Analysis)",
         "source_url": "https://reddit.com/r/gta6",
         "priority_score": 89,
         "fact_status": "Unverified Leak",
         "review_status": "Needs Review",
-        "summary": "Purported 14-second audio conversation between Jason and Lucia inside a Vice City diner posted on TikTok. High risk of AI voice clone.",
+        "summary": "Purported 14-second audio conversation between Jason and Lucia inside a Vice City diner posted on TikTok. High risk of AI voice cloning.",
         "hook": "Is this real GTA 6 diner audio, or did someone just AI clone Lucia’s voice actress?",
         "commentary_draft": "A brand-new audio leak just exploded across TikTok claiming to feature raw voice lines between Jason and Lucia. But when we run the audio spectrum through acoustic comparison models, something does not add up.",
         "on_screen_text": "AI OR REAL LEAK?",
-        "why_it_works": "Confronts the audience with an authenticity question, sparking debate in the comments section.",
+        "why_it_works": "Confronts the audience with an authenticity question, sparking immediate debate in comments.",
         "creator_credit": "u/ViceCityInsider",
         "last_analyzed": "2026-10-24 15:22:00"
     },
     {
         "id": "lead-3",
         "row_number": 4,
-        "title": "Volumetric Water Physics & Tessellation Engine Teardown",
+        "title": "Volumetric Ocean Fluid Dynamics & Hull Drag Patent Teardown",
         "source_url": "https://youtube.com",
-        "priority_score": 82,
+        "priority_score": 84,
         "fact_status": "Speculative Lore",
         "review_status": "Approved",
         "summary": "Frame-by-frame analysis of trailer wake simulation proving unified ocean fluid dynamics beyond RDR2 mechanics.",
@@ -289,7 +294,7 @@ DEFAULT_LEADS: List[Dict[str, Any]] = [
     {
         "id": "lead-4",
         "row_number": 5,
-        "title": "Bloomberg Insider Corroborates Dual Character Switch Mechanism",
+        "title": "Bloomberg Insider Corroborates Seamless Split-Cut Character Switch",
         "source_url": "https://bloomberg.com",
         "priority_score": 91,
         "fact_status": "Credible Press",
@@ -309,7 +314,7 @@ CREATOR_PROFILES = [
         "name": "Rockstar Universe",
         "handle": "@RockstarUniverse",
         "initials": "RU",
-        "specialty": "Teasers, Mapping & Official Financial Filings",
+        "specialty": "Teasers, Mapping Coordinates & Official Filings",
         "credibility": "95% Accuracy • Tier 1 Insider",
         "relationship": "Lead Source",
         "links": [
@@ -321,7 +326,7 @@ CREATOR_PROFILES = [
         "name": "GTA 6 Informer",
         "handle": "@GTA6Informer",
         "initials": "GI",
-        "specialty": "Actor / Lucia Voice Actress Face-match Analysis",
+        "specialty": "Actor & Lucia Voice Actress Face-match Analysis",
         "credibility": "92% Accuracy • Tier 1 Specialist",
         "relationship": "Collaborator",
         "links": [
@@ -333,7 +338,7 @@ CREATOR_PROFILES = [
         "name": "LegacyKillaHD",
         "handle": "LegacyKillaHD",
         "initials": "LK",
-        "specialty": "Industry Reporting, Rockstar Internal Culture & Delays",
+        "specialty": "Studio Logistics, Internal Culture & Release Timelines",
         "credibility": "86% Accuracy • Tier 2 Commentator",
         "relationship": "Direct Contact",
         "links": [
@@ -345,7 +350,7 @@ CREATOR_PROFILES = [
         "name": "TobiasM4",
         "handle": "u/TobiasM4",
         "initials": "TM",
-        "specialty": "Source Code & Weapon Wheel Mechanics Teardown",
+        "specialty": "Source Code Leak Mining & Weapon Wheel Dissections",
         "credibility": "89% Accuracy • Tier 1 Technical",
         "relationship": "Credited in Description",
         "links": [
@@ -361,7 +366,7 @@ ALERT_CATALOG = {
         "type": "Official Rockstar",
         "source": "Take-Two SEC Form 10-Q",
         "impact": "High (96/100)",
-        "summary": "Take-Two reiterated expected booking surge for FY2026, officially safeguarding the launch timeline against delay rumors.",
+        "summary": "Financial filing reiterates massive revenue projections between April 2025 and March 2026, officially safeguarding the launch timeline.",
         "hook": "Take-Two just confirmed their biggest release schedule in gaming history, and the date is locked in.",
         "action": "Produce an immediate 35s Shorts breakdown quoting the SEC filing numbers to combat delay rumors."
     },
@@ -370,7 +375,7 @@ ALERT_CATALOG = {
         "type": "Unverified Leak",
         "source": "TikTok & r/GTA6",
         "impact": "Viral Potential (88/100)",
-        "summary": "Purported 14-second audio conversation between Jason and Lucia inside a Vice City diner posted on TikTok. High risk of AI voice clone.",
+        "summary": "Audio engineers discover anomalous room reverb indicating artificial synthesis rather than raw studio master tracks.",
         "hook": "Is this real GTA 6 audio or did someone just AI clone Lucia’s voice actress?",
         "action": "Produce a forensic audio breakdown pointing out the phase cancellation anomalies."
     },
@@ -385,8 +390,9 @@ ALERT_CATALOG = {
     }
 }
 
+
 # --------------------------------------------------
-# GOOGLE SHEETS LIVE CLIENT (WITH CACHE & FALLBACK)
+# GOOGLE SHEETS LIVE INTAKE
 # --------------------------------------------------
 @st.cache_resource
 def get_sheets_client():
@@ -396,7 +402,6 @@ def get_sheets_client():
     sheet_id = get_secret("GOOGLE_SHEET_ID")
     if not raw_creds or not sheet_id:
         return None
-
     try:
         service_account = json.loads(raw_creds) if isinstance(raw_creds, str) else dict(raw_creds)
         credentials = Credentials.from_service_account_info(
@@ -404,11 +409,11 @@ def get_sheets_client():
             scopes=["https://www.googleapis.com/auth/spreadsheets", "https://www.googleapis.com/auth/drive"],
         )
         return gspread.authorize(credentials).open_by_key(str(sheet_id))
-    except Exception as e:
+    except Exception:
         return None
 
+
 def load_live_data() -> Tuple[List[Dict[str, Any]], bool]:
-    """Loads spreadsheet records; falls back gracefully to session memory."""
     client = get_sheets_client()
     if client:
         try:
@@ -440,6 +445,7 @@ def load_live_data() -> Tuple[List[Dict[str, Any]], bool]:
             pass
     return DEFAULT_LEADS, False
 
+
 # Initialize Session State
 if "leads" not in st.session_state:
     loaded_records, is_live = load_live_data()
@@ -447,24 +453,24 @@ if "leads" not in st.session_state:
     st.session_state["sheets_live"] = is_live
 
 if "active_nav" not in st.session_state:
-    st.session_state["active_nav"] = "🎯 Dashboard"
+    st.session_state["active_nav"] = "✦ Studio Pulse"
 
 if "selected_alert" not in st.session_state:
     st.session_state["selected_alert"] = "Take-Two FY26 Schedule Reaffirmation"
 
+
 # --------------------------------------------------
-# GROQ AI INFERENCE ENGINE
+# GROQ SCRIPTWRITING & HOOK INFERENCE
 # --------------------------------------------------
 def execute_groq_inference(lead: Dict[str, Any]) -> Dict[str, Any]:
     api_key = get_secret("GROQ_API_KEY")
     if not api_key or not HAS_GROQ:
-        # Realistic programmatic fallback if no API key is set yet
         return {
-            "priority_score": 92,
+            "priority_score": 93,
             "fact_status": lead.get("fact_status", "Unverified Leak"),
             "summary": f"Forensic analysis completed for '{lead.get('title')[:60]}'.",
             "hook": f"Rockstar just changed everything we thought we knew about {lead.get('title')[:30]}...",
-            "commentary_draft": f"Notice what happens right in the middle of this clip. When you slow down the frame rate, the physics engine confirms a brand new atmospheric displacement system.",
+            "commentary_draft": "Notice what happens right in the middle of this clip. When you slow down the frame rate, the physics engine confirms a brand new atmospheric displacement system.",
             "on_screen_text": "LEAK CONFIRMED",
             "why_it_works": "Forces immediate replay and stimulates technical debate in the comment section.",
             "creator_credit": lead.get("creator_credit") or "@ViceCityInsider",
@@ -500,7 +506,7 @@ Return strictly valid JSON with this schema:
     )
     parsed = json.loads(res.choices[0].message.content or "{}")
     return {
-        "priority_score": parsed.get("priority_score", 85),
+        "priority_score": parsed.get("priority_score", 88),
         "fact_status": parsed.get("fact_status", lead.get("fact_status", "Unverified Leak")),
         "summary": parsed.get("summary", "Summary unavailable."),
         "hook": parsed.get("hook", "You will not believe what just leaked out of Vice City..."),
@@ -511,6 +517,7 @@ Return strictly valid JSON with this schema:
         "last_analyzed": datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S")
     }
 
+
 def update_lead_state(lead_id: str, new_fields: Dict[str, Any]):
     leads = st.session_state["leads"]
     for i, item in enumerate(leads):
@@ -518,6 +525,7 @@ def update_lead_state(lead_id: str, new_fields: Dict[str, Any]):
             leads[i].update(new_fields)
             break
     st.session_state["leads"] = leads
+
 
 # --------------------------------------------------
 # COMPUTED METRICS
@@ -529,64 +537,66 @@ ai_scripted_count = sum(1 for l in leads_data if bool(l.get("hook") and l.get("h
 ready_to_cut_count = sum(1 for l in leads_data if l["review_status"] == "Approved")
 has_groq_key = bool(get_secret("GROQ_API_KEY"))
 
+
 # --------------------------------------------------
-# TOP EXECUTIVE NAVIGATION BAR
+# STUDIO HEADER BAR
 # --------------------------------------------------
 curr_time = datetime.now(timezone.utc).strftime("%a, %b %d • %H:%M UTC")
 
 st.markdown(f"""
-    <div class="top-nav-bar">
-        <div class="nav-brand">
-            <span>VicePlug</span> Hub <span style="font-size:0.75rem; color:#64748B; font-weight:500;">| 2026 WebGL 3D Content Intelligence</span>
+    <div class="studio-nav-bar">
+        <div class="studio-brand">
+            <span>VicePlug</span> Studio <span style="font-size:0.75rem; color:#64748B; font-weight:500;">| GTA VI Content Ops & 3D Spatial Engine</span>
         </div>
         <div style="display:flex; align-items:center; gap:16px; font-size:0.82rem; color:#94A3B8;">
             <span>{curr_time}</span>
-            <span style="display:inline-flex; align-items:center; gap:6px; background:{'rgba(16,185,129,0.12)' if st.session_state['sheets_live'] else 'rgba(99,102,241,0.12)'}; color:{'#10b981' if st.session_state['sheets_live'] else '#818cf8'}; padding:3px 10px; border-radius:20px; font-size:0.74rem; font-weight:600;">
-                ● {'Sheets Connected' if st.session_state['sheets_live'] else 'Local Session Active'}
+            <span style="display:inline-flex; align-items:center; gap:6px; background:{'rgba(0,255,136,0.12)' if st.session_state['sheets_live'] else 'rgba(124,58,237,0.14)'}; color:{'#00FF88' if st.session_state['sheets_live'] else '#A78BFA'}; padding:3px 10px; border-radius:20px; font-size:0.74rem; font-weight:600;">
+                ● {'Sheets Live' if st.session_state['sheets_live'] else 'Local Session Active'}
             </span>
-            <span style="display:inline-flex; align-items:center; gap:6px; background:{'rgba(16,185,129,0.12)' if has_groq_key else 'rgba(245,158,11,0.12)'}; color:{'#10b981' if has_groq_key else '#f59e0b'}; padding:3px 10px; border-radius:20px; font-size:0.74rem; font-weight:600;">
+            <span style="display:inline-flex; align-items:center; gap:6px; background:{'rgba(0,245,255,0.12)' if has_groq_key else 'rgba(255,184,0,0.12)'}; color:{'#00F5FF' if has_groq_key else '#FFB800'}; padding:3px 10px; border-radius:20px; font-size:0.74rem; font-weight:600;">
                 ⚡ {'Groq Llama-3.3 Live' if has_groq_key else 'Groq Fallback Mode'}
             </span>
         </div>
     </div>
 """, unsafe_allow_html=True)
 
-# Segmented Nav Buttons
+# Segmented Navigation Buttons
 nav_c1, nav_c2, nav_c3, nav_c4, nav_c5, nav_c6 = st.columns(6)
 with nav_c1:
-    if st.button("🎯 Dashboard", use_container_width=True): st.session_state["active_nav"] = "🎯 Dashboard"
+    if st.button("✦ Studio Pulse", use_container_width=True): st.session_state["active_nav"] = "✦ Studio Pulse"
 with nav_c2:
-    if st.button(f"🔍 Discovery Hopper ({needs_review_count})", use_container_width=True): st.session_state["active_nav"] = "🔍 Discovery Hopper"
+    if st.button(f"⚡ Discovery Hopper ({needs_review_count})", use_container_width=True): st.session_state["active_nav"] = "⚡ Discovery Hopper"
 with nav_c3:
     if st.button(f"🎬 Ready to Cut ({ready_to_cut_count})", use_container_width=True): st.session_state["active_nav"] = "🎬 Ready to Cut"
 with nav_c4:
-    if st.button("👥 Creator Radar", use_container_width=True): st.session_state["active_nav"] = "👥 Creator Radar"
+    if st.button("💎 Creator Radar", use_container_width=True): st.session_state["active_nav"] = "💎 Creator Radar"
 with nav_c5:
     if st.button("🗄 Master Database", use_container_width=True): st.session_state["active_nav"] = "🗄 Master Database"
 with nav_c6:
-    if st.button("⚙ System Health", use_container_width=True): st.session_state["active_nav"] = "⚙ System Health"
+    if st.button("⚙ Studio Settings", use_container_width=True): st.session_state["active_nav"] = "⚙ Studio Settings"
 
 st.markdown("<div style='height: 4px;'></div>", unsafe_allow_html=True)
 
-# ==================================================
-# SCREEN 1: MISSION CONTROL / DASHBOARD (3D HERO)
-# ==================================================
-if st.session_state["active_nav"] == "🎯 Dashboard":
 
-    # --- ACTION REQUIRED PROMPT ---
+# ==================================================
+# SCREEN 1: STUDIO PULSE (3D SPATIAL HERO + ALERTS)
+# ==================================================
+if st.session_state["active_nav"] == "✦ Studio Pulse":
+
+    # --- TOP ACTION BANNER ---
     with st.container(border=True):
         st.markdown(f"""
             <div style="display:flex; justify-content:space-between; align-items:center; padding: 2px 4px;">
                 <div>
                     <span style="font-weight:700; font-size:1.05rem; color:#FFF;">
-                        Action Required: <span style="color:#F59E0B;">{needs_review_count} Leads</span> Awaiting Editorial Review
+                        Action Required: <span style="color:#FFB800;">{needs_review_count} Content Leads</span> Awaiting Editorial Review
                     </span>
                     <div style="color:#94A3B8; font-size:0.86rem; margin-top:2px;">
                         Triage incoming GTA VI topics below ➔ Generate 30s hooks with Groq ➔ Greenlight scripts directly into your editing queue.
                     </div>
                 </div>
                 <div style="display:flex; gap:10px;">
-                    <span style="font-size:0.8rem; background:rgba(99,102,241,0.15); color:#A5B4FC; padding:5px 12px; border-radius:8px; border:1px solid rgba(99,102,241,0.3); font-weight:600;">
+                    <span style="font-size:0.8rem; background:rgba(124,58,237,0.18); color:#A78BFA; padding:5px 12px; border-radius:8px; border:1px solid rgba(124,58,237,0.35); font-weight:600;">
                         Target: 25-40s Shorts
                     </span>
                 </div>
@@ -595,35 +605,35 @@ if st.session_state["active_nav"] == "🎯 Dashboard":
 
     st.markdown("<div style='height: 4px;'></div>", unsafe_allow_html=True)
 
-    # --- 3D INTERACTIVE THREE.JS SPATIAL PLEXUS ---
+    # --- 3D INTERACTIVE THREE.JS CYBER-TOPOGRAPHY & PLEXUS ---
     with st.container(border=True):
         c_meta, c_canvas = st.columns([1.1, 2.2], gap="large")
 
         with c_meta:
             st.markdown("""
                 <div style="padding: 10px 0;">
-                    <div style="font-size:0.75rem; font-weight:700; color:#6366f1; letter-spacing:0.08em; text-transform:uppercase;">
-                        // 2026 SPATIAL SIGNAL GRAPH
+                    <div style="font-size:0.75rem; font-weight:700; color:#00F5FF; letter-spacing:0.08em; text-transform:uppercase;">
+                        // SPATIAL INTELLIGENCE CORE
                     </div>
-                    <div style="font-family:'Space Grotesk'; font-size:1.8rem; font-weight:700; color:#FFF; margin:4px 0 8px 0; line-height:1.2;">
-                        Real-Time GTA VI Content Plexus
+                    <div style="font-family:'Space Grotesk'; font-size:1.85rem; font-weight:700; color:#FFF; margin:4px 0 8px 0; line-height:1.2;">
+                        Vice City Digital Twin
                     </div>
-                    <p style="color:#94a3b8; font-size:0.86rem; line-height:1.5;">
-                        Interactive WebGL 2 particle constellation rendered directly in your browser. Move your mouse over the canvas to tilt the spatial coordinate grid.
+                    <p style="color:#94A3B8; font-size:0.86rem; line-height:1.5;">
+                        Interactive WebGL 2 cybernetic mesh & neural signal graph. Move your cursor over the canvas to tilt the spatial coordinate grid.
                     </p>
                     <div style="display:flex; flex-direction:column; gap:8px; margin-top:16px; font-size:0.8rem;">
-                        <div><span style="color:#10b981; font-weight:700;">● Official Rockstar:</span> Verified Take-Two filings & trailers</div>
-                        <div><span style="color:#6366f1; font-weight:700;">● Credible Press:</span> Bloomberg & reputable insiders</div>
-                        <div><span style="color:#06b6d4; font-weight:700;">● Community Lore:</span> Speculative map & physics analysis</div>
-                        <div><span style="color:#f43f5e; font-weight:700;">● Unverified Leaks:</span> High-risk raw social clip captures</div>
+                        <div><span style="color:#00FF88; font-weight:700;">● Official Rockstar:</span> Verified Take-Two filings & trailers</div>
+                        <div><span style="color:#A78BFA; font-weight:700;">● Credible Press:</span> Bloomberg & reputable insiders</div>
+                        <div><span style="color:#00F5FF; font-weight:700;">● Community Lore:</span> Speculative map & physics analysis</div>
+                        <div><span style="color:#FF2E93; font-weight:700;">● Unverified Leaks:</span> High-risk raw social clip captures</div>
                     </div>
                 </div>
             """, unsafe_allow_html=True)
 
         with c_canvas:
-            # Client-side 60 FPS Three.js Scene with Pointer Lerp
-            particle_count = min(max(total_leads * 8, 220), 500)
-            three_js_html = f"""
+            # Three.js 60fps Sunset Cyber Mesh with Real-time Mouse Parallax
+            particle_count = min(max(total_leads * 8, 220), 450)
+            three_js_code = f"""
             <!DOCTYPE html>
             <html>
             <head>
@@ -637,7 +647,7 @@ if st.session_state["active_nav"] == "🎯 Dashboard":
               <script>
                 const scene = new THREE.Scene();
                 const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
-                camera.position.z = 5.2;
+                camera.position.set(0, 1.2, 5.0);
 
                 const renderer = new THREE.WebGLRenderer({{ alpha: true, antialias: true, powerPreference: "high-performance" }});
                 renderer.setSize(window.innerWidth, window.innerHeight);
@@ -647,25 +657,33 @@ if st.session_state["active_nav"] == "🎯 Dashboard":
                 const group = new THREE.Group();
                 scene.add(group);
 
+                // 1. Futuristic Vice City Topography Grid Floor
+                const gridHelper = new THREE.GridHelper(10, 24, 0xFF2E93, 0x7C3AED);
+                gridHelper.position.y = -1.2;
+                gridHelper.material.opacity = 0.35;
+                gridHelper.material.transparent = true;
+                group.add(gridHelper);
+
+                // 2. Dynamic Content Nodes
                 const count = {particle_count};
                 const geometry = new THREE.BufferGeometry();
                 const positions = new Float32Array(count * 3);
                 const colors = new Float32Array(count * 3);
 
-                const cOfficial = new THREE.Color(0x10b981);
-                const cPress = new THREE.Color(0x6366f1);
-                const cLore = new THREE.Color(0x06b6d4);
-                const cLeak = new THREE.Color(0xf43f5e);
+                const cOfficial = new THREE.Color(0x00FF88);
+                const cPress = new THREE.Color(0xA78BFA);
+                const cLore = new THREE.Color(0x00F5FF);
+                const cLeak = new THREE.Color(0xFF2E93);
 
                 for (let i = 0; i < count; i++) {{
                     const u = Math.random();
                     const v = Math.random();
                     const theta = u * 2.0 * Math.PI;
                     const phi = Math.acos(2.0 * v - 1.0);
-                    const r = 1.6 + (Math.random() - 0.5) * 0.45;
+                    const r = 1.45 + (Math.random() - 0.5) * 0.4;
 
                     positions[i * 3] = r * Math.sin(phi) * Math.cos(theta);
-                    positions[i * 3 + 1] = r * Math.sin(phi) * Math.sin(theta);
+                    positions[i * 3 + 1] = r * Math.sin(phi) * Math.sin(theta) * 0.85;
                     positions[i * 3 + 2] = r * Math.cos(phi);
 
                     let col = cPress;
@@ -684,37 +702,37 @@ if st.session_state["active_nav"] == "🎯 Dashboard":
                 geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
 
                 const particleMaterial = new THREE.PointsMaterial({{
-                    size: 0.055,
+                    size: 0.052,
                     vertexColors: true,
                     transparent: true,
-                    opacity: 0.9,
+                    opacity: 0.95,
                     blending: THREE.AdditiveBlending
                 }});
 
                 const particles = new THREE.Points(geometry, particleMaterial);
                 group.add(particles);
 
-                // Central Wireframe Luminous Core
-                const coreGeo = new THREE.SphereGeometry(0.55, 24, 24);
+                // 3. Central Glowing Luminous Core
+                const coreGeo = new THREE.IcosahedronGeometry(0.55, 2);
                 const coreMat = new THREE.MeshBasicMaterial({{
-                    color: 0x6366f1,
+                    color: 0x00F5FF,
                     wireframe: true,
                     transparent: true,
-                    opacity: 0.25
+                    opacity: 0.28
                 }});
                 const core = new THREE.Mesh(coreGeo, coreMat);
                 group.add(core);
 
-                // Outer Synaptic Orbital Ring
-                const ringGeo = new THREE.RingGeometry(2.1, 2.13, 64);
+                // 4. Orbital Synaptic Ring
+                const ringGeo = new THREE.RingGeometry(1.9, 1.93, 64);
                 const ringMat = new THREE.MeshBasicMaterial({{
-                    color: 0x06b6d4,
+                    color: 0xFF2E93,
                     side: THREE.DoubleSide,
                     transparent: true,
-                    opacity: 0.25
+                    opacity: 0.3
                 }});
                 const ring = new THREE.Mesh(ringGeo, ringMat);
-                ring.rotation.x = Math.PI / 3;
+                ring.rotation.x = Math.PI / 2.8;
                 group.add(ring);
 
                 // Interactive Mouse Tracking with Smooth Lerp
@@ -729,14 +747,15 @@ if st.session_state["active_nav"] == "🎯 Dashboard":
                 function animate() {{
                     requestAnimationFrame(animate);
 
-                    targetX += (mouseX * 0.4 - targetX) * 0.05;
+                    targetX += (mouseX * 0.45 - targetX) * 0.05;
                     targetY += (mouseY * 0.4 - targetY) * 0.05;
 
-                    group.rotation.y += 0.005;
+                    group.rotation.y += 0.004;
                     group.rotation.x = targetY;
-                    group.rotation.z = -targetX * 0.4;
+                    group.rotation.z = -targetX * 0.3;
 
-                    core.rotation.y -= 0.007;
+                    gridHelper.position.z = (gridHelper.position.z + 0.008) % 1.0;
+                    core.rotation.y -= 0.006;
                     ring.rotation.z += 0.002;
 
                     renderer.render(scene, camera);
@@ -752,7 +771,7 @@ if st.session_state["active_nav"] == "🎯 Dashboard":
             </body>
             </html>
             """
-            components.html(three_js_html, height=270, scrolling=False)
+            components.html(three_js_code, height=270, scrolling=False)
 
     # --- 4 KEY EXECUTIVE METRIC PODS ---
     st.markdown("<div style='height: 4px;'></div>", unsafe_allow_html=True)
@@ -763,7 +782,7 @@ if st.session_state["active_nav"] == "🎯 Dashboard":
                 <div class="metric-card-inner">
                     <div class="metric-title">TOTAL DISCOVERIES</div>
                     <div class="metric-number">{total_leads}</div>
-                    <div style="font-size:0.75rem; color:#10b981; font-weight:600;">↑ 100% Sheets Synced</div>
+                    <div style="font-size:0.75rem; color:#00FF88; font-weight:600;">↑ 100% Ingested</div>
                 </div>
             """, unsafe_allow_html=True)
     with m2:
@@ -771,8 +790,8 @@ if st.session_state["active_nav"] == "🎯 Dashboard":
             st.markdown(f"""
                 <div class="metric-card-inner">
                     <div class="metric-title">NEEDS EDITORIAL REVIEW</div>
-                    <div class="metric-number" style="color:#f59e0b;">{needs_review_count}</div>
-                    <div style="font-size:0.75rem; color:#f43f5e; font-weight:600;">Pending Script Generation</div>
+                    <div class="metric-number" style="color:#FFB800;">{needs_review_count}</div>
+                    <div style="font-size:0.75rem; color:#FF2E93; font-weight:600;">Pending Script Generation</div>
                 </div>
             """, unsafe_allow_html=True)
     with m3:
@@ -780,8 +799,8 @@ if st.session_state["active_nav"] == "🎯 Dashboard":
             st.markdown(f"""
                 <div class="metric-card-inner">
                     <div class="metric-title">AI HOOKS READY</div>
-                    <div class="metric-number" style="color:#6366f1;">{ai_scripted_count}</div>
-                    <div style="font-size:0.75rem; color:#818cf8; font-weight:600;">Paced for 30s Shorts</div>
+                    <div class="metric-number" style="color:#00F5FF;">{ai_scripted_count}</div>
+                    <div style="font-size:0.75rem; color:#A78BFA; font-weight:600;">Paced for 30s Shorts</div>
                 </div>
             """, unsafe_allow_html=True)
     with m4:
@@ -789,8 +808,8 @@ if st.session_state["active_nav"] == "🎯 Dashboard":
             st.markdown(f"""
                 <div class="metric-card-inner">
                     <div class="metric-title">READY TO CUT</div>
-                    <div class="metric-number" style="color:#10b981;">{ready_to_cut_count}</div>
-                    <div style="font-size:0.75rem; color:#10b981; font-weight:600;">Waiting in Cutting Desk</div>
+                    <div class="metric-number" style="color:#00FF88;">{ready_to_cut_count}</div>
+                    <div style="font-size:0.75rem; color:#00FF88; font-weight:600;">Waiting in Cutting Desk</div>
                 </div>
             """, unsafe_allow_html=True)
 
@@ -804,7 +823,7 @@ if st.session_state["active_nav"] == "🎯 Dashboard":
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
                     <div>
                         <b style="font-size:0.95rem; color:#FFF;">🔔 Clickable Breaking Alerts & Intelligence</b>
-                        <div style="font-size:0.76rem; color:#94A3B8;">Click any event to inspect its research dossier, hook strategy, and action plan.</div>
+                        <div style="font-size:0.76rem; color:#94A3B8;">Click any event to open its research dossier, hook strategy, and action plan.</div>
                     </div>
                 </div>
             """, unsafe_allow_html=True)
@@ -815,24 +834,24 @@ if st.session_state["active_nav"] == "🎯 Dashboard":
                     if st.button(f"⚡ {alert_title}", key=f"alert_btn_{alert_title}", use_container_width=True):
                         st.session_state["selected_alert"] = alert_title
                 with col_badge:
-                    b_color = "#10b981" if "official" in alert_info['type'].lower() else "#f43f5e" if "leak" in alert_info['type'].lower() else "#06b6d4"
+                    b_color = "#00FF88" if "official" in alert_info['type'].lower() else "#FF2E93" if "leak" in alert_info['type'].lower() else "#00F5FF"
                     st.markdown(f"<div style='text-align:right; font-size:0.72rem; color:{b_color}; font-weight:600; padding-top:6px;'>{alert_info['type']}</div>", unsafe_allow_html=True)
 
             # Selected Alert Drawer
             sel = ALERT_CATALOG.get(st.session_state["selected_alert"])
             if sel:
                 st.markdown(f"""
-                    <div style="margin-top:14px; padding:16px; background:rgba(99,102,241,0.06); border:1px solid rgba(99,102,241,0.3); border-radius:12px;">
+                    <div style="margin-top:14px; padding:16px; background:rgba(124,58,237,0.08); border:1px solid rgba(124,58,237,0.35); border-radius:12px;">
                         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
                             <span style="font-weight:700; font-size:1.05rem; color:#FFF;">{st.session_state['selected_alert']}</span>
-                            <span style="font-size:0.74rem; background:rgba(99,102,241,0.2); color:#A5B4FC; padding:3px 8px; border-radius:6px; font-weight:600;">{sel['type']}</span>
+                            <span style="font-size:0.74rem; background:rgba(124,58,237,0.25); color:#A78BFA; padding:3px 8px; border-radius:6px; font-weight:600;">{sel['type']}</span>
                         </div>
                         <div style="font-size:0.86rem; color:#CBD5E1; margin-bottom:8px;"><b>Source:</b> {sel['source']} • <b>Impact:</b> {sel['impact']}</div>
                         <div style="font-size:0.86rem; color:#94A3B8; margin-bottom:8px;"><b>Core Event:</b> {sel['summary']}</div>
-                        <div style="background:rgba(0,0,0,0.35); padding:10px 14px; border-radius:8px; font-size:0.86rem; margin-bottom:10px; border:1px solid rgba(255,255,255,0.06);">
-                            <span style="color:#818CF8; font-weight:600;">Suggested 3s Hook:</span> "{sel['hook']}"
+                        <div style="background:rgba(0,0,0,0.4); padding:10px 14px; border-radius:8px; font-size:0.86rem; margin-bottom:10px; border:1px solid rgba(255,255,255,0.06);">
+                            <span style="color:#00F5FF; font-weight:600;">Suggested 3s Hook:</span> "{sel['hook']}"
                         </div>
-                        <div style="font-size:0.84rem; color:#10B981;"><b>Recommended Action:</b> {sel['action']}</div>
+                        <div style="font-size:0.84rem; color:#00FF88;"><b>Recommended Action:</b> {sel['action']}</div>
                     </div>
                 """, unsafe_allow_html=True)
 
@@ -848,7 +867,7 @@ if st.session_state["active_nav"] == "🎯 Dashboard":
                 labels=labels,
                 values=values,
                 hole=0.68,
-                marker=dict(colors=['#f43f5e', '#8b5cf6', '#6366f1', '#06b6d4', '#10b981']),
+                marker=dict(colors=['#FF2E93', '#7C3AED', '#00F5FF', '#00FF88', '#FFB800']),
                 textinfo='none'
             )])
             fig_donut.update_layout(
@@ -858,22 +877,22 @@ if st.session_state["active_nav"] == "🎯 Dashboard":
                 showlegend=False,
                 annotations=[dict(text=f'<b>{sum(values)}</b><br><span style="font-size:9px; color:#94A3B8;">SIGNALS</span>', x=0.5, y=0.5, font_size=14, font_color="#FFF", showarrow=False)]
             )
-            # Locked static plot: zero zoom or scroll bugs!
             st.plotly_chart(fig_donut, use_container_width=True, config={'staticPlot': True})
 
             st.markdown("""
                 <div style="display:flex; justify-content:space-around; font-size:0.75rem; color:#94A3B8; margin-top:4px;">
-                    <span><b style="color:#f43f5e;">●</b> Leaks</span>
-                    <span><b style="color:#8b5cf6;">●</b> Lore</span>
-                    <span><b style="color:#6366f1;">●</b> Press</span>
-                    <span><b style="color:#06b6d4;">●</b> Official</span>
+                    <span><b style="color:#FF2E93;">●</b> Leaks</span>
+                    <span><b style="color:#7C3AED;">●</b> Lore</span>
+                    <span><b style="color:#00F5FF;">●</b> Press</span>
+                    <span><b style="color:#00FF88;">●</b> Official</span>
                 </div>
             """, unsafe_allow_html=True)
 
+
 # ==================================================
-# SCREEN 2: DISCOVERY HOPPER (EDITORIAL SCRIPT STUDIO)
+# SCREEN 2: DISCOVERY HOPPER (TELEPROMPTER DOSSIERS)
 # ==================================================
-elif st.session_state["active_nav"] == "🔍 Discovery Hopper":
+elif st.session_state["active_nav"] == f"⚡ Discovery Hopper ({needs_review_count})":
     st.markdown("<h2 style='font-family:Space Grotesk; margin-bottom:4px;'>Discovery Hopper & Script Studio</h2>", unsafe_allow_html=True)
     st.caption("Filter content opportunities, generate high-CTR 30s Short hooks, and push greenlit angles to your cutting queue.")
 
@@ -900,44 +919,44 @@ elif st.session_state["active_nav"] == "🔍 Discovery Hopper":
         fact = lead["fact_status"]
         status = lead["review_status"]
 
-        badge_bg = "rgba(244, 63, 94, 0.12)" if "leak" in fact.lower() else "rgba(6, 182, 212, 0.12)" if "official" in fact.lower() else "rgba(139, 92, 246, 0.12)"
-        badge_text = "#f43f5e" if "leak" in fact.lower() else "#06b6d4" if "official" in fact.lower() else "#a78bfa"
+        badge_bg = "rgba(255, 46, 147, 0.12)" if "leak" in fact.lower() else "rgba(0, 245, 255, 0.12)" if "official" in fact.lower() else "rgba(124, 58, 237, 0.14)"
+        badge_text = "#FF2E93" if "leak" in fact.lower() else "#00F5FF" if "official" in fact.lower() else "#A78BFA"
 
         with st.container(border=True):
             st.markdown(f"""
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
                     <div style="display:flex; align-items:center; gap:8px;">
-                        <span style="font-size:0.75rem; background:rgba(99,102,241,0.15); color:#a5b4fc; padding:4px 10px; border-radius:6px; font-weight:700;">PRIORITY: {lead['priority_score']}/100</span>
+                        <span style="font-size:0.75rem; background:rgba(0,245,255,0.12); color:#00F5FF; padding:4px 10px; border-radius:6px; font-weight:700;">PRIORITY: {lead['priority_score']}/100</span>
                         <span style="font-size:0.75rem; background:{badge_bg}; color:{badge_text}; padding:4px 10px; border-radius:6px; font-weight:600;">{fact}</span>
-                        <span style="font-size:0.75rem; color:#64748b;">Row #{row_num}</span>
+                        <span style="font-size:0.75rem; color:#64748B;">Row #{row_num}</span>
                     </div>
-                    <span style="font-size:0.78rem; padding:4px 12px; border-radius:20px; background:rgba(255,255,255,0.05); color:#e2e8f0; font-weight:600;">{status}</span>
+                    <span style="font-size:0.78rem; padding:4px 12px; border-radius:20px; background:rgba(255,255,255,0.05); color:#E2E8F0; font-weight:600;">{status}</span>
                 </div>
-                <div style="font-family:'Space Grotesk'; font-size:1.25rem; font-weight:700; color:#fff; margin-bottom:14px;">{lead['title']}</div>
+                <div style="font-family:'Space Grotesk'; font-size:1.25rem; font-weight:700; color:#FFF; margin-bottom:14px;">{lead['title']}</div>
             """, unsafe_allow_html=True)
 
             script_col_view, context_col_view = st.columns([1.5, 1], gap="medium")
 
             with script_col_view:
                 st.markdown(f"""
-                    <div style="background:rgba(15, 23, 42, 0.6); border:1px solid rgba(255,255,255,0.06); border-radius:10px; padding:14px; height:100%;">
-                        <div style="font-size:0.75rem; font-weight:700; color:#818cf8; margin-bottom:4px; text-transform:uppercase;">🎣 Spoken Hook (0–3 Seconds):</div>
-                        <div style="font-size:0.92rem; color:#fff; font-style:italic; margin-bottom:12px;">"{lead['hook'] or 'Hook not yet drafted. Click Generate Script.'}"</div>
-                        <div style="font-size:0.75rem; font-weight:700; color:#10b981; margin-bottom:4px; text-transform:uppercase;">📝 30s Voiceover Script Draft:</div>
-                        <div style="font-size:0.86rem; color:#cbd5e1; line-height:1.45;">{lead['commentary_draft'] or 'Click Generate Script below to synthesize with Groq Llama-3.3.'}</div>
+                    <div style="background:rgba(11, 16, 31, 0.65); border:1px solid rgba(255,255,255,0.06); border-radius:10px; padding:14px; height:100%;">
+                        <div style="font-size:0.75rem; font-weight:700; color:#00F5FF; margin-bottom:4px; text-transform:uppercase;">🎣 Spoken Hook (0–3 Seconds):</div>
+                        <div style="font-size:0.92rem; color:#FFF; font-style:italic; margin-bottom:12px;">"{lead['hook'] or 'Hook not yet drafted. Click Generate Script.'}"</div>
+                        <div style="font-size:0.75rem; font-weight:700; color:#00FF88; margin-bottom:4px; text-transform:uppercase;">📝 30s Voiceover Script Draft:</div>
+                        <div style="font-size:0.86rem; color:#CBD5E1; line-height:1.45;">{lead['commentary_draft'] or 'Click Generate Script below to synthesize with Groq Llama-3.3.'}</div>
                     </div>
                 """, unsafe_allow_html=True)
 
             with context_col_view:
                 st.markdown(f"""
-                    <div style="background:rgba(15, 23, 42, 0.6); border:1px solid rgba(255,255,255,0.06); border-radius:10px; padding:14px; height:100%; display:flex; flex-direction:column; justify-content:space-between;">
+                    <div style="background:rgba(11, 16, 31, 0.65); border:1px solid rgba(255,255,255,0.06); border-radius:10px; padding:14px; height:100%; display:flex; flex-direction:column; justify-content:space-between;">
                         <div>
-                            <div style="font-size:0.75rem; font-weight:700; color:#06b6d4; margin-bottom:4px; text-transform:uppercase;">🎯 Audience Retention Angle:</div>
-                            <div style="font-size:0.84rem; color:#94a3b8; margin-bottom:10px;">{lead['why_it_works']}</div>
+                            <div style="font-size:0.75rem; font-weight:700; color:#FF2E93; margin-bottom:4px; text-transform:uppercase;">🎯 Audience Retention Angle:</div>
+                            <div style="font-size:0.84rem; color:#94A3B8; margin-bottom:10px;">{lead['why_it_works']}</div>
                         </div>
                         <div>
-                            <div style="font-size:0.72rem; font-weight:700; color:#64748b; margin-bottom:2px; text-transform:uppercase;">Source Attribution:</div>
-                            <div style="font-size:0.82rem; color:#e2e8f0;">{lead['creator_credit']}</div>
+                            <div style="font-size:0.72rem; font-weight:700; color:#64748B; margin-bottom:2px; text-transform:uppercase;">Source Attribution:</div>
+                            <div style="font-size:0.82rem; color:#E2E8F0;">{lead['creator_credit']}</div>
                         </div>
                     </div>
                 """, unsafe_allow_html=True)
@@ -962,12 +981,13 @@ elif st.session_state["active_nav"] == "🔍 Discovery Hopper":
 
             with a3:
                 if lead["source_url"] and lead["source_url"].startswith("http"):
-                    st.markdown(f"<div style='padding-top:8px;'><a href='{lead['source_url']}' target='_blank' style='font-size:0.82rem; color:#818cf8; text-decoration:none;'>🔗 Open Source Video / Leak Clip ↗</a></div>", unsafe_allow_html=True)
+                    st.markdown(f"<div style='padding-top:8px;'><a href='{lead['source_url']}' target='_blank' style='font-size:0.82rem; color:#00F5FF; text-decoration:none;'>🔗 Open Source Video / Leak Clip ↗</a></div>", unsafe_allow_html=True)
+
 
 # ==================================================
-# SCREEN 3: READY TO CUT QUEUE (EDITING DESK)
+# SCREEN 3: READY TO CUT (EDITING DESK)
 # ==================================================
-elif st.session_state["active_nav"] == "🎬 Ready to Cut":
+elif st.session_state["active_nav"] == f"🎬 Ready to Cut ({ready_to_cut_count})":
     st.markdown("<h2 style='font-family:Space Grotesk; margin-bottom:4px;'>Ready to Cut Queue</h2>", unsafe_allow_html=True)
     st.caption("All greenlit stories with completed scripts and hooks. Open CapCut or Premiere, record the voiceover, and check off.")
 
@@ -980,13 +1000,13 @@ elif st.session_state["active_nav"] == "🎬 Ready to Cut":
             lead_id = lead["id"]
             with st.container(border=True):
                 st.markdown(f"""
-                    <div style="font-family:'Space Grotesk'; font-size:1.25rem; font-weight:700; color:#10b981; margin-bottom:10px;">{lead['title']}</div>
-                    <div style="background:rgba(15, 23, 42, 0.7); border:1px solid rgba(16,185,129,0.3); border-radius:10px; padding:16px; margin-bottom:12px;">
-                        <span style="color:#06b6d4; font-weight:700; font-size:0.75rem; text-transform:uppercase;">[Spoken Hook (0–3 Seconds)]:</span>
-                        <div style="font-size:1.05rem; color:#fff; font-weight:600; margin:4px 0 12px 0;">"{lead['hook']}"</div>
-                        <span style="color:#10b981; font-weight:700; font-size:0.75rem; text-transform:uppercase;">[Voiceover Script (3–35 Seconds)]:</span>
-                        <div style="font-size:0.92rem; color:#cbd5e1; line-height:1.5; margin-top:4px;">{lead['commentary_draft']}</div>
-                        <div style="margin-top:10px; font-size:0.78rem; color:#94a3b8;">
+                    <div style="font-family:'Space Grotesk'; font-size:1.25rem; font-weight:700; color:#00FF88; margin-bottom:10px;">{lead['title']}</div>
+                    <div style="background:rgba(11, 16, 31, 0.7); border:1px solid rgba(0,255,136,0.25); border-radius:10px; padding:16px; margin-bottom:12px;">
+                        <span style="color:#00F5FF; font-weight:700; font-size:0.75rem; text-transform:uppercase;">[Spoken Hook (0–3 Seconds)]:</span>
+                        <div style="font-size:1.05rem; color:#FFF; font-weight:600; margin:4px 0 12px 0;">"{lead['hook']}"</div>
+                        <span style="color:#00FF88; font-weight:700; font-size:0.75rem; text-transform:uppercase;">[Voiceover Script (3–35 Seconds)]:</span>
+                        <div style="font-size:0.92rem; color:#CBD5E1; line-height:1.5; margin-top:4px;">{lead['commentary_draft']}</div>
+                        <div style="margin-top:10px; font-size:0.78rem; color:#94A3B8;">
                             <b>On-Screen Overlay Text:</b> <span style="color:#FFF; font-weight:700;">{lead['on_screen_text']}</span>
                         </div>
                     </div>
@@ -1000,12 +1020,13 @@ elif st.session_state["active_nav"] == "🎬 Ready to Cut":
                         st.rerun()
                 with act_link:
                     if lead["source_url"] and lead["source_url"].startswith("http"):
-                        st.markdown(f"<div style='padding-top:8px;'><a href='{lead['source_url']}' target='_blank' style='font-size:0.84rem; color:#06b6d4; text-decoration:none;'>📥 Download/Open Source Footage ↗</a></div>", unsafe_allow_html=True)
+                        st.markdown(f"<div style='padding-top:8px;'><a href='{lead['source_url']}' target='_blank' style='font-size:0.84rem; color:#00F5FF; text-decoration:none;'>📥 Download/Open Source Footage ↗</a></div>", unsafe_allow_html=True)
+
 
 # ==================================================
 # SCREEN 4: CREATOR RADAR (LIQUID GLASS PROFILES)
 # ==================================================
-elif st.session_state["active_nav"] == "👥 Creator Radar":
+elif st.session_state["active_nav"] == "💎 Creator Radar":
     st.markdown("<h2 style='font-family:Space Grotesk; margin-bottom:4px;'>Creator Intelligence & Leaker Directory</h2>", unsafe_allow_html=True)
     st.caption("Liquid glass profile directory of prominent GTA VI leakers, content creators, and news aggregators with clickable channel hyperlinks.")
 
@@ -1022,18 +1043,18 @@ elif st.session_state["active_nav"] == "👥 Creator Radar":
                                 <div class="creator-avatar">{profile['initials']}</div>
                                 <div>
                                     <div style="font-size:1.15rem; font-weight:700; color:#FFF;">{profile['name']}</div>
-                                    <div style="font-size:0.8rem; color:#818cf8; font-weight:600;">{profile['handle']}</div>
+                                    <div style="font-size:0.8rem; color:#00F5FF; font-weight:600;">{profile['handle']}</div>
                                 </div>
                             </div>
-                            <span style="font-size:0.75rem; background:rgba(16,185,129,0.12); color:#10b981; padding:4px 10px; border-radius:20px; font-weight:600; border:1px solid rgba(16,185,129,0.25);">
+                            <span style="font-size:0.75rem; background:rgba(0,255,136,0.12); color:#00FF88; padding:4px 10px; border-radius:20px; font-weight:600; border:1px solid rgba(0,255,136,0.25);">
                                 {profile['relationship']}
                             </span>
                         </div>
-                        <div style="font-size:0.86rem; color:#cbd5e1; margin-bottom:8px;"><b>Focus:</b> {profile['specialty']}</div>
-                        <div style="font-size:0.78rem; color:#94a3b8; margin-bottom:16px;"><b>Credibility:</b> {profile['credibility']}</div>
+                        <div style="font-size:0.86rem; color:#CBD5E1; margin-bottom:8px;"><b>Focus:</b> {profile['specialty']}</div>
+                        <div style="font-size:0.78rem; color:#94A3B8; margin-bottom:16px;"><b>Credibility:</b> {profile['credibility']}</div>
                     </div>
                     <div>
-                        <div style="font-size:0.74rem; font-weight:600; color:#64748b; text-transform:uppercase; margin-bottom:8px;">Direct Platform Channels:</div>
+                        <div style="font-size:0.74rem; font-weight:600; color:#64748B; text-transform:uppercase; margin-bottom:8px;">Direct Platform Channels:</div>
                         <div style="display:flex; flex-wrap:wrap; gap:8px;">
                             {links_html}
                         </div>
@@ -1047,13 +1068,14 @@ elif st.session_state["active_nav"] == "👥 Creator Radar":
         st.markdown("""
             <b style="font-size:0.95rem; color:#FFF;">📋 Pre-Formatted Video Description Credit Block</b>
             <p style="font-size:0.84rem; color:#94A3B8; margin: 4px 0 10px 0;">Copy and paste this credit block into your Shorts and TikTok descriptions to maintain creator goodwill and prevent copyright strikes:</p>
-            <div style="background:rgba(0,0,0,0.35); border:1px solid var(--card-border); border-radius:8px; padding:12px; font-family:'JetBrains Mono'; font-size:0.78rem; color:#a5b4fc; line-height:1.5;">
+            <div style="background:rgba(0,0,0,0.4); border:1px solid var(--card-border); border-radius:8px; padding:12px; font-family:'JetBrains Mono'; font-size:0.78rem; color:#00F5FF; line-height:1.5;">
                 🚨 GTA VI Content Intelligence<br>
                 Original clip breakdown credit: [Creator Name] (@Handle)<br>
                 All game rights & trademarks belong to Rockstar Games / Take-Two Interactive.<br>
                 Curated & scripted via VicePlug Hub.
             </div>
         """, unsafe_allow_html=True)
+
 
 # ==================================================
 # SCREEN 5: MASTER DATABASE (SPREADSHEET EXPORT)
@@ -1084,27 +1106,28 @@ elif st.session_state["active_nav"] == "🗄 Master Database":
             st.toast("Refreshed with latest spreadsheet data!", icon="🔄")
             st.rerun()
 
+
 # ==================================================
-# SCREEN 6: SYSTEM HEALTH & SECRETS DIAGNOSTICS
+# SCREEN 6: STUDIO SETTINGS & SECRETS
 # ==================================================
-elif st.session_state["active_nav"] == "⚙ System Health":
-    st.markdown("<h2 style='font-family:Space Grotesk; margin-bottom:4px;'>System Integrations & Health</h2>", unsafe_allow_html=True)
+elif st.session_state["active_nav"] == "⚙ Studio Settings":
+    st.markdown("<h2 style='font-family:Space Grotesk; margin-bottom:4px;'>Studio Integrations & Health</h2>", unsafe_allow_html=True)
     st.caption("Verify environment secrets, Groq inference status, and Google Cloud authorization.")
 
     with st.container(border=True):
         st.markdown(f"""
             <div style="display:flex; flex-direction:column; gap:12px;">
                 <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid rgba(255,255,255,0.06); padding-bottom:10px;">
-                    <div><b>Groq Cloud API Gateway:</b><br><span style="font-size:0.8rem; color:#94a3b8;">Llama-3.3-70B model execution</span></div>
-                    <span style="color:{'#10b981' if has_groq_key else '#f59e0b'}; font-weight:700;">{'CONNECTED' if has_groq_key else 'FALLBACK ACTIVE'}</span>
+                    <div><b>Groq Cloud API Gateway:</b><br><span style="font-size:0.8rem; color:#94A3B8;">Llama-3.3-70B model execution</span></div>
+                    <span style="color:{'#00FF88' if has_groq_key else '#FFB800'}; font-weight:700;">{'CONNECTED' if has_groq_key else 'FALLBACK ACTIVE'}</span>
                 </div>
                 <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid rgba(255,255,255,0.06); padding-bottom:10px;">
-                    <div><b>Google Sheets Service Account:</b><br><span style="font-size:0.8rem; color:#94a3b8;">Bi-directional spreadsheet sync</span></div>
-                    <span style="color:{'#10b981' if st.session_state['sheets_live'] else '#818cf8'}; font-weight:700;">{'CONNECTED' if st.session_state['sheets_live'] else 'LOCAL SESSION CACHE'}</span>
+                    <div><b>Google Sheets Service Account:</b><br><span style="font-size:0.8rem; color:#94A3B8;">Bi-directional spreadsheet sync</span></div>
+                    <span style="color:{'#00FF88' if st.session_state['sheets_live'] else '#A78BFA'}; font-weight:700;">{'CONNECTED' if st.session_state['sheets_live'] else 'LOCAL SESSION CACHE'}</span>
                 </div>
                 <div style="display:flex; justify-content:space-between; align-items:center;">
-                    <div><b>Client WebGL 2 Renderer:</b><br><span style="font-size:0.8rem; color:#94a3b8;">Hardware-accelerated Three.js canvas</span></div>
-                    <span style="color:#10b981; font-weight:700;">ACTIVE (60 FPS)</span>
+                    <div><b>Client WebGL 2 Renderer:</b><br><span style="font-size:0.8rem; color:#94A3B8;">Hardware-accelerated Three.js canvas</span></div>
+                    <span style="color:#00FF88; font-weight:700;">ACTIVE (60 FPS)</span>
                 </div>
             </div>
         """, unsafe_allow_html=True)
@@ -1112,6 +1135,6 @@ elif st.session_state["active_nav"] == "⚙ System Health":
     st.markdown("""
         <div style="margin-top:14px; font-size:0.84rem; color:#94A3B8;">
             <b>How to connect live credentials on Streamlit Cloud:</b><br>
-            Go to your app dashboard at <a href="https://share.streamlit.io" target="_blank" style="color:#6366f1;">share.streamlit.io</a> ➔ App Settings ➔ <b>Secrets</b> ➔ Paste your <code>GROQ_API_KEY</code> and <code>GOOGLE_SERVICE_ACCOUNT_JSON</code>.
+            Go to your app dashboard at <a href="https://share.streamlit.io" target="_blank" style="color:#00F5FF;">share.streamlit.io</a> ➔ App Settings ➔ <b>Secrets</b> ➔ Paste your <code>GROQ_API_KEY</code> and <code>GOOGLE_SERVICE_ACCOUNT_JSON</code>.
         </div>
     """, unsafe_allow_html=True)
