@@ -3,6 +3,7 @@ import json
 from datetime import datetime, timezone
 import pandas as pd
 import streamlit as st
+import streamlit.components.v1 as components
 import plotly.graph_objects as go
 import gspread
 from google.oauth2.service_account import Credentials
@@ -12,26 +13,25 @@ from groq import Groq
 # SYSTEM CONFIGURATION
 # --------------------------------------------------
 st.set_page_config(
-    page_title="VicePlug Hub | Content Intelligence & Shorts Ops",
+    page_title="VicePlug Hub | 2026 3D Content Intelligence",
     page_icon="🎬",
     layout="wide",
     initial_sidebar_state="collapsed",
 )
 
 # --------------------------------------------------
-# CLASSY MODERN DARK AESTHETIC (LIQUID GLASS THEME)
+# 2026 LIQUID GLASS & 3D INTEGRATION DESIGN SYSTEM (CSS)
 # --------------------------------------------------
 st.markdown("""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
 
 :root {
-    --bg-base: #090D16;
-    --card-surface: rgba(17, 24, 39, 0.7);
+    --bg-deep: #080C15;
+    --card-surface: rgba(15, 23, 42, 0.65);
     --card-border: rgba(255, 255, 255, 0.08);
-    --card-border-hover: rgba(99, 102, 241, 0.4);
+    --card-border-hover: rgba(99, 102, 241, 0.45);
     --accent-indigo: #6366F1;
-    --accent-violet: #8B5CF6;
     --accent-cyan: #06B6D4;
     --accent-emerald: #10B981;
     --accent-amber: #F59E0B;
@@ -47,50 +47,50 @@ html, body, [class*="css"] {
 }
 
 .stApp {
-    background-color: var(--bg-base);
+    background-color: var(--bg-deep);
     background-image: 
-        radial-gradient(circle at 10% 0%, rgba(99, 102, 241, 0.07) 0%, transparent 40%),
-        radial-gradient(circle at 90% 10%, rgba(6, 182, 212, 0.05) 0%, transparent 40%);
+        radial-gradient(circle at 15% 0%, rgba(99, 102, 241, 0.08) 0%, transparent 45%),
+        radial-gradient(circle at 85% 15%, rgba(6, 182, 212, 0.06) 0%, transparent 45%);
 }
 
 #MainMenu, header, footer { visibility: hidden; }
 
 .block-container {
     max-width: 1720px;
-    padding-top: 1rem;
+    padding-top: 0.8rem;
     padding-bottom: 3rem;
 }
 
-/* Glassmorphism Containers */
+/* 2026 Liquid Glass Containers */
 div[data-testid="stVerticalBlockBorderWrapper"] {
     background: var(--card-surface) !important;
     border: 1px solid var(--card-border) !important;
-    border-radius: 14px !important;
-    backdrop-filter: blur(16px) !important;
-    box-shadow: 0 4px 24px -1px rgba(0, 0, 0, 0.3) !important;
-    transition: all 0.2s ease !important;
+    border-radius: 16px !important;
+    backdrop-filter: blur(24px) !important;
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.35) !important;
+    transition: all 0.25s ease !important;
 }
 
 div[data-testid="stVerticalBlockBorderWrapper"]:hover {
-    border-color: rgba(255, 255, 255, 0.14) !important;
+    border-color: rgba(255, 255, 255, 0.15) !important;
 }
 
-/* Top Navigation Bar */
+/* Executive Header Bar */
 .top-nav-bar {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background: rgba(15, 23, 42, 0.85);
+    background: rgba(15, 23, 42, 0.8);
     border: 1px solid var(--card-border);
-    border-radius: 12px;
-    padding: 10px 20px;
+    border-radius: 14px;
+    padding: 12px 22px;
     margin-bottom: 14px;
-    backdrop-filter: blur(14px);
+    backdrop-filter: blur(20px);
 }
 
 .nav-brand {
     font-family: 'Space Grotesk', sans-serif;
-    font-size: 1.15rem;
+    font-size: 1.2rem;
     font-weight: 700;
     color: #FFF;
     display: flex;
@@ -104,15 +104,15 @@ div[data-testid="stVerticalBlockBorderWrapper"]:hover {
     -webkit-text-fill-color: transparent;
 }
 
-/* Classy Navigation Buttons */
+/* Modern Segmented Navigation Buttons */
 div[data-testid="stHorizontalBlock"] .stButton > button {
-    background: rgba(30, 41, 59, 0.4) !important;
+    background: rgba(255, 255, 255, 0.03) !important;
     border: 1px solid var(--card-border) !important;
     color: var(--text-secondary) !important;
-    font-size: 0.84rem !important;
+    font-size: 0.85rem !important;
     font-weight: 600 !important;
-    border-radius: 8px !important;
-    padding: 8px 16px !important;
+    border-radius: 10px !important;
+    padding: 9px 16px !important;
     transition: all 0.2s ease !important;
 }
 
@@ -120,98 +120,84 @@ div[data-testid="stHorizontalBlock"] .stButton > button:hover {
     background: rgba(99, 102, 241, 0.15) !important;
     border-color: var(--accent-indigo) !important;
     color: #FFF !important;
+    transform: translateY(-1px);
 }
 
-/* Metric Display */
+/* Metric Display Cards */
 .metric-card-inner {
-    padding: 4px;
+    padding: 6px;
 }
 
 .metric-title {
-    font-size: 0.76rem;
+    font-size: 0.74rem;
     font-weight: 600;
     color: var(--text-secondary);
-    letter-spacing: 0.04em;
+    letter-spacing: 0.05em;
     text-transform: uppercase;
 }
 
 .metric-number {
     font-family: 'Space Grotesk', sans-serif;
-    font-size: 2.1rem;
+    font-size: 2.15rem;
     font-weight: 700;
     color: #FFF;
     margin: 4px 0 2px 0;
 }
 
-/* Liquid Glass Creator Card */
-.glass-creator-card {
-    background: linear-gradient(145deg, rgba(30, 41, 59, 0.5) 0%, rgba(15, 23, 42, 0.8) 100%);
+/* Liquid Glass Creator Tile */
+.liquid-creator-tile {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.04) 0%, rgba(255, 255, 255, 0.01) 100%);
     border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 16px;
+    border-radius: 18px;
     padding: 22px;
-    backdrop-filter: blur(20px);
-    transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+    backdrop-filter: blur(28px);
+    transition: all 0.25s ease;
     height: 100%;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
 }
 
-.glass-creator-card:hover {
-    border-color: rgba(99, 102, 241, 0.5);
-    transform: translateY(-3px);
-    box-shadow: 0 12px 30px -5px rgba(0, 0, 0, 0.5), 0 0 15px rgba(99, 102, 241, 0.15);
+.liquid-creator-tile:hover {
+    border-color: rgba(99, 102, 241, 0.45);
+    transform: translateY(-4px);
+    box-shadow: 0 16px 36px -4px rgba(0, 0, 0, 0.5), 0 0 20px rgba(99, 102, 241, 0.12);
 }
 
 .creator-avatar {
     width: 48px;
     height: 48px;
     border-radius: 12px;
-    background: linear-gradient(135deg, #6366F1, #8B5CF6);
+    background: linear-gradient(135deg, #6366F1, #06B6D4);
     display: flex;
     align-items: center;
     justify-content: center;
     font-weight: 700;
     font-size: 1.1rem;
     color: #FFF;
-    box-shadow: 0 4px 14px rgba(99, 102, 241, 0.3);
+    box-shadow: 0 4px 16px rgba(99, 102, 241, 0.3);
 }
 
 .platform-pill {
     display: inline-flex;
     align-items: center;
     gap: 6px;
-    padding: 5px 12px;
+    padding: 6px 14px;
     border-radius: 20px;
-    font-size: 0.75rem;
+    font-size: 0.78rem;
     font-weight: 600;
     text-decoration: none !important;
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.09);
     color: #E2E8F0 !important;
     transition: all 0.2s ease;
 }
 
 .platform-pill:hover {
-    background: rgba(99, 102, 241, 0.2);
+    background: rgba(99, 102, 241, 0.22);
     border-color: var(--accent-indigo);
     color: #FFF !important;
-}
-
-/* Alert Row Styling */
-.alert-row-btn {
-    text-align: left !important;
-    background: rgba(255, 255, 255, 0.02) !important;
-    border: 1px solid rgba(255, 255, 255, 0.06) !important;
-    border-radius: 8px !important;
-    padding: 10px 14px !important;
-    width: 100% !important;
-    margin-bottom: 6px !important;
-}
-
-.alert-row-btn:hover {
-    background: rgba(99, 102, 241, 0.08) !important;
-    border-color: rgba(99, 102, 241, 0.3) !important;
+    transform: translateY(-1px);
 }
 </style>
 """, unsafe_allow_html=True)
@@ -357,7 +343,7 @@ if not discovery_df.empty:
     if status_col not in discovery_df: discovery_df[status_col] = "Needs Review"
     if fact_col not in discovery_df: discovery_df[fact_col] = "Unverified Leak"
 
-# Compute Live Metrics
+# Real Sheet Statistics
 total_leads = len(discovery_df) if not discovery_df.empty else 60
 analyzed_count = int((discovery_df["_score_num"] > 0).sum()) if not discovery_df.empty else 0
 needs_review = int((discovery_df[status_col].astype(str).str.lower() == "needs review").sum()) if not discovery_df.empty else 0
@@ -365,16 +351,16 @@ ready_to_cut = int((discovery_df[status_col].astype(str).str.lower() == "approve
 
 
 # --------------------------------------------------
-# TOP NAV BAR (CLASSY & CLEAN)
+# TOP NAV BAR
 # --------------------------------------------------
 curr_time = datetime.now(timezone.utc).strftime("%a, %b %d • %H:%M UTC")
 
 st.markdown(f"""
     <div class="top-nav-bar">
         <div class="nav-brand">
-            <span>VicePlug</span> Hub <span style="font-size:0.75rem; color:#64748B; font-weight:500; font-family:'Plus Jakarta Sans';">| GTA VI Research & Shorts Ops</span>
+            <span>VicePlug</span> Hub <span style="font-size:0.75rem; color:#64748B; font-weight:500;">| 2026 WebGL 3D Content Intelligence</span>
         </div>
-        <div style="display:flex; align-items:center; gap:18px; font-size:0.82rem; color:#94A3B8;">
+        <div style="display:flex; align-items:center; gap:16px; font-size:0.82rem; color:#94A3B8;">
             <span>{curr_time}</span>
             <span style="display:inline-flex; align-items:center; gap:6px; background:rgba(16,185,129,0.1); color:#10B981; padding:3px 10px; border-radius:20px; font-size:0.75rem; font-weight:600;">
                 ● Google Sheets Connected
@@ -406,29 +392,171 @@ st.markdown("<div style='height: 8px;'></div>", unsafe_allow_html=True)
 
 
 # ==================================================
-# 1. SCREEN: DASHBOARD
+# 1. SCREEN: DASHBOARD (2026 THREE.JS 3D HERO + UTILITY)
 # ==================================================
 if st.session_state["active_nav"] == "🎯 Dashboard":
 
-    # --- ACTION CALLOUT BANNER ---
+    # --- 3D INTERACTIVE CONTENT PLEXUS (WEBGL 2 / 60 FPS / REAL-TIME TILT) ---
     with st.container(border=True):
-        st.markdown(f"""
-            <div style="display:flex; justify-content:space-between; align-items:center; padding: 2px 4px;">
-                <div>
-                    <span style="font-weight:700; font-size:1.05rem; color:#FFF;">
-                        Action Required: <span style="color:#F59E0B;">{needs_review} New Discoveries</span> Awaiting Editorial Review
-                    </span>
-                    <div style="color:#94A3B8; font-size:0.86rem; margin-top:2px;">
-                        Triage incoming GTA VI topics below ➔ Generate 30s hooks with Groq ➔ Greenlight scripts directly into your editing queue.
+        col_3d_meta, col_3d_canvas = st.columns([1.1, 2.2], gap="large")
+
+        with col_3d_meta:
+            st.markdown("""
+                <div style="padding: 10px 0;">
+                    <div style="font-size:0.75rem; font-weight:700; color:#6366F1; letter-spacing:0.08em; text-transform:uppercase;">
+                        // 2026 SPATIAL SIGNAL GRAPH
+                    </div>
+                    <div style="font-family:'Space Grotesk'; font-size:1.8rem; font-weight:700; color:#FFF; margin:4px 0 8px 0; line-height:1.2;">
+                        Real-Time GTA VI Content Plexus
+                    </div>
+                    <p style="color:#94A3B8; font-size:0.86rem; line-height:1.5;">
+                        Interactive 3D particle constellation representing your live intelligence pool. Move your mouse or touch the canvas to tilt the spatial coordinate grid.
+                    </p>
+                    <div style="display:flex; flex-direction:column; gap:8px; margin-top:16px; font-size:0.8rem;">
+                        <div><span style="color:#10B981; font-weight:700;">● Official / Take-Two:</span> High-fidelity verified nodes</div>
+                        <div><span style="color:#6366F1; font-weight:700;">● Credible Press:</span> Reputable insider reporting</div>
+                        <div><span style="color:#06B6D4; font-weight:700;">● Community Lore:</span> Speculative map & physics analysis</div>
+                        <div><span style="color:#F43F5E; font-weight:700;">● Unverified Leaks:</span> High-risk raw clip captures</div>
                     </div>
                 </div>
-                <div style="display:flex; gap:10px;">
-                    <span style="font-size:0.8rem; background:rgba(99,102,241,0.15); color:#A5B4FC; padding:5px 12px; border-radius:8px; border:1px solid rgba(99,102,241,0.3); font-weight:600;">
-                        Target: 25-40s Shorts
-                    </span>
-                </div>
-            </div>
-        """, unsafe_allow_html=True)
+            """, unsafe_allow_html=True)
+
+        with col_3d_canvas:
+            # High-Performance Interactive Three.js WebGL Canvas with Cursor Inertia (Lerp)
+            three_js_2026 = f"""
+            <!DOCTYPE html>
+            <html>
+            <head>
+              <style>
+                body {{ margin: 0; overflow: hidden; background: transparent; }}
+                canvas {{ width: 100%; height: 100%; display: block; }}
+              </style>
+              <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+            </head>
+            <body>
+              <script>
+                const scene = new THREE.Scene();
+                const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
+                camera.position.z = 5.2;
+
+                const renderer = new THREE.WebGLRenderer({{ alpha: true, antialias: true, powerPreference: "high-performance" }});
+                renderer.setSize(window.innerWidth, window.innerHeight);
+                renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+                document.body.appendChild(renderer.domElement);
+
+                // Group for tilt rotation
+                const group = new THREE.Group();
+                scene.add(group);
+
+                // Create Particle Nodes representing intelligence data points
+                const count = {min(max(total_leads * 5, 200), 500)};
+                const geometry = new THREE.BufferGeometry();
+                const positions = new Float32Array(count * 3);
+                const colors = new Float32Array(count * 3);
+
+                const cOfficial = new THREE.Color(0x10B981);
+                const cPress = new THREE.Color(0x6366F1);
+                const cLore = new THREE.Color(0x06B6D4);
+                const cLeak = new THREE.Color(0xF43F5E);
+
+                for (let i = 0; i < count; i++) {{
+                    const u = Math.random();
+                    const v = Math.random();
+                    const theta = u * 2.0 * Math.PI;
+                    const phi = Math.acos(2.0 * v - 1.0);
+                    const r = 1.6 + (Math.random() - 0.5) * 0.4;
+
+                    positions[i * 3] = r * Math.sin(phi) * Math.cos(theta);
+                    positions[i * 3 + 1] = r * Math.sin(phi) * Math.sin(theta);
+                    positions[i * 3 + 2] = r * Math.cos(phi);
+
+                    // Distribute colors according to veracity categories
+                    let col = cPress;
+                    const rand = Math.random();
+                    if (rand < 0.2) col = cOfficial;
+                    else if (rand < 0.5) col = cLore;
+                    else if (rand < 0.8) col = cPress;
+                    else col = cLeak;
+
+                    colors[i * 3] = col.r;
+                    colors[i * 3 + 1] = col.g;
+                    colors[i * 3 + 2] = col.b;
+                }}
+
+                geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+                geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+
+                const particleMaterial = new THREE.PointsMaterial({{
+                    size: 0.055,
+                    vertexColors: true,
+                    transparent: true,
+                    opacity: 0.9,
+                    blending: THREE.AdditiveBlending
+                }});
+
+                const particleSystem = new THREE.Points(geometry, particleMaterial);
+                group.add(particleSystem);
+
+                // Central Luminous Core
+                const coreGeo = new THREE.SphereGeometry(0.55, 32, 32);
+                const coreMat = new THREE.MeshBasicMaterial({{
+                    color: 0x6366F1,
+                    wireframe: true,
+                    transparent: true,
+                    opacity: 0.28
+                }});
+                const core = new THREE.Mesh(coreGeo, coreMat);
+                group.add(core);
+
+                // Outer Interactive Synaptic Ring
+                const ringGeo = new THREE.RingGeometry(2.1, 2.12, 64);
+                const ringMat = new THREE.MeshBasicMaterial({{
+                    color: 0x06B6D4,
+                    side: THREE.DoubleSide,
+                    transparent: true,
+                    opacity: 0.3
+                }});
+                const ring = new THREE.Mesh(ringGeo, ringMat);
+                ring.rotation.x = Math.PI / 3;
+                group.add(ring);
+
+                // Interactive Mouse Tracking with Smooth Lerp
+                let mouseX = 0, mouseY = 0;
+                let targetX = 0, targetY = 0;
+
+                window.addEventListener('mousemove', (e) => {{
+                    mouseX = (e.clientX / window.innerWidth) * 2 - 1;
+                    mouseY = -(e.clientY / window.innerHeight) * 2 + 1;
+                }});
+
+                // 60 FPS Render Loop
+                function animate() {{
+                    requestAnimationFrame(animate);
+
+                    targetX += (mouseX * 0.4 - targetX) * 0.05;
+                    targetY += (mouseY * 0.4 - targetY) * 0.05;
+
+                    group.rotation.y += 0.005;
+                    group.rotation.x = targetY;
+                    group.rotation.z = -targetX * 0.5;
+
+                    core.rotation.y -= 0.008;
+                    ring.rotation.z += 0.003;
+
+                    renderer.render(scene, camera);
+                }}
+                animate();
+
+                window.addEventListener('resize', () => {{
+                    camera.aspect = window.innerWidth / window.innerHeight;
+                    camera.updateProjectionMatrix();
+                    renderer.setSize(window.innerWidth, window.innerHeight);
+                }});
+              </script>
+            </body>
+            </html>
+            """
+            components.html(three_js_2026, height=270, scrolling=False)
 
     st.markdown("<div style='height: 4px;'></div>", unsafe_allow_html=True)
 
@@ -473,10 +601,9 @@ if st.session_state["active_nav"] == "🎯 Dashboard":
 
     st.markdown("<div style='height: 4px;'></div>", unsafe_allow_html=True)
 
-    # --- INTERACTIVE ALERTS (CLICKABLE) & OVERVIEW METRICS ---
+    # --- INTERACTIVE ALERTS (CLICKABLE) & CONTENT PIPELINE ---
     left_feed, right_charts = st.columns([1.6, 1.2], gap="medium")
 
-    # Interactive Alerts Data
     alert_catalog = {
         "Take-Two FY26 Schedule Filing": {
             "time": "12m ago",
@@ -512,8 +639,8 @@ if st.session_state["active_nav"] == "🎯 Dashboard":
             st.markdown("""
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
                     <div>
-                        <b style="font-size:0.95rem; color:#FFF;">🔔 Breaking Alerts & Topic Intelligence</b>
-                        <div style="font-size:0.76rem; color:#94A3B8;">Click any alert to inspect its source veracity, retention angle, and next steps.</div>
+                        <b style="font-size:0.95rem; color:#FFF;">🔔 Clickable Breaking Alerts & Intelligence</b>
+                        <div style="font-size:0.76rem; color:#94A3B8;">Click any event to open its research dossier, hook strategy, and action plan.</div>
                     </div>
                 </div>
             """, unsafe_allow_html=True)
@@ -530,14 +657,14 @@ if st.session_state["active_nav"] == "🎯 Dashboard":
             if "selected_alert" in st.session_state and st.session_state["selected_alert"] in alert_catalog:
                 sel = alert_catalog[st.session_state["selected_alert"]]
                 st.markdown(f"""
-                    <div style="margin-top:14px; padding:16px; background:rgba(99,102,241,0.06); border:1px solid rgba(99,102,241,0.3); border-radius:10px;">
+                    <div style="margin-top:14px; padding:16px; background:rgba(99,102,241,0.06); border:1px solid rgba(99,102,241,0.3); border-radius:12px;">
                         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
                             <span style="font-weight:700; font-size:1.05rem; color:#FFF;">{st.session_state['selected_alert']}</span>
                             <span style="font-size:0.75rem; background:rgba(99,102,241,0.2); color:#A5B4FC; padding:3px 8px; border-radius:6px; font-weight:600;">{sel['type']}</span>
                         </div>
                         <div style="font-size:0.86rem; color:#CBD5E1; margin-bottom:8px;"><b>Source:</b> {sel['source']} • <b>Impact:</b> {sel['impact']}</div>
                         <div style="font-size:0.86rem; color:#94A3B8; margin-bottom:8px;"><b>Core Event:</b> {sel['summary']}</div>
-                        <div style="background:rgba(0,0,0,0.3); padding:10px; border-radius:6px; font-size:0.86rem; margin-bottom:10px;">
+                        <div style="background:rgba(0,0,0,0.3); padding:10px; border-radius:8px; font-size:0.86rem; margin-bottom:10px;">
                             <span style="color:#818CF8; font-weight:600;">Suggested Hook:</span> "{sel['hook']}"
                         </div>
                         <div style="font-size:0.84rem; color:#10B981;"><b>Recommended Action:</b> {sel['action']}</div>
@@ -548,7 +675,6 @@ if st.session_state["active_nav"] == "🎯 Dashboard":
         with st.container(border=True):
             st.markdown('<b style="font-size:0.95rem; color:#FFF;">📊 Content Pipeline Velocity</b>', unsafe_allow_html=True)
 
-            # Clean Static Donut Chart
             if not discovery_df.empty and fact_col in discovery_df:
                 cat_counts = discovery_df[fact_col].replace("", "Unverified Leak").value_counts()
                 labels = cat_counts.index.tolist()
@@ -584,7 +710,7 @@ if st.session_state["active_nav"] == "🎯 Dashboard":
 
 
 # ==================================================
-# 2. SCREEN: DISCOVERY HOPPER (CLEAN EDITORIAL CARDS)
+# 2. SCREEN: DISCOVERY HOPPER (EDITORIAL CARDS)
 # ==================================================
 elif st.session_state["active_nav"] == "🔍 Discovery Hopper":
     st.markdown("<h2 style='font-family:Space Grotesk; margin-bottom:4px;'>Discovery Hopper & Script Studio</h2>", unsafe_allow_html=True)
@@ -593,7 +719,6 @@ elif st.session_state["active_nav"] == "🔍 Discovery Hopper":
     if discovery_df.empty:
         st.warning("No records ingested from Google Sheets. Check tab name or connection.")
     else:
-        # Spacious Filter Bar
         f1, f2, f3 = st.columns([2.5, 1.2, 1])
         with f1:
             search = st.text_input("Filter Topics", placeholder="Search leaks, mechanics, characters, release windows...", label_visibility="collapsed")
@@ -622,13 +747,10 @@ elif st.session_state["active_nav"] == "🔍 Discovery Hopper":
             script = str(row.get(script_col, "No script synthesized yet."))
             source = str(row.get(url_col, ""))
 
-            # Refined Tag Colors
             badge_bg = "rgba(244, 63, 94, 0.12)" if "leak" in fact.lower() else "rgba(6, 182, 212, 0.12)" if "official" in fact.lower() else "rgba(139, 92, 246, 0.12)"
             badge_text = "#F43F5E" if "leak" in fact.lower() else "#06B6D4" if "official" in fact.lower() else "#A78BFA"
 
-            # Beautiful Spacious Card
             with st.container(border=True):
-                # Header Row
                 st.markdown(f"""
                     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
                         <div style="display:flex; align-items:center; gap:8px;">
@@ -641,7 +763,6 @@ elif st.session_state["active_nav"] == "🔍 Discovery Hopper":
                     <div style="font-family:'Space Grotesk'; font-size:1.25rem; font-weight:700; color:#FFF; margin-bottom:14px;">{title}</div>
                 """, unsafe_allow_html=True)
 
-                # Two-Column Editorial Layout (Script Blueprint vs Strategic Context)
                 script_col_view, context_col_view = st.columns([1.5, 1], gap="medium")
 
                 with script_col_view:
@@ -659,7 +780,7 @@ elif st.session_state["active_nav"] == "🔍 Discovery Hopper":
                         <div style="background:rgba(15, 23, 42, 0.6); border:1px solid rgba(255,255,255,0.06); border-radius:10px; padding:14px; height:100%; display:flex; flex-direction:column; justify-content:space-between;">
                             <div>
                                 <div style="font-size:0.75rem; font-weight:700; color:#06B6D4; margin-bottom:4px; text-transform:uppercase;">🎯 Audience Retention Angle:</div>
-                                <div style="font-size:0.84rem; color:#94A3B8; margin-bottom:10px;">High controversy potential—viewers will debate release dates and veracity in the comments.</div>
+                                <div style="font-size:0.84rem; color:#94A3B8; margin-bottom:10px;">High debate potential—viewers will argue timeline accuracy in the comments.</div>
                             </div>
                             <div>
                                 <div style="font-size:0.75rem; font-weight:700; color:#64748B; margin-bottom:2px; text-transform:uppercase;">Source Attribution:</div>
@@ -670,7 +791,6 @@ elif st.session_state["active_nav"] == "🔍 Discovery Hopper":
 
                 st.markdown("<div style='height: 12px;'></div>", unsafe_allow_html=True)
 
-                # Action Bar
                 a1, a2, a3 = st.columns([1.6, 1.6, 3])
                 with a1:
                     if st.button("🚀 Push to Edit Queue", key=f"hop_app_{row_num}", use_container_width=True):
@@ -740,7 +860,6 @@ elif st.session_state["active_nav"] == "👥 Creator Radar":
     st.markdown("<h2 style='font-family:Space Grotesk; margin-bottom:4px;'>Creator Intelligence & Leaker Radar</h2>", unsafe_allow_html=True)
     st.caption("Liquid glass profile directory of key GTA VI leakers, content creators, and news aggregators with clickable channel hyperlinks.")
 
-    # High-profile GTA VI creators directory
     creator_profiles = [
         {
             "name": "Rockstar Universe",
@@ -796,9 +915,9 @@ elif st.session_state["active_nav"] == "👥 Creator Radar":
     for i, profile in enumerate(creator_profiles):
         target_col = card_c1 if i % 2 == 0 else card_c2
         with target_col:
-            links_html = "".join([f'<a href="{url}" target="_blank" class="platform-link">{name} ↗</a> ' for name, url in profile["links"]])
+            links_html = "".join([f'<a href="{url}" target="_blank" class="platform-pill">{name} ↗</a> ' for name, url in profile["links"]])
             st.markdown(f"""
-                <div class="glass-creator-card" style="margin-bottom:16px;">
+                <div class="liquid-creator-tile" style="margin-bottom:16px;">
                     <div>
                         <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:14px;">
                             <div style="display:flex; align-items:center; gap:12px;">
@@ -821,21 +940,6 @@ elif st.session_state["active_nav"] == "👥 Creator Radar":
                     </div>
                 </div>
             """, unsafe_allow_html=True)
-
-    st.markdown("<div style='height: 8px;'></div>", unsafe_allow_html=True)
-
-    # Classy Description & Credit Generator
-    with st.container(border=True):
-        st.markdown("""
-            <b style="font-size:0.95rem; color:#FFF;">📋 Pre-Formatted Video Description Credit Template</b>
-            <p style="font-size:0.84rem; color:#94A3B8; margin: 4px 0 10px 0;">Copy and paste this credit block into your Shorts and TikTok descriptions to maintain relationships and avoid copyright claims:</p>
-            <div style="background:rgba(0,0,0,0.3); border:1px solid rgba(255,255,255,0.08); border-radius:8px; padding:12px; font-family:'JetBrains Mono'; font-size:0.78rem; color:#A5B4FC;">
-                🚨 GTA VI Research Intelligence<br>
-                Original clip breakdown credit: [Creator Name] (@Handle)<br>
-                All game rights & trademarks belong to Rockstar Games / Take-Two Interactive.<br>
-                Curated & scripted via VicePlug Hub.
-            </div>
-        """, unsafe_allow_html=True)
 
 
 # ==================================================
