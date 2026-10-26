@@ -9,6 +9,8 @@ import os
 import html
 from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional, Tuple
+from urllib.parse import urlencode
+from urllib.request import Request, urlopen
 
 import pandas as pd
 import streamlit as st
@@ -320,6 +322,257 @@ def metric_card(label: str, value: str, note: str, emoji: str, accent: str) -> N
 def show_missing_data(message: str = "Connect Google Sheets to show your real research records here.") -> None:
     st.markdown(f'<div class="vp-empty"><div style="font-size:1.5rem">🗂️</div><b>No research data loaded</b><br><span>{html.escape(message)}</span></div>', unsafe_allow_html=True)
 
+
+def save_ai_brief_to_worksheet(worksheet_name: str, sheet_row: int, result: Dict[str, Any]) -> str:
+    """Persist an AI brief into clearly named columns on the matching research row."""
+    book = open_spreadsheet()
+    ws = book.worksheet(worksheet_name)
+    headers = [str(h).strip() for h in ws.row_values(1)]
+    if not headers:
+        raise RuntimeError(f"Worksheet '{worksheet_name}' has no header row.")
+
+    fields = {
+        "AI Relevance": "relevance",
+        "AI Priority Score": "priority_score",
+        "AI Fact Status": "fact_status",
+        "AI Summary": "summary",
+        "AI Why It Matters": "why_it_matters",
+        "AI Hook": "hook",
+        "AI Commentary Draft": "commentary_draft",
+        "AI On-Screen Text": "on_screen_text",
+        "AI Title": "title",
+        "AI Caption": "caption",
+        "AI Hashtags": "hashtags",
+        "AI Verification Needed": "verification_needed",
+        "AI Rights Note": "rights_note",
+        "AI Recommended Action": "recommended_action",
+        "AI Last Analyzed (UTC)": "_timestamp",
+    }
+    for heading in fields:
+        if heading.lower() not in [h.lower() for h in headers]:
+            ws.update_cell(1, len(headers) + 1, heading)
+            headers.append(heading)
+
+    now = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC")
+    for heading, key in fields.items():
+        idx = next(i for i, h in enumerate(headers) if h.lower() == heading.lower())
+        value = now if key == "_timestamp" else result.get(key, "")
+        if isinstance(value, (dict, list)):
+            value = json.dumps(value, ensure_ascii=False)
+        ws.update_cell(int(sheet_row), idx + 1, str(value) if value is not None else "")
+
+    # Mark as needing human review only when a status column exists and is blank.
+    normalized = [h.lower() for h in headers]
+    status_idx = next((i for i, h in enumerate(normalized) if h in ["review status", "pipeline status", "content status", "status"]), None)
+    if status_idx is not None:
+        existing_status = ws.cell(int(sheet_row), status_idx + 1).value
+        if not str(existing_status or "").strip():
+            ws.update_cell(int(sheet_row), status_idx + 1, "Needs Review")
+    return f"Saved AI brief to {book.title} → {worksheet_name}, row {sheet_row}."
+
+
+# -----------------------------------------------------------------------------
+# Live news discovery (GDELT DOC API) and a dedicated Research Feed worksheet
+# -----------------------------------------------------------------------------
+NEWS_WORKSHEET_NAME = str(get_secret("NEWS_RESEARCH_WORKSHEET", "Research Feed"))
+NEWS_DEFAULT_QUERY = '("Grand Theft Auto VI" OR "GTA VI" OR "GTA 6")'
+NEWS_BASE_HEADERS = [
+    "Title", "Source", "Source URL", "Indexed At", "Discovery Query",
+    "Research Type", "Fact Status", "Review Status", "Notes",
+]
+
+
+def _article_type_hint(title: str, domain: str) -> str:
+    """Heuristic triage only; never treats the outlet/title as proof."""
+    d = (domain or "").lower().strip()
+    t = (title or "").lower()
+    if d == "rockstargames.com" or d.endswith(".rockstargames.com") or d == "take2games.com" or d.endswith(".take2games.com"):
+        return "Potential official source — verify"
+    if any(term in t for term in ("leak", "rumor", "rumour", "theory", "speculation", "alleged", "reportedly", "unconfirmed")):
+        return "Claim/speculation terms detected — verify"
+    return "News/reporting candidate — verify"
+
+
+def _format_gdelt_date(raw: Any) -> str:
+    value = str(raw or "").strip()
+    if not value:
+        return ""
+    for fmt in ("%Y%m%dT%H%M%SZ", "%Y%m%dT%H%M%S", "%Y-%m-%dT%H:%M:%SZ"):
+        try:
+            parsed = datetime.strptime(value, fmt)
+            return parsed.replace(tzinfo=timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
+        except ValueError:
+            continue
+    return value
+
+
+@st.cache_data(ttl=300, show_spinner=False)
+def fetch_gdelt_news(query: str, timespan: str, max_records: int) -> List[Dict[str, str]]:
+    """Fetch public news metadata. GDELT returns article links/headlines, not verification."""
+    params = {
+        "query": query,
+        "mode": "artlist",
+        "format": "json",
+        "maxrecords": int(max_records),
+        "timespan": timespan,
+        "sort": "datedesc",
+    }
+    endpoint = "https://api.gdeltproject.org/api/v2/doc/doc?" + urlencode(params)
+    request = Request(endpoint, headers={"User-Agent": "VicePlugHub/1.0 (GTA VI research dashboard)"})
+    try:
+        with urlopen(request, timeout=20) as response:
+            payload = json.loads(response.read().decode("utf-8", errors="replace"))
+    except Exception as exc:
+        raise RuntimeError(f"News discovery could not reach GDELT: {exc}") from exc
+
+    if not isinstance(payload, dict):
+        raise RuntimeError("GDELT returned an unexpected response format.")
+    articles = payload.get("articles", []) or []
+    results: List[Dict[str, str]] = []
+    seen = set()
+    for item in articles:
+        title = str(item.get("title") or "").strip()
+        url = str(item.get("url") or item.get("url_mobile") or "").strip()
+        domain = str(item.get("domain") or "").strip()
+        if not title or not url or not url.startswith(("https://", "http://")):
+            continue
+        key = url.rstrip("/").lower()
+        if key in seen:
+            continue
+        seen.add(key)
+        results.append({
+            "Title": title,
+            "Source": domain or str(item.get("source") or "Unknown publisher"),
+            "Source URL": url,
+            "Indexed At": _format_gdelt_date(item.get("seendate") or item.get("date")),
+            "Research Type": _article_type_hint(title, domain),
+            "Fact Status": "Unverified — headline/metadata only",
+            "Review Status": "Needs Review",
+            "Notes": "Discovered via GDELT. Open the original source and verify the claim before scripting. Do not treat the headline alone as evidence.",
+        })
+    return results
+
+
+def _load_named_worksheet_records(worksheet_name: str) -> Tuple[pd.DataFrame, Any, str, str]:
+    """Load a named worksheet without changing the existing Video Discovery source."""
+    try:
+        book = open_spreadsheet()
+        try:
+            ws = book.worksheet(worksheet_name)
+        except Exception:
+            return pd.DataFrame(), None, f"The '{worksheet_name}' worksheet has not been created yet. Save selected discoveries to create it.", "missing_tab"
+        values = ws.get_all_values()
+        if not values:
+            return pd.DataFrame(), ws, f"Connected to {book.title} / {worksheet_name}, but the worksheet is empty.", "empty"
+        headers = [str(h).strip() for h in values[0]]
+        if not any(headers):
+            return pd.DataFrame(), ws, f"The first row of {worksheet_name} must contain column headers.", "empty"
+        seen: Dict[str, int] = {}
+        clean_headers = []
+        for i, name in enumerate(headers):
+            base = name or f"Column {i + 1}"
+            seen[base] = seen.get(base, 0) + 1
+            clean_headers.append(base if seen[base] == 1 else f"{base} ({seen[base]})")
+        width = len(clean_headers)
+        rows = [(row + [""] * max(0, width - len(row)))[:width] for row in values[1:]]
+        out = pd.DataFrame(rows, columns=clean_headers)
+        out.insert(0, "_sheet_row", range(2, len(out) + 2))
+        if len(out):
+            visible = [c for c in out.columns if c != "_sheet_row"]
+            nonempty = out[visible].astype(str).apply(lambda r: any(v.strip() for v in r), axis=1)
+            out = out.loc[nonempty].reset_index(drop=True)
+        return out, ws, f"Connected: {book.title} → {worksheet_name} · {len(out)} saved research items", "connected"
+    except Exception as exc:
+        return pd.DataFrame(), None, str(exc), "error"
+
+
+def save_news_to_research_sheet(articles: List[Dict[str, str]], discovery_query: str) -> Tuple[int, int, str]:
+    """Explicitly create/use the Research Feed worksheet and append only non-duplicates."""
+    if not articles:
+        return 0, 0, "No articles were selected."
+    if not HAS_GSPREAD:
+        raise RuntimeError("Google Sheets integration is unavailable. Add gspread and google-auth to requirements.txt.")
+    book = open_spreadsheet()
+    try:
+        ws = book.worksheet(NEWS_WORKSHEET_NAME)
+    except Exception:
+        ws = book.add_worksheet(title=NEWS_WORKSHEET_NAME, rows=max(1000, len(articles) + 10), cols=len(NEWS_BASE_HEADERS) + 2)
+        ws.update("A1", [NEWS_BASE_HEADERS])
+
+    existing_values = ws.get_all_values()
+    headers = [str(h).strip() for h in (existing_values[0] if existing_values else [])]
+    if not any(headers):
+        headers = NEWS_BASE_HEADERS.copy()
+        ws.update("A1", [headers])
+        existing_values = [headers]
+
+    def col_for(names: List[str]) -> Optional[int]:
+        normalized = [h.strip().lower() for h in headers]
+        for name in names:
+            if name.lower() in normalized:
+                return normalized.index(name.lower())
+        for name in sorted(names, key=len, reverse=True):
+            for idx, header in enumerate(normalized):
+                if name.lower() in header:
+                    return idx
+        return None
+
+    # Add missing fields after the user's existing columns; never rename or replace their fields.
+    required = [
+        ("Title", ["title", "story title", "headline", "article title", "video title"]),
+        ("Source", ["source", "publisher", "domain", "site"]),
+        ("Source URL", ["source url", "article url", "source link", "url", "link"]),
+        ("Indexed At", ["indexed at", "seen at", "published at", "published date", "publication date", "date published", "published", "date"]),
+        ("Discovery Query", ["discovery query", "search query", "query"]),
+        ("Research Type", ["research type", "source type"]),
+        ("Fact Status", ["fact status", "verification status"]),
+        ("Review Status", ["review status", "pipeline status", "content status", "status"]),
+        ("Notes", ["notes", "research notes", "editor notes"]),
+    ]
+    for canonical, aliases in required:
+        if col_for(aliases) is None:
+            next_col = len(headers) + 1
+            ws.update_cell(1, next_col, canonical)
+            headers.append(canonical)
+
+    # Refresh all current values after adding headers; dedupe by URL and title.
+    existing_values = ws.get_all_values()
+    url_idx = col_for(["source url", "article url", "source link", "url", "link"])
+    title_idx = col_for(["title", "story title", "headline", "article title", "video title"])
+    existing_urls, existing_titles = set(), set()
+    for row in existing_values[1:]:
+        if url_idx is not None and len(row) > url_idx and row[url_idx].strip():
+            existing_urls.add(row[url_idx].strip().rstrip("/").lower())
+        if title_idx is not None and len(row) > title_idx and row[title_idx].strip():
+            existing_titles.add(row[title_idx].strip().lower())
+
+    out_rows: List[List[str]] = []
+    skipped = 0
+    for article in articles:
+        url = article.get("Source URL", "").strip()
+        title = article.get("Title", "").strip()
+        if (url and url.rstrip("/").lower() in existing_urls) or (title and title.lower() in existing_titles):
+            skipped += 1
+            continue
+        row = [""] * len(headers)
+        values_by_canonical = {
+            "Title": title, "Source": article.get("Source", ""), "Source URL": url,
+            "Indexed At": article.get("Indexed At", ""), "Discovery Query": discovery_query,
+            "Research Type": article.get("Research Type", ""), "Fact Status": "Unverified — headline/metadata only",
+            "Review Status": "Needs Review", "Notes": article.get("Notes", ""),
+        }
+        for canonical, aliases in required:
+            idx = col_for(aliases)
+            if idx is not None and idx < len(row):
+                row[idx] = values_by_canonical.get(canonical, "")
+        out_rows.append(row)
+        if url: existing_urls.add(url.rstrip("/").lower())
+        if title: existing_titles.add(title.lower())
+
+    if out_rows:
+        ws.append_rows(out_rows, value_input_option="USER_ENTERED")
+    return len(out_rows), skipped, f"Saved to {book.title} → {NEWS_WORKSHEET_NAME}."
+
 # -----------------------------------------------------------------------------
 # Load records and build the shared application shell
 # -----------------------------------------------------------------------------
@@ -414,19 +667,108 @@ with col_main:
     # =====================================================================
     # RESEARCH FEED / VIDEO DISCOVERY
     # =====================================================================
-    elif st.session_state.active_tab in ["Research Feed", "Video Discovery"]:
-        page_title = st.session_state.active_tab
-        render_page_header(page_title, "Search and inspect records already collected in your Google Sheet.")
+    elif st.session_state.active_tab == "Research Feed":
+        render_page_header("Research Feed", "Discover recent GTA VI coverage from public news metadata, then choose what to save for human review.")
+        st.markdown('<div class="vp-panel"><div class="vp-panel-title">🌐 Live News Discovery</div><div class="vp-muted">Searches GDELT’s news index for headline, publisher, index timestamp and source URL metadata. Results are discovery leads, not fact-checked stories; open the source before scripting. GDELT can miss relevant coverage, and its query endpoint may change.</div></div>', unsafe_allow_html=True)
+        search_left, search_right = st.columns([2.2, 1])
+        with search_left:
+            discovery_query = st.text_input("Search query", value=st.session_state.get("news_query", NEWS_DEFAULT_QUERY), key="news_query_input", help='Try a phrase, e.g. \"GTA VI\" OR Rockstar OR \"Grand Theft Auto 6\"')
+        with search_right:
+            timespan_label = st.selectbox("Coverage window", ["Past 24 hours", "Past 3 days", "Past 7 days", "Past 30 days"], index=2, key="news_timespan_label")
+        timespan = {"Past 24 hours": "1d", "Past 3 days": "3d", "Past 7 days": "7d", "Past 30 days": "30d"}[timespan_label]
+        result_limit = st.select_slider("Maximum results", options=[10, 20, 30, 50], value=20, key="news_result_limit")
+        if st.button("🔎 Search fresh coverage", type="primary", use_container_width=True):
+            if not discovery_query.strip():
+                st.warning("Enter a search query.")
+            else:
+                try:
+                    with st.spinner("Searching recent news metadata…"):
+                        found = fetch_gdelt_news(discovery_query.strip(), timespan, result_limit)
+                    st.session_state.pop("news_discovery_editor", None)
+                    st.session_state.news_discovery_results = found
+                    st.session_state.news_discovery_query = discovery_query.strip()
+                    st.session_state.news_discovery_error = ""
+                    st.success(f"Found {len(found)} candidate articles. Review the original sources before using any claim.")
+                except Exception as exc:
+                    st.session_state.news_discovery_error = str(exc)
+                    st.session_state.news_discovery_results = []
+        if st.session_state.get("news_discovery_error"):
+            st.error(st.session_state.news_discovery_error)
+        found = st.session_state.get("news_discovery_results", [])
+        if found:
+            st.markdown("### Discovery results")
+            st.caption("Select the stories to save. Duplicate links and titles already in the Research Feed will be skipped.")
+            edit_df = pd.DataFrame([{
+                "_Discovery ID": i, "Save": False, "Title": item["Title"], "Publisher / domain": item["Source"],
+                "Indexed At (GDELT)": item["Indexed At"], "Triage hint (not verification)": item["Research Type"],
+                "Source URL": item["Source URL"],
+            } for i, item in enumerate(found)])
+            edited = st.data_editor(
+                edit_df, use_container_width=True, hide_index=True, num_rows="fixed", height=min(520, 44 + 36 * len(edit_df)),
+                column_config={
+                    "_Discovery ID": None,
+                    "Save": st.column_config.CheckboxColumn("Save", help="Select this item for the Research Feed."),
+                    "Source URL": st.column_config.LinkColumn("Source URL", display_text="Open source ↗"),
+                },
+                disabled=["_Discovery ID", "Title", "Publisher / domain", "Indexed At (GDELT)", "Triage hint (not verification)", "Source URL"],
+                key="news_discovery_editor",
+            )
+            selected_positions = [int(row["_Discovery ID"]) for _, row in edited.iterrows() if bool(row["Save"])]
+            save_col, clear_col = st.columns([2, 1])
+            with save_col:
+                if st.button(f"💾 Save {len(selected_positions)} selected to Google Sheets", type="primary", use_container_width=True, disabled=not selected_positions):
+                    try:
+                        selected_articles = [found[i] for i in selected_positions]
+                        with st.spinner("Saving selected discovery records…"):
+                            saved_count, skipped_count, message = save_news_to_research_sheet(selected_articles, st.session_state.get("news_discovery_query", discovery_query.strip()))
+                        st.success(f"{message} Added {saved_count}; skipped {skipped_count} duplicate(s).")
+                        st.session_state.news_discovery_results = []
+                        st.rerun()
+                    except Exception as exc:
+                        st.error(f"Could not save discoveries: {exc}")
+            with clear_col:
+                if st.button("Clear results", use_container_width=True):
+                    st.session_state.news_discovery_results = []
+                    st.rerun()
+        else:
+            st.markdown('<div class="vp-empty"><b>No discovery results yet</b><br><span>Run a search to find recently indexed GTA VI headlines and publisher links.</span></div>', unsafe_allow_html=True)
+
+        st.markdown("### Saved Research Feed")
+        news_df, news_ws, news_message, news_status = _load_named_worksheet_records(NEWS_WORKSHEET_NAME)
+        if news_status == "connected" and not news_df.empty:
+            st.success(news_message)
+            saved_title_col = title_column(news_df)
+            saved_query = st.text_input("Filter saved research", placeholder="Filter headlines or publishers…", key="saved_news_filter")
+            saved_view = news_df.copy()
+            if saved_query.strip():
+                saved_view = saved_view[saved_view.astype(str).apply(lambda col: col.str.contains(saved_query.strip(), case=False, na=False)).any(axis=1)]
+            st.dataframe(clean_display_df(saved_view, 12), use_container_width=True, hide_index=True, height=320)
+            saved_url_col = url_column(saved_view)
+            if saved_url_col and len(saved_view):
+                open_idx = st.selectbox("Open saved article", saved_view.index.tolist(), format_func=lambda idx: str(saved_view.loc[idx, saved_title_col] if saved_title_col else f"Sheet row {idx + 1}")[:120], key="saved_news_open_idx")
+                target_url = str(saved_view.loc[open_idx, saved_url_col]).strip()
+                if target_url.startswith(("https://", "http://")):
+                    st.link_button("Open original source ↗", target_url)
+        else:
+            st.info(news_message or f"No saved Research Feed worksheet yet. Select results above and save them to create '{NEWS_WORKSHEET_NAME}'.")
+        st.caption("Data source: GDELT Project. ‘Indexed At’ is when GDELT indexed/observed the article, not necessarily the publisher’s original publication time. Its article index is a discovery aid; the publisher remains the authority for the original story. See gdeltproject.org/about.html for GDELT’s data-use information.")
+
+    # =====================================================================
+    # VIDEO DISCOVERY — existing Google Sheets video workflow
+    # =====================================================================
+    elif st.session_state.active_tab == "Video Discovery":
+        page_title = "Video Discovery"
+        render_page_header(page_title, "Search and inspect video records already collected in your Google Sheet.")
         if df.empty:
             show_missing_data(sheet_message)
         else:
-            query = st.text_input("Search records", placeholder="Search titles, source links, summaries…", key=f"search_{page_title}")
+            query = st.text_input("Search video records", placeholder="Search titles, source links, summaries…", key="search_video_discovery")
             view = df.copy()
             if query.strip():
                 mask = view.astype(str).apply(lambda c: c.str.contains(query.strip(), case=False, na=False)).any(axis=1)
                 view = view[mask]
             with st.container(border=True):
-                st.markdown(f"**{len(view)} records** · Worksheet data, not a live web search")
+                st.markdown(f"**{len(view)} records** · Google Sheets video research data")
                 if title_column(view):
                     st.dataframe(clean_display_df(view, 12), use_container_width=True, hide_index=True, height=470)
                 else:
@@ -434,7 +776,7 @@ with col_main:
                     st.dataframe(clean_display_df(view, 12), use_container_width=True, hide_index=True, height=400)
                 link_col = url_column(view)
                 if link_col and len(view):
-                    chosen_index = st.selectbox("Open a source record", view.index.tolist(), format_func=lambda idx: str(view.loc[idx, title_column(view)] if title_column(view) else f"Row {idx + 1}")[:100])
+                    chosen_index = st.selectbox("Open a source record", view.index.tolist(), format_func=lambda idx: str(view.loc[idx, title_column(view)] if title_column(view) else f"Row {idx + 1}")[:100], key="video_open_source")
                     url = str(view.loc[chosen_index, link_col]).strip()
                     if url.startswith("https://") or url.startswith("http://"):
                         st.link_button("Open selected source ↗", url)
@@ -463,30 +805,56 @@ with col_main:
     # AI STUDIO — analyze existing record
     # =====================================================================
     elif st.session_state.active_tab == "AI Studio":
-        render_page_header("AI Studio", "Turn a saved research record into a reviewable content brief.")
-        if df.empty or not title_column(df):
-            show_missing_data(sheet_message if sheet_status != "connected" else "Add records with a Title column to analyze them here.")
+        render_page_header("AI Studio", "Turn a saved video or news research record into an evidence-aware content brief.")
+        ai_source = st.radio("Analyze records from", ["Video Discovery", "Research Feed"], horizontal=True, key="ai_studio_source")
+        if ai_source == "Research Feed":
+            analysis_df, analysis_ws, analysis_message, analysis_status = _load_named_worksheet_records(NEWS_WORKSHEET_NAME)
+            analysis_sheet_name = NEWS_WORKSHEET_NAME
         else:
-            tcol = title_column(df)
-            selected_idx = st.selectbox("Choose a research record", df.index.tolist(), format_func=lambda idx: str(df.loc[idx, tcol])[:130])
-            record = df.loc[selected_idx].drop(labels=["_sheet_row"], errors="ignore").to_dict()
+            analysis_df, analysis_ws, analysis_message, analysis_status = df, worksheet, sheet_message, sheet_status
+            analysis_sheet_name = analysis_ws.title if analysis_ws is not None else str(get_secret("VIDEO_DISCOVERY_WORKSHEET", "Video Discovery"))
+
+        if analysis_df.empty or not title_column(analysis_df):
+            show_missing_data(analysis_message if analysis_status != "connected" else "Add records with a Title column to analyze them here.")
+        else:
+            tcol = title_column(analysis_df)
+            selected_idx = st.selectbox("Choose a research record", analysis_df.index.tolist(), format_func=lambda idx: str(analysis_df.loc[idx, tcol])[:130], key=f"ai_record_{ai_source}")
+            selected_record = analysis_df.loc[selected_idx]
+            sheet_row = int(selected_record.get("_sheet_row", selected_idx + 2))
+            record = selected_record.drop(labels=["_sheet_row"], errors="ignore").to_dict()
             with st.expander("Source fields sent to the AI", expanded=False):
                 st.json({k: str(v)[:1200] for k, v in record.items()})
-            st.warning("Groq analyzes the text fields you provide. This code does not watch the video, fetch fresh news, or independently verify claims.")
-            if st.button("✨ Analyze selected record with Groq", type="primary", use_container_width=True):
+            st.warning("Groq analyzes the saved title and fields only. It does not watch videos or independently verify article claims. Review the original source before using any factual statement.")
+            if st.button("✨ Analyze selected record with Groq", type="primary", use_container_width=True, key="analyze_selected_ai_record"):
                 system_prompt = """You are VicePlug Hub's GTA VI research editor. Use only information in the supplied record. Never invent gameplay, trailer frames, patents, leaks, release dates, view counts, or quotes. If the record lacks evidence, state that clearly. Distinguish official information, reputable reporting, creator commentary, speculation, and unverified claims. Return one JSON object with keys: relevance (High/Medium/Low), priority_score (1-100), fact_status, summary, why_it_matters, hook, commentary_draft (20-35 seconds), on_screen_text, title, caption, hashtags (array), verification_needed (array), rights_note, recommended_action. A score is only a prioritization estimate, not a prediction of virality."""
-                user_prompt = "Analyze this saved sheet record. Treat all fields as unverified unless the source field itself clearly establishes provenance.\n\n" + json.dumps(record, ensure_ascii=False, default=str)
+                user_prompt = "Analyze this saved research record. Treat all fields as unverified unless the source field itself clearly establishes provenance. Do not infer that a claim is true simply because it appears in a headline.\n\n" + json.dumps(record, ensure_ascii=False, default=str)
                 try:
                     with st.spinner("Preparing the content brief…"):
                         result = call_groq(system_prompt, user_prompt, max_tokens=1900)
-                    st.session_state.generated_script = result
+                    st.session_state.generated_ai_brief = result
+                    st.session_state.generated_ai_source = ai_source
+                    st.session_state.generated_ai_row = sheet_row
+                    st.session_state.generated_ai_sheet = analysis_sheet_name
                     st.success("Draft generated. Verify every factual claim and source before using it.")
                 except Exception as exc:
                     st.error(f"AI analysis failed: {exc}")
-            if st.session_state.generated_script:
+
+            brief = st.session_state.get("generated_ai_brief")
+            same_record = (st.session_state.get("generated_ai_source") == ai_source and
+                           st.session_state.get("generated_ai_row") == sheet_row and
+                           st.session_state.get("generated_ai_sheet") == analysis_sheet_name)
+            if brief and same_record:
                 st.markdown("### Generated content brief")
-                st.json(st.session_state.generated_script)
-                st.download_button("Download brief as JSON", data=json.dumps(st.session_state.generated_script, ensure_ascii=False, indent=2), file_name="viceplug_ai_brief.json", mime="application/json", use_container_width=True)
+                st.json(brief)
+                st.download_button("Download brief as JSON", data=json.dumps(brief, ensure_ascii=False, indent=2), file_name="viceplug_ai_brief.json", mime="application/json", use_container_width=True, key="download_ai_brief")
+                if st.button("💾 Save AI brief to this Google Sheets record", type="primary", use_container_width=True, key="save_ai_brief_to_sheet"):
+                    try:
+                        with st.spinner("Saving AI fields to the selected research row…"):
+                            saved_message = save_ai_brief_to_worksheet(analysis_sheet_name, sheet_row, brief)
+                        st.success(saved_message)
+                        st.rerun()
+                    except Exception as exc:
+                        st.error(f"Could not save the AI brief: {exc}")
 
     # =====================================================================
     # SCRIPT GENERATOR
@@ -528,20 +896,29 @@ with col_main:
             render_page_header("Content Pipeline", "Track research records from discovery through review and publication.")
         else:
             render_page_header("Review Queue", "Focus on records that still need human review or approval.")
-        if df.empty:
-            show_missing_data(sheet_message)
+
+        pipeline_source = st.radio("Review records from", ["Video Discovery", "Research Feed"], horizontal=True, key=f"pipeline_source_{st.session_state.active_tab}")
+        if pipeline_source == "Research Feed":
+            pipeline_df, pipeline_ws, pipeline_message, pipeline_connection = _load_named_worksheet_records(NEWS_WORKSHEET_NAME)
+            pipeline_sheet_name = NEWS_WORKSHEET_NAME
         else:
-            s_col = status_column(df)
+            pipeline_df, pipeline_ws, pipeline_message, pipeline_connection = df, worksheet, sheet_message, sheet_status
+            pipeline_sheet_name = pipeline_ws.title if pipeline_ws is not None else str(get_secret("VIDEO_DISCOVERY_WORKSHEET", "Video Discovery"))
+
+        if pipeline_df.empty:
+            show_missing_data(pipeline_message)
+        else:
+            s_col = status_column(pipeline_df)
             if not s_col:
-                st.warning("No Review Status / Status column was detected. Add a status column to your Video Discovery worksheet to enable stage tracking.")
-                st.dataframe(clean_display_df(df), use_container_width=True, hide_index=True)
+                st.warning(f"No Review Status / Status column was detected in {pipeline_sheet_name}. Add a status column to enable stage tracking.")
+                st.dataframe(clean_display_df(pipeline_df), use_container_width=True, hide_index=True)
             else:
-                statuses = df[s_col].fillna("").astype(str).str.strip()
+                statuses = pipeline_df[s_col].fillna("").astype(str).str.strip()
                 if st.session_state.active_tab == "Review Queue":
                     mask = statuses.str.lower().str.contains("review|pending|needs|draft|unreviewed", regex=True)
-                    shown = df[mask]
+                    shown = pipeline_df[mask]
                 else:
-                    shown = df.copy()
+                    shown = pipeline_df.copy()
                 stages = st.columns(4)
                 labels = ["Needs Review", "Script Draft", "Approved", "Published"]
                 patterns = ["review|pending|needs|unreviewed", "script|draft", "approved", "published"]
@@ -551,23 +928,25 @@ with col_main:
                         st.markdown(f'<div class="vp-card"><div class="vp-metric-label">{label}</div><div class="vp-metric-value">{count}</div><div class="vp-metric-note">Matching status values</div></div>', unsafe_allow_html=True)
                 st.markdown(" ")
                 st.dataframe(clean_display_df(shown, 12), use_container_width=True, hide_index=True, height=350)
-                title_col = title_column(shown)
+                shown_title_col = title_column(shown)
                 if len(shown):
-                    record_index = st.selectbox("Select a record to update", shown.index.tolist(), format_func=lambda idx: str(shown.loc[idx, title_col])[:120] if title_col else f"Sheet row {shown.loc[idx, '_sheet_row']}")
-                    current_status = str(df.loc[record_index, s_col]) or "Unspecified"
+                    record_index = st.selectbox("Select a record to update", shown.index.tolist(), format_func=lambda idx: str(shown.loc[idx, shown_title_col])[:120] if shown_title_col else f"Sheet row {shown.loc[idx, '_sheet_row']}", key=f"pipeline_record_{st.session_state.active_tab}_{pipeline_source}")
+                    current_status = str(pipeline_df.loc[record_index, s_col]) or "Unspecified"
                     st.caption(f"Current status: {current_status}")
-                    new_status = st.selectbox("New status", ["Needs Review", "Script Draft", "In Review", "Approved", "Ready to Edit", "Ready to Publish", "Published", "Rejected"], index=0, key="new_pipeline_status")
-                    if st.button("Save status to Google Sheets", type="primary"):
-                        if worksheet is None or sheet_status != "connected":
+                    statuses_options = ["Needs Review", "Script Draft", "In Review", "Approved", "Ready to Edit", "Ready to Publish", "Published", "Rejected"]
+                    default_status_idx = statuses_options.index(current_status) if current_status in statuses_options else 0
+                    new_status = st.selectbox("New status", statuses_options, index=default_status_idx, key=f"new_pipeline_status_{pipeline_source}_{st.session_state.active_tab}")
+                    if st.button("Save status to Google Sheets", type="primary", key=f"save_pipeline_status_{pipeline_source}_{st.session_state.active_tab}"):
+                        if pipeline_ws is None or pipeline_connection != "connected":
                             st.error("Google Sheets is not connected, so the status was not saved.")
                         else:
-                            actual_headers = [str(h).strip() for h in worksheet.row_values(1)]
+                            actual_headers = [str(h).strip() for h in pipeline_ws.row_values(1)]
                             normalized = [h.lower() for h in actual_headers]
                             try:
                                 status_index = next(i for i, h in enumerate(normalized) if h in ["review status", "pipeline status", "content status", "status"])
-                                sheet_row = int(df.loc[record_index, "_sheet_row"])
-                                worksheet.update_cell(sheet_row, status_index + 1, new_status)
-                                st.success(f"Updated row {sheet_row} to '{new_status}'.")
+                                sheet_row = int(pipeline_df.loc[record_index, "_sheet_row"])
+                                pipeline_ws.update_cell(sheet_row, status_index + 1, new_status)
+                                st.success(f"Updated {pipeline_sheet_name}, row {sheet_row} to '{new_status}'.")
                                 st.rerun()
                             except StopIteration:
                                 st.error("Could not find a supported status header in row 1; nothing was changed.")
@@ -652,11 +1031,12 @@ with col_main:
             ("Spreadsheet credentials", "Configured" if account_configured else "Missing", "#10b981" if account_configured else "#f59e0b"),
             ("Groq model", str(get_secret("GROQ_MODEL", "openai/gpt-oss-20b")), "#38d9f5"),
             ("Research worksheet", str(get_secret("VIDEO_DISCOVERY_WORKSHEET", "Video Discovery")), "#a855f7"),
+            ("News research worksheet", NEWS_WORKSHEET_NAME, "#ff2e93"),
         ]
         for label, value, color in settings:
             st.markdown(f'<div class="vp-panel" style="display:flex;align-items:center;justify-content:space-between;gap:14px"><div style="font-weight:700">{html.escape(label)}</div><div style="color:{color};font-weight:700;text-align:right">{html.escape(value)}</div></div>', unsafe_allow_html=True)
         st.markdown("### Required Streamlit Secrets")
-        st.code('GROQ_API_KEY = "your-groq-api-key"\nGROQ_MODEL = "openai/gpt-oss-20b"\nGOOGLE_SHEET_ID = "your-google-sheet-id"\nVIDEO_DISCOVERY_WORKSHEET = "Video Discovery"\n\n[gcp_service_account]\ntype = "service_account"\nproject_id = "..."\nprivate_key_id = "..."\nprivate_key = "..."\nclient_email = "..."\nclient_id = "..."\nauth_uri = "https://accounts.google.com/o/oauth2/auth"\ntoken_uri = "https://oauth2.googleapis.com/token"\nauth_provider_x509_cert_url = "https://www.googleapis.com/oauth2/v1/certs"\nclient_x509_cert_url = "..."', language="toml")
+        st.code('GROQ_API_KEY = "your-groq-api-key"\nGROQ_MODEL = "openai/gpt-oss-20b"\nGOOGLE_SHEET_ID = "your-google-sheet-id"\nVIDEO_DISCOVERY_WORKSHEET = "Video Discovery"\nNEWS_RESEARCH_WORKSHEET = "Research Feed"\n\n[gcp_service_account]\ntype = "service_account"\nproject_id = "..."\nprivate_key_id = "..."\nprivate_key = "..."\nclient_email = "..."\nclient_id = "..."\nauth_uri = "https://accounts.google.com/o/oauth2/auth"\ntoken_uri = "https://oauth2.googleapis.com/token"\nauth_provider_x509_cert_url = "https://www.googleapis.com/oauth2/v1/certs"\nclient_x509_cert_url = "..."', language="toml")
         st.caption("Use your actual service-account values in Streamlit Secrets; the example above is a template, not a working credential.")
 
 # Footer in normal flow, inside the selected workspace only.
