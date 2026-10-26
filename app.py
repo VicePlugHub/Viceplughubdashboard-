@@ -8,9 +8,11 @@ import json
 import os
 import html
 from datetime import datetime, timezone
+import xml.etree.ElementTree as ET
 from typing import Any, Dict, List, Optional, Tuple
-from urllib.parse import urlencode
+from urllib.parse import urlencode, urlparse
 from urllib.request import Request, urlopen
+from urllib.error import HTTPError, URLError
 
 import pandas as pd
 import streamlit as st
@@ -406,9 +408,24 @@ def _format_gdelt_date(raw: Any) -> str:
     return value
 
 
-@st.cache_data(ttl=300, show_spinner=False)
-def fetch_gdelt_news(query: str, timespan: str, max_records: int) -> List[Dict[str, str]]:
-    """Fetch public news metadata. GDELT returns article links/headlines, not verification."""
+def _make_news_record(title: str, url: str, domain: str, indexed_at: str, provider: str) -> Dict[str, str]:
+    """Normalize a discovery result while making its limitations explicit."""
+    return {
+        "Title": title.strip(),
+        "Source": (domain or "Unknown publisher").strip(),
+        "Source URL": url.strip(),
+        "Indexed At": indexed_at,
+        "Research Type": _article_type_hint(title, domain),
+        "Fact Status": "Unverified — headline/metadata only",
+        "Review Status": "Needs Review",
+        "Notes": (
+            f"Discovered via {provider}. Headline and metadata are not evidence that a claim is true. "
+            "Open the original publisher source, verify the publication date and corroborate important claims before scripting."
+        ),
+    }
+
+
+def _fetch_gdelt_news_once(query: str, timespan: str, max_records: int) -> List[Dict[str, str]]:
     params = {
         "query": query,
         "mode": "artlist",
@@ -418,19 +435,19 @@ def fetch_gdelt_news(query: str, timespan: str, max_records: int) -> List[Dict[s
         "sort": "datedesc",
     }
     endpoint = "https://api.gdeltproject.org/api/v2/doc/doc?" + urlencode(params)
-    request = Request(endpoint, headers={"User-Agent": "VicePlugHub/1.0 (GTA VI research dashboard)"})
-    try:
-        with urlopen(request, timeout=20) as response:
-            payload = json.loads(response.read().decode("utf-8", errors="replace"))
-    except Exception as exc:
-        raise RuntimeError(f"News discovery could not reach GDELT: {exc}") from exc
+    request = Request(endpoint, headers={
+        "User-Agent": "Mozilla/5.0 (compatible; VicePlugHub/1.1; news research dashboard)",
+        "Accept": "application/json,text/plain,*/*",
+    })
+    with urlopen(request, timeout=20) as response:
+        payload = json.loads(response.read().decode("utf-8", errors="replace"))
 
     if not isinstance(payload, dict):
         raise RuntimeError("GDELT returned an unexpected response format.")
-    articles = payload.get("articles", []) or []
+
     results: List[Dict[str, str]] = []
     seen = set()
-    for item in articles:
+    for item in payload.get("articles", []) or []:
         title = str(item.get("title") or "").strip()
         url = str(item.get("url") or item.get("url_mobile") or "").strip()
         domain = str(item.get("domain") or "").strip()
@@ -440,17 +457,97 @@ def fetch_gdelt_news(query: str, timespan: str, max_records: int) -> List[Dict[s
         if key in seen:
             continue
         seen.add(key)
-        results.append({
-            "Title": title,
-            "Source": domain or str(item.get("source") or "Unknown publisher"),
-            "Source URL": url,
-            "Indexed At": _format_gdelt_date(item.get("seendate") or item.get("date")),
-            "Research Type": _article_type_hint(title, domain),
-            "Fact Status": "Unverified — headline/metadata only",
-            "Review Status": "Needs Review",
-            "Notes": "Discovered via GDELT. Open the original source and verify the claim before scripting. Do not treat the headline alone as evidence.",
-        })
+        results.append(_make_news_record(
+            title, url, domain,
+            _format_gdelt_date(item.get("seendate") or item.get("date")),
+            "GDELT news index",
+        ))
     return results
+
+
+def _fetch_google_news_rss(query: str, timespan: str, max_records: int) -> List[Dict[str, str]]:
+    """Fallback discovery via Google News RSS when GDELT rate-limits or is unavailable.
+
+    Google News RSS is a useful fallback but is not a formally documented public API;
+    publisher links and dates should still be checked by a human.
+    """
+    # Convert GDELT time windows into Google News's commonly supported `when:` query.
+    age = {"1d": "1d", "3d": "3d", "7d": "7d", "30d": "30d"}.get(timespan, "7d")
+    rss_query = f"{query} when:{age}"
+    params = {"q": rss_query, "hl": "en-US", "gl": "US", "ceid": "US:en"}
+    endpoint = "https://news.google.com/rss/search?" + urlencode(params)
+    request = Request(endpoint, headers={
+        "User-Agent": "Mozilla/5.0 (compatible; VicePlugHub/1.1; news research dashboard)",
+        "Accept": "application/rss+xml,application/xml,text/xml,*/*",
+    })
+    with urlopen(request, timeout=20) as response:
+        xml_bytes = response.read()
+
+    try:
+        root = ET.fromstring(xml_bytes)
+    except ET.ParseError as exc:
+        raise RuntimeError("Google News returned an unreadable RSS response.") from exc
+
+    results: List[Dict[str, str]] = []
+    seen = set()
+    for item in root.findall("./channel/item"):
+        title = (item.findtext("title") or "").strip()
+        url = (item.findtext("link") or "").strip()
+        pub_date = (item.findtext("pubDate") or "").strip()
+        source_node = item.find("source")
+        source_name = (source_node.text or "").strip() if source_node is not None else ""
+        source_url = source_node.attrib.get("url", "") if source_node is not None else ""
+        domain = urlparse(source_url).netloc.lower().removeprefix("www.") if source_url else ""
+        if not domain and url:
+            domain = urlparse(url).netloc.lower().removeprefix("www.")
+        if not title or not url or not url.startswith(("https://", "http://")):
+            continue
+        key = url.rstrip("/").lower()
+        if key in seen:
+            continue
+        seen.add(key)
+        display_source = domain or source_name or "Google News result"
+        results.append(_make_news_record(
+            title, url, display_source, pub_date,
+            "Google News RSS fallback (GDELT was rate-limited/unavailable)",
+        ))
+        if len(results) >= max_records:
+            break
+    return results
+
+
+@st.cache_data(ttl=900, show_spinner=False)
+def fetch_gdelt_news(query: str, timespan: str, max_records: int) -> List[Dict[str, str]]:
+    """Search GDELT first; fall back to Google News RSS on rate limits or outages.
+
+    Results are headlines/source metadata only and are never treated as verified facts.
+    Successful results are cached for 15 minutes to reduce repeat requests.
+    """
+    try:
+        return _fetch_gdelt_news_once(query, timespan, max_records)
+    except HTTPError as exc:
+        if exc.code != 429:
+            gdelt_error = f"GDELT returned HTTP {exc.code}: {exc.reason}"
+        else:
+            retry_after = (exc.headers.get("Retry-After", "") if exc.headers else "").strip()
+            wait_note = f" Retry-After: {retry_after} seconds." if retry_after.isdigit() else ""
+            gdelt_error = "GDELT rate-limited this request (HTTP 429)." + wait_note
+    except (URLError, TimeoutError, json.JSONDecodeError, RuntimeError) as exc:
+        gdelt_error = f"GDELT unavailable: {exc}"
+    except Exception as exc:
+        gdelt_error = f"GDELT request failed: {exc}"
+
+    # Avoid retrying GDELT immediately after a 429. Use a separate source as fallback.
+    try:
+        rss_results = _fetch_google_news_rss(query, timespan, max_records)
+        if rss_results:
+            return rss_results
+        raise RuntimeError("Google News RSS returned no matching articles.")
+    except Exception as rss_exc:
+        raise RuntimeError(
+            f"{gdelt_error} Google News RSS fallback also failed: {rss_exc}. "
+            "Try again later or use a narrower query; repeated retries can trigger further rate limits."
+        ) from rss_exc
 
 
 def _load_named_worksheet_records(worksheet_name: str) -> Tuple[pd.DataFrame, Any, str, str]:
@@ -669,7 +766,7 @@ with col_main:
     # =====================================================================
     elif st.session_state.active_tab == "Research Feed":
         render_page_header("Research Feed", "Discover recent GTA VI coverage from public news metadata, then choose what to save for human review.")
-        st.markdown('<div class="vp-panel"><div class="vp-panel-title">🌐 Live News Discovery</div><div class="vp-muted">Searches GDELT’s news index for headline, publisher, index timestamp and source URL metadata. Results are discovery leads, not fact-checked stories; open the source before scripting. GDELT can miss relevant coverage, and its query endpoint may change.</div></div>', unsafe_allow_html=True)
+        st.markdown('<div class="vp-panel"><div class="vp-panel-title">🌐 Live News Discovery</div><div class="vp-muted">Searches GDELT first and automatically falls back to Google News RSS if GDELT is rate-limited or unavailable. Results are discovery leads, not fact-checked stories; open and verify the original publisher before scripting. Successful searches are cached for 15 minutes to reduce repeated requests.</div></div>', unsafe_allow_html=True)
         search_left, search_right = st.columns([2.2, 1])
         with search_left:
             discovery_query = st.text_input("Search query", value=st.session_state.get("news_query", NEWS_DEFAULT_QUERY), key="news_query_input", help='Try a phrase, e.g. \"GTA VI\" OR Rockstar OR \"Grand Theft Auto 6\"')
@@ -700,7 +797,7 @@ with col_main:
             st.caption("Select the stories to save. Duplicate links and titles already in the Research Feed will be skipped.")
             edit_df = pd.DataFrame([{
                 "_Discovery ID": i, "Save": False, "Title": item["Title"], "Publisher / domain": item["Source"],
-                "Indexed At (GDELT)": item["Indexed At"], "Triage hint (not verification)": item["Research Type"],
+                "Date / index timestamp": item["Indexed At"], "Triage hint (not verification)": item["Research Type"],
                 "Source URL": item["Source URL"],
             } for i, item in enumerate(found)])
             edited = st.data_editor(
@@ -710,7 +807,7 @@ with col_main:
                     "Save": st.column_config.CheckboxColumn("Save", help="Select this item for the Research Feed."),
                     "Source URL": st.column_config.LinkColumn("Source URL", display_text="Open source ↗"),
                 },
-                disabled=["_Discovery ID", "Title", "Publisher / domain", "Indexed At (GDELT)", "Triage hint (not verification)", "Source URL"],
+                disabled=["_Discovery ID", "Title", "Publisher / domain", "Date / index timestamp", "Triage hint (not verification)", "Source URL"],
                 key="news_discovery_editor",
             )
             selected_positions = [int(row["_Discovery ID"]) for _, row in edited.iterrows() if bool(row["Save"])]
@@ -751,7 +848,7 @@ with col_main:
                     st.link_button("Open original source ↗", target_url)
         else:
             st.info(news_message or f"No saved Research Feed worksheet yet. Select results above and save them to create '{NEWS_WORKSHEET_NAME}'.")
-        st.caption("Data source: GDELT Project. ‘Indexed At’ is when GDELT indexed/observed the article, not necessarily the publisher’s original publication time. Its article index is a discovery aid; the publisher remains the authority for the original story. See gdeltproject.org/about.html for GDELT’s data-use information.")
+        st.caption("Discovery providers: GDELT Project, with Google News RSS as an automatic fallback. The date may be a publisher publication date or an index timestamp, depending on the provider. Headlines and metadata are leads only; verify the original publisher source before using claims in a script. Google News RSS is an unofficial feed endpoint and may change.")
 
     # =====================================================================
     # VIDEO DISCOVERY — existing Google Sheets video workflow
