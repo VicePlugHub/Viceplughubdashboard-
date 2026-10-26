@@ -1,19 +1,18 @@
-"""
-VicePlug Hub // GTA VI Intelligence & Content Operations
-Pixel-perfect recreation of Designer (2).png for Streamlit Community Cloud
+"""VicePlug Hub — GTA VI research and content operations dashboard.
+
+Designed for Streamlit Community Cloud. Connects to Google Sheets and Groq
+when credentials are supplied in Streamlit Secrets.
 """
 
-import os
 import json
-import base64
+import os
+import html
 from datetime import datetime, timezone
-from typing import Dict, List, Tuple, Any
+from typing import Any, Dict, List, Optional, Tuple
 
 import pandas as pd
 import streamlit as st
-import plotly.graph_objects as go
 
-# Optional integrations with graceful fallbacks
 try:
     import gspread
     from google.oauth2.service_account import Credentials
@@ -27,771 +26,638 @@ try:
 except ImportError:
     HAS_GROQ = False
 
-# --------------------------------------------------
-# STREAMLIT CONFIGURATION
-# --------------------------------------------------
+# -----------------------------------------------------------------------------
+# Page configuration and visual system
+# -----------------------------------------------------------------------------
 st.set_page_config(
-    page_title="VicePlug Hub // GTA VI Content Intelligence",
+    page_title="VicePlug Hub | GTA VI Intelligence",
     page_icon="👑",
     layout="wide",
     initial_sidebar_state="collapsed",
 )
 
-# --------------------------------------------------
-# AUTO-LOAD OR EXTRACT ASSETS FROM MOCKUP
-# --------------------------------------------------
-def get_asset_base64(filename: str) -> str:
-    if os.path.exists(filename):
-        with open(filename, "rb") as f:
-            return base64.b64encode(f.read()).decode("utf-8")
-    return ""
-
-# Try extracting from Designer (2).png if present
-if os.path.exists("Designer (2).png") and not os.path.exists("hero_bg.jpg"):
-    try:
-        import cv2
-        img = cv2.imread("Designer (2).png")
-        if img is not None:
-            cv2.imwrite("hero_bg.jpg", img[0:560, :], [int(cv2.IMWRITE_JPEG_QUALITY), 85])
-            cv2.imwrite("st1.jpg", img[715:755, 325:380], [int(cv2.IMWRITE_JPEG_QUALITY), 85])
-            cv2.imwrite("st2.jpg", img[768:808, 325:380], [int(cv2.IMWRITE_JPEG_QUALITY), 85])
-            cv2.imwrite("st3.jpg", img[823:863, 325:380], [int(cv2.IMWRITE_JPEG_QUALITY), 85])
-            cv2.imwrite("st4.jpg", img[877:917, 325:380], [int(cv2.IMWRITE_JPEG_QUALITY), 85])
-            cv2.imwrite("video_thumb_perfect.jpg", img[746:818, 975:1195], [int(cv2.IMWRITE_JPEG_QUALITY), 85])
-    except Exception:
-        pass
-
-b64_hero = get_asset_base64("hero_bg.jpg")
-b64_st1 = get_asset_base64("st1.jpg")
-b64_st2 = get_asset_base64("st2.jpg")
-b64_st3 = get_asset_base64("st3.jpg")
-b64_st4 = get_asset_base64("st4.jpg")
-b64_vt = get_asset_base64("video_thumb_perfect.jpg")
-
-# --------------------------------------------------
-# DESIGN SYSTEM & STYLING (MATCHING MOCKUP EXACTLY)
-# --------------------------------------------------
-st.markdown("""
+st.markdown(r"""
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
-
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap');
 :root {
-    --bg-dark: #060913;
-    --cc-bg: #090E1B;
-    --card-surface: #0E1528;
-    --card-border: #1E293B;
-    --pink-neon: #FF2E93;
-    --pink-bright: #FF007A;
-    --purple-glow: #A855F7;
-    --cyan-glow: #00F5FF;
-    --emerald-glow: #10B981;
-    --amber-glow: #F59E0B;
-    --text-main: #FFFFFF;
-    --text-muted: #8E9FB8;
-    --text-dim: #64748B;
+  --bg:#060913; --surface:#0b1221; --card:#0e1729; --border:#202c43;
+  --pink:#ff2e93; --purple:#a855f7; --cyan:#38d9f5; --green:#10b981;
+  --amber:#f59e0b; --text:#f8fafc; --muted:#93a4bd; --dim:#64748b;
 }
-
-html, body, [class*="css"] {
-    font-family: 'Plus Jakarta Sans', sans-serif !important;
-    color: var(--text-main);
-    background-color: var(--bg-dark);
+html, body, [class*="css"] { font-family:'Plus Jakarta Sans',sans-serif; }
+.stApp { background:radial-gradient(ellipse at 70% -10%, rgba(93,25,105,.22), transparent 42%), var(--bg); color:var(--text); }
+#MainMenu, footer { visibility:hidden; }
+header[data-testid="stHeader"] { background:rgba(6,9,19,.85); }
+.block-container { max-width:1600px; padding:1.2rem 1.5rem 2.5rem; }
+/* Widget styling */
+.stTextInput input, .stTextArea textarea, .stSelectbox div[data-baseweb="select"], .stMultiSelect div[data-baseweb="select"] {
+  background:#0c1424 !important; border-color:#26344c !important; border-radius:10px !important;
 }
-
-.stApp {
-    background-color: var(--bg-dark);
+.stButton > button, .stDownloadButton > button {
+  border-radius:10px; border:1px solid #2a3851; background:#101a2d; color:#e8eef8;
+  font-weight:650; transition:all .18s ease; min-height:2.45rem;
 }
-
-#MainMenu, header, footer { visibility: hidden; }
-
-.block-container {
-    max-width: 1680px;
-    padding-top: 0.5rem;
-    padding-bottom: 2rem;
-}
-
-/* Hero Section */
-.hero-wrapper {
-    position: relative;
-    border-radius: 16px;
-    overflow: hidden;
-    margin-bottom: 24px;
-    background-color: #0c1222;
-    border: 1px solid rgba(255, 255, 255, 0.08);
-}
-
-.hero-image-banner {
-    width: 100%;
-    display: block;
-    border-radius: 16px;
-}
-
-/* Command Center Frame */
-.command-center-frame {
-    background: #080D1A;
-    border: 1.5px solid rgba(168, 85, 247, 0.45);
-    border-radius: 18px;
-    box-shadow: 0 0 35px rgba(168, 85, 247, 0.2), inset 0 0 20px rgba(0, 0, 0, 0.6);
-    padding: 20px 22px;
-    position: relative;
-}
-
-/* Sidebar Nav Items */
-.sidebar-logo {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-family: 'Space Grotesk', sans-serif;
-    font-weight: 800;
-    font-size: 1.25rem;
-    color: #FFF;
-    margin-bottom: 20px;
-    letter-spacing: -0.02em;
-}
-
-.sidebar-logo span {
-    color: var(--pink-neon);
-}
-
-div[data-testid="stVerticalBlock"] .stButton > button {
-    background: transparent !important;
-    border: 1px solid transparent !important;
-    color: #8E9FB8 !important;
-    font-size: 0.85rem !important;
-    font-weight: 600 !important;
-    border-radius: 8px !important;
-    text-align: left !important;
-    padding: 8px 12px !important;
-    width: 100% !important;
-    display: flex !important;
-    justify-content: flex-start !important;
-    transition: all 0.2s ease !important;
-}
-
-div[data-testid="stVerticalBlock"] .stButton > button:hover {
-    background: rgba(255, 255, 255, 0.05) !important;
-    color: #FFFFFF !important;
-}
-
-/* Active Nav Button */
-.nav-btn-active > button {
-    background: linear-gradient(90deg, rgba(255, 46, 147, 0.2) 0%, rgba(255, 46, 147, 0.04) 100%) !important;
-    border: 1px solid rgba(255, 46, 147, 0.45) !important;
-    border-left: 3px solid var(--pink-neon) !important;
-    color: #FFFFFF !important;
-}
-
-/* Metric Card */
-.metric-card-box {
-    background: #0E1528;
-    border: 1px solid #1C263D;
-    border-radius: 12px;
-    padding: 14px 16px;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    height: 100%;
-}
-
-.metric-header {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-.metric-icon-circle {
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 0.95rem;
-}
-
-.metric-label-text {
-    font-size: 0.76rem;
-    color: var(--text-muted);
-    font-weight: 500;
-}
-
-.metric-val-row {
-    display: flex;
-    align-items: baseline;
-    justify-content: space-between;
-    margin-top: 10px;
-}
-
-.metric-number-big {
-    font-family: 'Space Grotesk', sans-serif;
-    font-size: 1.85rem;
-    font-weight: 700;
-    color: #FFF;
-    line-height: 1;
-}
-
-/* Middle Panels */
-.panel-box {
-    background: #0C1324;
-    border: 1px solid #1B253B;
-    border-radius: 12px;
-    padding: 16px;
-    height: 100%;
-}
-
-.panel-header-title {
-    font-family: 'Space Grotesk', sans-serif;
-    font-size: 0.96rem;
-    font-weight: 700;
-    color: #FFF;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 12px;
-}
-
-/* Story Item */
-.story-row-item {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 8px 0;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.04);
-}
-
-.story-row-item:last-child {
-    border-bottom: none;
-}
-
-.story-index-num {
-    font-family: 'Space Grotesk', sans-serif;
-    font-size: 0.9rem;
-    font-weight: 700;
-    color: #64748B;
-    width: 14px;
-}
-
-.story-thumb-img {
-    width: 48px;
-    height: 34px;
-    border-radius: 6px;
-    object-fit: cover;
-    background: #1E293B;
-}
-
-.story-score-pill {
-    font-family: 'Space Grotesk', sans-serif;
-    font-size: 0.78rem;
-    font-weight: 700;
-    color: var(--pink-neon);
-    background: rgba(255, 46, 147, 0.1);
-    border: 1px solid rgba(255, 46, 147, 0.35);
-    padding: 3px 8px;
-    border-radius: 12px;
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    white-space: nowrap;
-}
-
-/* Bottom Ticker */
-.bottom-ticker-bar {
-    background: rgba(9, 14, 27, 0.9);
-    border: 1px solid rgba(168, 85, 247, 0.4);
-    border-radius: 12px;
-    padding: 10px 18px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-top: 18px;
-    font-size: 0.78rem;
-}
-
-.live-pill {
-    background: #EF4444;
-    color: #FFF;
-    font-weight: 800;
-    font-size: 0.68rem;
-    padding: 2px 7px;
-    border-radius: 10px;
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-    animation: pulse 1.8s infinite;
-}
-
-@keyframes pulse {
-    0% { opacity: 0.8; transform: scale(0.98); }
-    50% { opacity: 1; transform: scale(1.02); }
-    100% { opacity: 0.8; transform: scale(0.98); }
-}
+.stButton > button:hover, .stDownloadButton > button:hover { border-color:var(--purple); color:white; background:#17152c; }
+button[kind="primary"] { background:linear-gradient(110deg,#e51d83,#8b36d7) !important; border:0 !important; color:#fff !important; }
+.stAlert { border-radius:10px; }
+.vp-brand { font-family:'Space Grotesk',sans-serif; font-size:1.22rem; font-weight:800; letter-spacing:-.04em; margin:.2rem 0 1.25rem; color:#fff; }
+.vp-brand span { color:var(--pink); }
+.vp-eyebrow { font-size:.68rem; font-weight:800; letter-spacing:.16em; color:#b7a2d7; text-transform:uppercase; }
+.vp-hero { border:1px solid #3b2450; border-radius:18px; padding:27px 30px; margin-bottom:20px;
+  background:radial-gradient(ellipse at 85% 20%,rgba(255,46,147,.17),transparent 42%),linear-gradient(125deg,#10172b,#25102f 62%,#3d1031); }
+.vp-hero h1 { font-family:'Space Grotesk',sans-serif; font-size:clamp(1.8rem,3vw,2.55rem); line-height:1.08; letter-spacing:-.045em; margin:.55rem 0 .65rem; }
+.vp-hero h1 span { color:var(--pink); }
+.vp-hero p { color:#a9b7cd; max-width:760px; font-size:.92rem; margin-bottom:0; }
+.vp-page-head { display:flex; align-items:flex-end; justify-content:space-between; gap:1rem; border-bottom:1px solid #1d2940; padding:0 0 1rem; margin:0 0 1.15rem; }
+.vp-page-head h1 { font-family:'Space Grotesk',sans-serif; font-size:1.75rem; margin:0; letter-spacing:-.04em; }
+.vp-page-head p { color:var(--muted); margin:.3rem 0 0; font-size:.88rem; }
+.vp-card { background:linear-gradient(145deg,#10192b,#0b1220); border:1px solid var(--border); border-radius:14px; padding:16px; min-height:108px; }
+.vp-metric-label { color:var(--muted); font-size:.76rem; font-weight:600; }
+.vp-metric-value { font-family:'Space Grotesk',sans-serif; font-size:1.85rem; font-weight:700; margin:.35rem 0 .1rem; color:#fff; }
+.vp-metric-note { color:var(--dim); font-size:.72rem; }
+.vp-panel { background:#0a1120; border:1px solid var(--border); border-radius:14px; padding:16px; margin-bottom:12px; }
+.vp-panel-title { font-family:'Space Grotesk',sans-serif; font-size:1rem; font-weight:700; margin:0 0 .25rem; }
+.vp-muted { color:var(--muted); font-size:.84rem; }
+.vp-pill { display:inline-block; border:1px solid #3b2a56; color:#e4c5ff; background:#21132e; border-radius:99px; padding:3px 9px; font-size:.7rem; font-weight:700; }
+.vp-empty { text-align:center; padding:28px 16px; border:1px dashed #2a3851; border-radius:14px; color:var(--muted); background:rgba(14,23,41,.35); }
+[data-testid="stDataFrame"] { border:1px solid #1e293b; border-radius:10px; overflow:hidden; }
+@media (max-width: 850px) { .block-container { padding:.7rem .75rem 2rem; } .vp-hero { padding:21px; } .vp-page-head h1 { font-size:1.45rem; } }
 </style>
 """, unsafe_allow_html=True)
 
-# --------------------------------------------------
-# APP STATE
-# --------------------------------------------------
+# -----------------------------------------------------------------------------
+# Configuration / integrations
+# -----------------------------------------------------------------------------
+SCOPES = ["https://www.googleapis.com/auth/spreadsheets", "https://www.googleapis.com/auth/drive"]
+NAV_ITEMS = [
+    ("Dashboard", "🏠"),
+    ("Research Feed", "📰"),
+    ("Viral Opportunities", "🎯"),
+    ("Video Discovery", "🎥"),
+    ("AI Studio", "🧠"),
+    ("Script Generator", "📝"),
+    ("Content Pipeline", "⚡"),
+    ("Review Queue", "☑️"),
+    ("Trends & Analytics", "📈"),
+    ("Google Sheets Sync", "📊"),
+    ("Settings", "⚙️"),
+]
+
 if "active_tab" not in st.session_state:
-    st.session_state["active_tab"] = "Dashboard"
-
-if "search_query" not in st.session_state:
-    st.session_state["search_query"] = ""
-
-
-# --------------------------------------------------
-# TOP SECTION: HERO SHOWCASE (FROM MOCKUP)
-# --------------------------------------------------
-if b64_hero:
-    st.markdown(f"""
-        <div class="hero-wrapper">
-            <img src="data:image/jpeg;base64,{b64_hero}" class="hero-image-banner" alt="GTA VI Hero Showcase" />
-        </div>
-    """, unsafe_allow_html=True)
-else:
-    # CSS fallback if image is not present
-    st.markdown("""
-        <div class="hero-wrapper" style="padding: 40px; background: linear-gradient(135deg, #10172B 0%, #30103A 60%, #520F38 100%);">
-            <div style="font-size:0.75rem; color:#8E9FB8; font-weight:700; letter-spacing:0.15em;">VICE CITY LIVES ONLINE.</div>
-            <div style="font-family:'Space Grotesk'; font-size:2.8rem; font-weight:800; line-height:1.1; margin:8px 0 12px 0;">
-                GTA VI RESEARCH.<br>
-                <span style="color:#FF2E93;">AI INTELLIGENCE.</span><br>
-                VIRAL CONTENT.
-            </div>
-            <p style="color:#8E9FB8; font-size:0.95rem; max-width:650px; margin-bottom:20px;">
-                Track breaking GTA VI news, discover trending videos, identify viral opportunities with AI, and generate ready-to-publish hooks, scripts, captions, and hashtags from one command center.
-            </p>
-        </div>
-    """, unsafe_allow_html=True)
+    st.session_state.active_tab = "Dashboard"
+if "generated_script" not in st.session_state:
+    st.session_state.generated_script = None
 
 
-# --------------------------------------------------
-# THE COMMAND CENTER CONTAINER (MATCHING MOCKUP)
-# --------------------------------------------------
-st.markdown('<div class="command-center-frame">', unsafe_allow_html=True)
-
-col_sidebar, col_content = st.columns([1.1, 5.2], gap="medium")
-
-# ==================================================
-# LEFT SIDEBAR NAVIGATION
-# ==================================================
-with col_sidebar:
-    st.markdown("""
-        <div class="sidebar-logo">
-            <span>👑</span> VICE<span>PLUG</span> HUB
-        </div>
-    """, unsafe_allow_html=True)
-
-    nav_items = [
-        ("Dashboard", "🏠"),
-        ("Research Feed", "📰"),
-        ("Viral Opportunities", "🎯"),
-        ("Video Discovery", "🎥"),
-        ("AI Studio", "🧠"),
-        ("Script Generator", "📝"),
-        ("Content Pipeline", "⚡"),
-        ("Review Queue", "☑️"),
-        ("Google Sheets Sync", "📊"),
-        ("Settings", "⚙️"),
-    ]
-
-    for label, icon in nav_items:
-        is_active = st.session_state["active_tab"] == label
-        btn_key = f"nav_{label}"
-        if is_active:
-            st.markdown('<div class="nav-btn-active">', unsafe_allow_html=True)
-            if st.button(f"{icon}  {label}", key=btn_key, use_container_width=True):
-                st.session_state["active_tab"] = label
-            st.markdown('</div>', unsafe_allow_html=True)
-        else:
-            if st.button(f"{icon}  {label}", key=btn_key, use_container_width=True):
-                st.session_state["active_tab"] = label
-                st.rerun()
-
-    st.markdown("""
-        <div style="margin-top: 40px; font-size: 0.68rem; color: #64748B; font-weight: 600; letter-spacing: 0.08em; line-height: 1.4;">
-            GOOD CONTENT<br>BUILDS BIGGER WORLDS.
-        </div>
-    """, unsafe_allow_html=True)
+def get_secret(name: str, default: Any = None) -> Any:
+    """Read a value from Streamlit Secrets first, then environment variables."""
+    try:
+        value = st.secrets.get(name, default)
+        if value not in (None, ""):
+            return value
+    except Exception:
+        pass
+    return os.getenv(name, default)
 
 
-# ==================================================
-# MAIN COMMAND CENTER AREA
-# ==================================================
-with col_content:
-
-    # 1. Header Bar: Greeting + Search + Avatar
-    head_left, head_right = st.columns([1.8, 1.4])
-    with head_left:
-        st.markdown("""
-            <div>
-                <div style="font-family:'Space Grotesk'; font-size:1.6rem; font-weight:700; color:#FFF; line-height:1.2;">
-                    Welcome back, Creator.
-                </div>
-                <div style="font-size:0.85rem; color:#8E9FB8; margin-top:2px;">
-                    Here's what's happening in the GTA VI universe.
-                </div>
-            </div>
-        """, unsafe_allow_html=True)
-
-    with head_right:
-        st.markdown("""
-            <div style="display:flex; align-items:center; justify-content:flex-end; gap:14px; margin-top:4px;">
-                <div style="background:#0B1120; border:1px solid #1E293B; border-radius:20px; padding:6px 14px; display:flex; align-items:center; gap:8px; width:220px;">
-                    <span style="color:#64748B; font-size:0.8rem;">🔍</span>
-                    <input type="text" placeholder="Search news, videos..." style="background:transparent; border:none; outline:none; color:#FFF; font-size:0.78rem; width:100%; font-family:inherit;" />
-                </div>
-                <div style="position:relative; cursor:pointer;">
-                    <span style="font-size:1.15rem; color:#8E9FB8;">🔔</span>
-                    <span style="position:absolute; top:-2px; right:-2px; width:7px; height:7px; background:#EF4444; border-radius:50%;"></span>
-                </div>
-                <div style="display:flex; align-items:center; gap:8px;">
-                    <div style="width:34px; height:34px; border-radius:50%; background:#FF2E93; display:flex; align-items:center; justify-content:center; font-size:1rem; box-shadow:0 0 12px rgba(255,46,147,0.4);">
-                        🌴
-                    </div>
-                    <div>
-                        <div style="font-size:0.82rem; font-weight:700; color:#FFF; line-height:1.1;">VicePlug</div>
-                        <div style="font-size:0.68rem; color:#8E9FB8;">Creator Mode</div>
-                    </div>
-                </div>
-            </div>
-        """, unsafe_allow_html=True)
-
-    st.markdown("<div style='height: 14px;'></div>", unsafe_allow_html=True)
-
-    # 2. Row 1: 5 Metric Cards with Glowing Sparklines
-    k1, k2, k3, k4, k5 = st.columns(5)
-
-    with k1:
-        st.markdown("""
-            <div class="metric-card-box">
-                <div class="metric-header">
-                    <div class="metric-icon-circle" style="background:linear-gradient(135deg, #FF3B69, #FF5E80);">🔥</div>
-                    <div class="metric-label-text">Trending Stories</div>
-                </div>
-                <div class="metric-val-row">
-                    <div class="metric-number-big">47</div>
-                    <svg width="75" height="26" viewBox="0 0 100 30" fill="none">
-                        <path d="M 0 25 Q 20 15, 35 20 T 65 18 T 85 8 T 100 5" stroke="#A855F7" stroke-width="2.5" stroke-linecap="round"/>
-                    </svg>
-                </div>
-                <div style="font-size:0.75rem; color:#10B981; font-weight:600; margin-top:4px;">↑ +32%</div>
-            </div>
-        """, unsafe_allow_html=True)
-
-    with k2:
-        st.markdown("""
-            <div class="metric-card-box">
-                <div class="metric-header">
-                    <div class="metric-icon-circle" style="background:linear-gradient(135deg, #2563EB, #00D2FF);">▶</div>
-                    <div class="metric-label-text">Videos Discovered</div>
-                </div>
-                <div class="metric-val-row">
-                    <div class="metric-number-big">138</div>
-                    <svg width="75" height="26" viewBox="0 0 100 30" fill="none">
-                        <path d="M 0 22 Q 25 18, 45 25 T 75 14 T 100 8" stroke="#00D2FF" stroke-width="2.5" stroke-linecap="round"/>
-                    </svg>
-                </div>
-                <div style="font-size:0.75rem; color:#10B981; font-weight:600; margin-top:4px;">↑ +68%</div>
-            </div>
-        """, unsafe_allow_html=True)
-
-    with k3:
-        st.markdown("""
-            <div class="metric-card-box">
-                <div class="metric-header">
-                    <div class="metric-icon-circle" style="background:linear-gradient(135deg, #F59E0B, #FBBF24);">⭐</div>
-                    <div class="metric-label-text">Avg Viral Score</div>
-                </div>
-                <div class="metric-val-row">
-                    <div class="metric-number-big">92<span style="font-size:1.1rem; color:#8E9FB8; font-weight:500;">/100</span></div>
-                    <svg width="75" height="26" viewBox="0 0 100 30" fill="none">
-                        <path d="M 0 25 Q 30 20, 50 15 T 80 18 T 100 6" stroke="#10B981" stroke-width="2.5" stroke-linecap="round"/>
-                    </svg>
-                </div>
-                <div style="font-size:0.75rem; color:#10B981; font-weight:600; margin-top:4px;">↑ +12%</div>
-            </div>
-        """, unsafe_allow_html=True)
-
-    with k4:
-        st.markdown("""
-            <div class="metric-card-box">
-                <div class="metric-header">
-                    <div class="metric-icon-circle" style="background:linear-gradient(135deg, #F43F5E, #FB7185);">📄</div>
-                    <div class="metric-label-text">Pending Reviews</div>
-                </div>
-                <div class="metric-val-row">
-                    <div class="metric-number-big">12</div>
-                    <svg width="75" height="26" viewBox="0 0 100 30" fill="none">
-                        <path d="M 0 10 Q 25 22, 50 16 T 75 24 T 100 20" stroke="#F43F5E" stroke-width="2.5" stroke-linecap="round"/>
-                    </svg>
-                </div>
-                <div style="font-size:0.75rem; color:#F43F5E; font-weight:600; margin-top:4px;">↓ -8%</div>
-            </div>
-        """, unsafe_allow_html=True)
-
-    with k5:
-        st.markdown("""
-            <div class="metric-card-box">
-                <div class="metric-header">
-                    <div class="metric-icon-circle" style="background:linear-gradient(135deg, #10B981, #34D399);">✓</div>
-                    <div class="metric-label-text">Approved Content</div>
-                </div>
-                <div class="metric-val-row">
-                    <div class="metric-number-big">34</div>
-                    <svg width="75" height="26" viewBox="0 0 100 30" fill="none">
-                        <path d="M 0 24 Q 25 26, 50 18 T 75 12 T 100 7" stroke="#10B981" stroke-width="2.5" stroke-linecap="round"/>
-                    </svg>
-                </div>
-                <div style="font-size:0.75rem; color:#10B981; font-weight:600; margin-top:4px;">↑ +41%</div>
-            </div>
-        """, unsafe_allow_html=True)
-
-    st.markdown("<div style='height: 14px;'></div>", unsafe_allow_html=True)
-
-    # 3. Row 2: 4 Middle Panels
-    c_stories, c_opp, c_video, c_pipe = st.columns([1.5, 1.25, 1.15, 0.95], gap="small")
-
-    # Panel 1: Trending GTA VI Stories
-    with c_stories:
-        st.markdown("""
-            <div class="panel-box">
-                <div class="panel-header-title">
-                    <span>Trending GTA VI Stories</span>
-                    <span style="font-size:0.75rem; color:#8E9FB8; font-weight:500; cursor:pointer;">View All ➔</span>
-                </div>
-        """, unsafe_allow_html=True)
-
-        stories_data = [
-            ("1", b64_st1, "GTA VI Hidden Details Found in New Trailer", "Community spots possible new location...", "95"),
-            ("2", b64_st2, "Vice City Expansion Theory Gains Traction", "New evidence suggests a larger map...", "91"),
-            ("3", b64_st3, "Rockstar Hiring Spree Continues", "Multiple job listings hint at major features...", "89"),
-            ("4", b64_st4, "Possible Release Window Leak", "Retail listing sparks new speculation...", "87"),
-        ]
-
-        for s_idx, s_b64, s_title, s_sub, s_score in stories_data:
-            img_tag = f'<img src="data:image/jpeg;base64,{s_b64}" class="story-thumb-img" />' if s_b64 else '<div class="story-thumb-img"></div>'
-            st.markdown(f"""
-                <div class="story-row-item">
-                    <span class="story-index-num">{s_idx}</span>
-                    {img_tag}
-                    <div style="flex-grow:1; min-width:0;">
-                        <div style="font-size:0.83rem; font-weight:600; color:#FFF; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{s_title}</div>
-                        <div style="font-size:0.72rem; color:#8E9FB8; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{s_sub}</div>
-                    </div>
-                    <div class="story-score-pill">
-                        {s_score} <span style="font-size:0.7rem;">🔥</span>
-                    </div>
-                </div>
-            """, unsafe_allow_html=True)
-
-        st.markdown("</div>", unsafe_allow_html=True)
-
-    # Panel 2: AI Opportunity Engine
-    with c_opp:
-        st.markdown("""
-            <div class="panel-box">
-                <div class="panel-header-title">
-                    <span>🧠 AI Opportunity Engine</span>
-                </div>
-                <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:12px;">
-                    <!-- Circular SVG Donut Gauge -->
-                    <div style="position:relative; width:88px; height:88px;">
-                        <svg width="88" height="88" viewBox="0 0 100 100">
-                            <circle cx="50" cy="50" r="40" stroke="#131B2E" stroke-width="8" fill="none" />
-                            <defs>
-                                <linearGradient id="gaugeGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                                    <stop offset="0%" stop-color="#FF2E93" />
-                                    <stop offset="100%" stop-color="#A855F7" />
-                                </linearGradient>
-                            </defs>
-                            <circle cx="50" cy="50" r="40" stroke="url(#gaugeGrad)" stroke-width="8" stroke-dasharray="238, 251" stroke-linecap="round" fill="none" transform="rotate(-90 50 50)" />
-                        </svg>
-                        <div style="position:absolute; top:50%; left:50%; transform:translate(-50%, -50%); text-align:center;">
-                            <div style="font-family:'Space Grotesk'; font-size:1.35rem; font-weight:800; color:#FFF; line-height:1;">95</div>
-                            <div style="font-size:0.65rem; color:#8E9FB8;">/100</div>
-                        </div>
-                    </div>
-                    <!-- Badges -->
-                    <div style="display:flex; flex-direction:column; gap:6px; align-items:flex-end;">
-                        <span style="font-size:0.72rem; color:#CBD5E1; background:#182238; padding:3px 10px; border-radius:12px; font-weight:600;">High Potential</span>
-                        <span style="font-size:0.72rem; color:#10B981; background:rgba(16,185,129,0.12); border:1px solid rgba(16,185,129,0.3); padding:3px 10px; border-radius:12px; font-weight:700;">Trending Now</span>
-                    </div>
-                </div>
-
-                <!-- Recommended Content Callout -->
-                <div style="background:#090E1B; border:1px solid #1C263D; border-radius:10px; padding:10px 12px; margin-bottom:12px;">
-                    <div style="font-size:0.72rem; font-weight:600; color:#38BDF8; margin-bottom:4px;">Recommended Content</div>
-                    <div style="display:flex; gap:6px; font-size:0.78rem; color:#CBD5E1; line-height:1.4;">
-                        <span>💡</span>
-                        <span>"Create a comparison video between GTA V and GTA VI map locations within next 8 hours."</span>
-                    </div>
-                </div>
-
-                <!-- Potential & Confidence -->
-                <div style="display:flex; justify-content:space-between; font-size:0.74rem;">
-                    <div>
-                        <div style="color:#8E9FB8; font-size:0.68rem;">Potential Reach</div>
-                        <div style="color:#10B981; font-weight:700; font-size:0.9rem;">High</div>
-                    </div>
-                    <div style="text-align:right;">
-                        <div style="color:#8E9FB8; font-size:0.68rem;">AI Confidence</div>
-                        <div style="color:#A855F7; font-weight:700; font-size:0.9rem;">94%</div>
-                    </div>
-                </div>
-            </div>
-        """, unsafe_allow_html=True)
-
-    # Panel 3: Video Discovery
-    with c_video:
-        video_thumb_tag = f'<img src="data:image/jpeg;base64,{b64_vt}" style="width:100%; border-radius:8px; display:block;" />' if b64_vt else '<div style="height:90px; background:#1E293B; border-radius:8px;"></div>'
-        st.markdown(f"""
-            <div class="panel-box">
-                <div class="panel-header-title">
-                    <span>🎬 Video Discovery</span>
-                    <span style="font-size:0.75rem; color:#8E9FB8; font-weight:500; cursor:pointer;">View All ➔</span>
-                </div>
-                <div style="font-size:0.74rem; font-weight:600; color:#FFF; margin-bottom:8px;">Top Performing Video</div>
-                <div style="position:relative; margin-bottom:8px;">
-                    {video_thumb_tag}
-                </div>
-                <div style="font-size:0.8rem; font-weight:600; color:#FFF; margin-bottom:8px; line-height:1.3;">
-                    GTA VI Hidden Details That Change Everything
-                </div>
-                <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.75rem; border-top:1px solid rgba(255,255,255,0.06); padding-top:6px;">
-                    <div>
-                        <b style="color:#FFF;">1.2M</b> <span style="color:#8E9FB8; font-size:0.68rem;">Views</span>
-                    </div>
-                    <div style="color:#10B981; font-weight:700;">
-                        ↑ +245% <span style="font-size:0.68rem; color:#8E9FB8; font-weight:400;">Growth</span>
-                    </div>
-                    <div style="text-align:right;">
-                        <b style="color:#FFF;">94%</b> <span style="color:#8E9FB8; font-size:0.68rem;">AI Conf.</span>
-                    </div>
-                </div>
-            </div>
-        """, unsafe_allow_html=True)
-
-    # Panel 4: Content Pipeline
-    with c_pipe:
-        st.markdown("""
-            <div class="panel-box">
-                <div class="panel-header-title">
-                    <span>Content Pipeline</span>
-                </div>
-                <div style="display:flex; flex-direction:column; gap:8px; font-size:0.8rem; margin-top:6px;">
-                    <div style="display:flex; align-items:center; gap:8px;">
-                        <span style="width:18px; height:18px; border-radius:50%; background:#10B981; color:#000; display:flex; align-items:center; justify-content:center; font-size:0.65rem; font-weight:800;">✓</span>
-                        <span style="color:#FFF; font-weight:600;">Research</span>
-                    </div>
-                    <div style="display:flex; align-items:center; gap:8px;">
-                        <span style="width:18px; height:18px; border-radius:50%; background:#10B981; color:#000; display:flex; align-items:center; justify-content:center; font-size:0.65rem; font-weight:800;">✓</span>
-                        <span style="color:#FFF; font-weight:600;">AI Analysis</span>
-                    </div>
-                    <div style="display:flex; align-items:center; gap:8px;">
-                        <span style="width:18px; height:18px; border-radius:50%; background:#10B981; color:#000; display:flex; align-items:center; justify-content:center; font-size:0.65rem; font-weight:800;">✓</span>
-                        <span style="color:#FFF; font-weight:600;">Hook Created</span>
-                    </div>
-                    <div style="display:flex; align-items:center; gap:8px;">
-                        <span style="width:18px; height:18px; border-radius:50%; background:#10B981; color:#000; display:flex; align-items:center; justify-content:center; font-size:0.65rem; font-weight:800;">✓</span>
-                        <span style="color:#FFF; font-weight:600;">Script Draft</span>
-                    </div>
-                    <div style="display:flex; align-items:center; gap:8px;">
-                        <span style="width:18px; height:18px; border-radius:50%; border:2px solid #00F5FF; display:inline-block;"></span>
-                        <span style="color:#FFF; font-weight:600;">In Review</span>
-                    </div>
-                    <div style="display:flex; align-items:center; gap:8px;">
-                        <span style="width:18px; height:18px; border-radius:50%; border:2px solid #64748B; display:inline-block;"></span>
-                        <span style="color:#8E9FB8;">Approved</span>
-                    </div>
-                    <div style="display:flex; align-items:center; gap:8px;">
-                        <span style="width:18px; height:18px; border-radius:50%; border:2px solid #64748B; display:inline-block;"></span>
-                        <span style="color:#8E9FB8;">Published</span>
-                    </div>
-                </div>
-            </div>
-        """, unsafe_allow_html=True)
+def get_service_account_info() -> Optional[Dict[str, Any]]:
+    """Support the usual Streamlit [gcp_service_account] block or JSON secret."""
+    try:
+        info = st.secrets.get("gcp_service_account")
+        if info and hasattr(info, "items"):
+            return dict(info)
+    except Exception:
+        pass
+    raw = get_secret("GOOGLE_SERVICE_ACCOUNT_JSON")
+    if raw:
+        try:
+            return json.loads(raw) if isinstance(raw, str) else dict(raw)
+        except Exception:
+            return None
+    return None
 
 
-# ==================================================
-# BOTTOM LIVE TICKER (MATCHING MOCKUP EXACTLY)
-# ==================================================
-st.markdown("""
-    <div class="bottom-ticker-bar">
-        <div style="display:flex; align-items:center; gap:12px; overflow:hidden; white-space:nowrap;">
-            <span class="live-pill">● LIVE</span>
-            <span style="font-weight:700; color:#FFF; font-size:0.8rem; letter-spacing:0.04em;">GTA VI NEWS FEED</span>
-            <span style="color:#64748B;">|</span>
-            <span style="color:#CBD5E1; font-size:0.78rem;">
-                Rockstar releases new artwork &nbsp;•&nbsp; 
-                Community finds new Vice City location &nbsp;•&nbsp; 
-                Take-Two confirms development on track &nbsp;•&nbsp; 
-                New gameplay details surface online &nbsp;•&nbsp; 
-                GTA VI trending on YouTube (+320%)
-            </span>
-        </div>
-        <div style="display:flex; align-items:center; gap:10px; font-size:0.75rem; color:#8E9FB8; white-space:nowrap; margin-left:16px;">
-            <span>STAY AHEAD. STAY PLUGGED.</span>
-            <span style="font-family:'Space Grotesk'; font-weight:800; color:#FFF; font-size:0.95rem;">VI</span>
-        </div>
-    </div>
-""", unsafe_allow_html=True)
-
-st.markdown('</div>', unsafe_allow_html=True)  # Close command-center-frame
-
-
-# ==================================================
-# INTERACTIVE WORKSPACE DRAWER (IF OTHER TABS CLICKED)
-# ==================================================
-if st.session_state["active_tab"] != "Dashboard":
-    st.markdown("<div style='height: 20px;'></div>", unsafe_allow_html=True)
-    st.markdown(f"""
-        <div style="background:#090E1B; border:1px solid #A855F7; border-radius:14px; padding:20px; box-shadow:0 0 25px rgba(168,85,247,0.25);">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
-                <div style="font-family:'Space Grotesk'; font-size:1.3rem; font-weight:700; color:#FFF;">
-                    Active Workspace: <span style="color:#FF2E93;">{st.session_state['active_tab']}</span>
-                </div>
-            </div>
-    """, unsafe_allow_html=True)
-
-    if st.session_state["active_tab"] in ["AI Studio", "Script Generator"]:
-        st.markdown("<p style='font-size:0.85rem; color:#8E9FB8;'>Generate ready-to-cut 30-second Short scripts, high-CTR spoken hooks, and mobile on-screen text using Groq Llama-3.3:</p>", unsafe_allow_html=True)
-        sample_title = st.text_input("GTA VI Video Opportunity Topic", value="GTA VI Hidden Details Found in New Trailer That Change Everything")
-        if st.button("✨ Run Groq Script Synthesis", type="primary"):
-            with st.spinner("Generating viral hook and 30s voiceover script..."):
-                groq_key = get_secret("GROQ_API_KEY")
-                if groq_key and HAS_GROQ:
-                    try:
-                        client = Groq(api_key=groq_key)
-                        res = client.chat.completions.create(
-                            model="llama-3.3-70b-versatile",
-                            messages=[
-                                {"role": "system", "content": "You are VicePlug Hub's viral GTA VI scriptwriter. Return JSON with 'hook', 'script', 'on_screen_text', 'why_it_works'."},
-                                {"role": "user", "content": f"Topic: {sample_title}"}
-                            ],
-                            response_format={"type": "json_object"}
-                        )
-                        parsed = json.loads(res.choices[0].message.content or "{}")
-                        st.json(parsed)
-                    except Exception as e:
-                        st.error(f"Groq API error: {e}")
-                else:
-                    st.success("Demo Mode (Add GROQ_API_KEY in Secrets for live generation):")
-                    st.markdown("""
-                        **🎣 Spoken Hook (0–3s):** *"Rockstar hid a detail in plain sight in shot 14, and nobody noticed until today..."*  
-                        **📝 30s Voiceover Script:** *"Look closely at the water reflection in the marina scene. That is not pre-baked lighting. Rockstar patented a real-time raytraced wake simulation engine that reacts to engine RPM. Here is why that matters for the map scale..."*  
-                        **📱 On-Screen Overlay:** `TRAILER SECRET FOUND`
-                    """)
-
-    elif st.session_state["active_tab"] == "Google Sheets Sync":
-        st.markdown("<p style='font-size:0.85rem; color:#8E9FB8;'>Bi-directional spreadsheet sync with your connected Google Sheet document.</p>", unsafe_allow_html=True)
-        demo_table = pd.DataFrame([
-            {"Title": "GTA VI Hidden Details Found in New Trailer", "Priority": 95, "Fact Status": "Official", "Status": "In Review"},
-            {"Title": "Vice City Expansion Theory Gains Traction", "Priority": 91, "Fact Status": "Speculation", "Status": "Script Draft"},
-            {"Title": "Rockstar Hiring Spree Continues", "Priority": 89, "Fact Status": "Press", "Status": "Approved"},
-            {"Title": "Possible Release Window Leak", "Priority": 87, "Fact Status": "Leak", "Status": "Published"}
-        ])
-        st.dataframe(demo_table, use_container_width=True, hide_index=True)
-
+def open_spreadsheet():
+    if not HAS_GSPREAD:
+        raise RuntimeError("Google Sheets packages are missing. Add gspread and google-auth to requirements.txt.")
+    account_info = get_service_account_info()
+    local_key_file = get_secret("GOOGLE_SERVICE_ACCOUNT_FILE")
+    if account_info:
+        credentials = Credentials.from_service_account_info(account_info, scopes=SCOPES)
+        client = gspread.authorize(credentials)
+    elif local_key_file and os.path.exists(str(local_key_file)):
+        client = gspread.service_account(filename=str(local_key_file), scopes=SCOPES)
     else:
-        st.info(f"Workspace for '{st.session_state['active_tab']}' is ready. Click 'Dashboard' in the sidebar to return to the mockup command center.")
+        raise RuntimeError("Google credentials are not configured in Streamlit Secrets.")
 
-    st.markdown("</div>", unsafe_allow_html=True)
+    sheet_id = get_secret("GOOGLE_SHEET_ID") or get_secret("SPREADSHEET_ID")
+    sheet_name = get_secret("GOOGLE_SHEET_NAME") or get_secret("SPREADSHEET_NAME")
+    if sheet_id:
+        return client.open_by_key(str(sheet_id))
+    if sheet_name:
+        return client.open(str(sheet_name))
+    raise RuntimeError("Set GOOGLE_SHEET_ID or GOOGLE_SHEET_NAME in Streamlit Secrets.")
+
+
+def load_sheet_records() -> Tuple[pd.DataFrame, Any, str, str]:
+    """Load a research worksheet. Returns dataframe, worksheet, message, status."""
+    try:
+        book = open_spreadsheet()
+        preferred = str(get_secret("VIDEO_DISCOVERY_WORKSHEET", "Video Discovery"))
+        candidates = [preferred, "Research Feed", "AI Analysis", "Clip Queue", "Sheet1"]
+        worksheet = None
+        last_error = None
+        for name in dict.fromkeys(candidates):
+            try:
+                worksheet = book.worksheet(name)
+                break
+            except Exception as exc:
+                last_error = exc
+        if worksheet is None:
+            names = [ws.title for ws in book.worksheets()]
+            if not names:
+                return pd.DataFrame(), None, "The spreadsheet has no worksheets.", "empty"
+            return pd.DataFrame(), None, "Could not find a research worksheet. Available tabs: " + ", ".join(names), "missing_tab"
+        values = worksheet.get_all_values()
+        if not values:
+            return pd.DataFrame(), worksheet, f"Connected to {book.title} / {worksheet.title}, but the tab is empty.", "empty"
+        headers = [str(h).strip() for h in values[0]]
+        if not any(headers):
+            return pd.DataFrame(), worksheet, f"The first row of {worksheet.title} must contain column headers.", "empty"
+        # Prevent duplicate/blank column headings from breaking pandas operations.
+        seen: Dict[str, int] = {}
+        clean_headers = []
+        for i, name in enumerate(headers):
+            base = name or f"Column {i + 1}"
+            seen[base] = seen.get(base, 0) + 1
+            clean_headers.append(base if seen[base] == 1 else f"{base} ({seen[base]})")
+        rows = values[1:]
+        width = len(clean_headers)
+        rows = [(row + [""] * max(0, width - len(row)))[:width] for row in rows]
+        df = pd.DataFrame(rows, columns=clean_headers)
+        df.insert(0, "_sheet_row", range(2, len(df) + 2))
+        # Drop fully empty records but keep the original row number for safe updates.
+        if len(df):
+            visible_cols = [c for c in df.columns if c != "_sheet_row"]
+            nonempty = df[visible_cols].astype(str).apply(lambda r: any(v.strip() for v in r), axis=1)
+            df = df.loc[nonempty].reset_index(drop=True)
+        return df, worksheet, f"Connected: {book.title} → {worksheet.title} · {len(df)} records", "connected"
+    except Exception as exc:
+        return pd.DataFrame(), None, str(exc), "error"
+
+
+def first_matching_column(df: pd.DataFrame, candidates: List[str]) -> Optional[str]:
+    lookup = {str(c).strip().lower(): c for c in df.columns}
+    for candidate in candidates:
+        if candidate.lower() in lookup:
+            return lookup[candidate.lower()]
+    # Loose fallback only after exact variants fail.
+    # Prefer the most specific phrase first (e.g. "Review Status" before "Status").
+    for candidate in sorted(candidates, key=len, reverse=True):
+        candidate = candidate.lower()
+        for column in df.columns:
+            normalized = str(column).strip().lower()
+            if candidate in normalized:
+                return column
+    return None
+
+
+def title_column(df: pd.DataFrame) -> Optional[str]:
+    return first_matching_column(df, ["Title", "Video Title", "Topic", "Video", "Story Title", "Name"])
+
+
+def url_column(df: pd.DataFrame) -> Optional[str]:
+    return first_matching_column(df, ["Video URL", "Source URL", "YouTube URL", "URL", "Link", "Source Link"])
+
+
+def score_column(df: pd.DataFrame) -> Optional[str]:
+    return first_matching_column(df, ["AI Priority Score", "Priority Score", "Viral Score", "Priority", "Score"])
+
+
+def status_column(df: pd.DataFrame) -> Optional[str]:
+    return first_matching_column(df, ["Review Status", "Pipeline Status", "Content Status", "Status"])
+
+
+def fact_column(df: pd.DataFrame) -> Optional[str]:
+    return first_matching_column(df, ["AI Fact Status", "Fact Status", "Verification Status"])
+
+
+def number_value(value: Any) -> Optional[float]:
+    try:
+        text = str(value).strip().replace("%", "").replace(",", "")
+        if not text:
+            return None
+        return float(text)
+    except (TypeError, ValueError):
+        return None
+
+
+def sorted_by_score(df: pd.DataFrame) -> pd.DataFrame:
+    col = score_column(df)
+    if not col:
+        return df.copy()
+    output = df.copy()
+    output["_numeric_score"] = output[col].apply(number_value)
+    return output.sort_values("_numeric_score", ascending=False, na_position="last")
+
+
+def clean_display_df(df: pd.DataFrame, max_cols: int = 9) -> pd.DataFrame:
+    output = df.drop(columns=[c for c in ["_sheet_row"] if c in df.columns], errors="ignore").copy()
+    return output.iloc[:, :max_cols]
+
+
+def safe_text(value: Any, limit: int = 160) -> str:
+    result = html.escape(str(value or "").strip())
+    return result if len(result) <= limit else result[:limit - 1] + "…"
+
+
+def call_groq(system_prompt: str, user_prompt: str, max_tokens: int = 1600) -> Dict[str, Any]:
+    api_key = get_secret("GROQ_API_KEY")
+    if not api_key:
+        raise RuntimeError("GROQ_API_KEY is not set in Streamlit Secrets.")
+    if not HAS_GROQ:
+        raise RuntimeError("The groq package is missing. Add groq to requirements.txt.")
+    model = str(get_secret("GROQ_MODEL", "openai/gpt-oss-20b"))
+    client = Groq(api_key=str(api_key))
+    response = client.chat.completions.create(
+        model=model,
+        messages=[
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": user_prompt},
+        ],
+        response_format={"type": "json_object"},
+        max_completion_tokens=max_tokens,
+        temperature=0.4,
+    )
+    raw = response.choices[0].message.content or "{}"
+    try:
+        return json.loads(raw)
+    except json.JSONDecodeError:
+        # A visible error is better than silently treating malformed output as valid.
+        raise RuntimeError("Groq returned text that was not valid JSON. Try again or use a shorter source note.")
+
+
+def render_page_header(title: str, subtitle: str, eyebrow: str = "VICEPLUG HUB") -> None:
+    st.markdown(
+        f'<div class="vp-page-head"><div><div class="vp-eyebrow">{html.escape(eyebrow)}</div>'
+        f'<h1>{html.escape(title)}</h1><p>{html.escape(subtitle)}</p></div>'
+        f'<span class="vp-pill">GTA VI · CREATOR WORKSPACE</span></div>',
+        unsafe_allow_html=True,
+    )
+
+
+def metric_card(label: str, value: str, note: str, emoji: str, accent: str) -> None:
+    st.markdown(
+        f'<div class="vp-card"><div style="display:flex;align-items:center;gap:9px">'
+        f'<span style="width:30px;height:30px;display:grid;place-items:center;border-radius:50%;background:{accent}22">{emoji}</span>'
+        f'<span class="vp-metric-label">{html.escape(label)}</span></div>'
+        f'<div class="vp-metric-value">{html.escape(value)}</div>'
+        f'<div class="vp-metric-note">{html.escape(note)}</div></div>',
+        unsafe_allow_html=True,
+    )
+
+
+def show_missing_data(message: str = "Connect Google Sheets to show your real research records here.") -> None:
+    st.markdown(f'<div class="vp-empty"><div style="font-size:1.5rem">🗂️</div><b>No research data loaded</b><br><span>{html.escape(message)}</span></div>', unsafe_allow_html=True)
+
+# -----------------------------------------------------------------------------
+# Load records and build the shared application shell
+# -----------------------------------------------------------------------------
+df, worksheet, sheet_message, sheet_status = load_sheet_records()
+
+# Hero only appears on Dashboard, not at the top of every workspace.
+if st.session_state.active_tab == "Dashboard":
+    st.markdown("""
+    <section class="vp-hero">
+      <div class="vp-eyebrow">VICE CITY LIVES ONLINE</div>
+      <h1>GTA VI RESEARCH.<br><span>AI INTELLIGENCE.</span><br>VIRAL CONTENT.</h1>
+      <p>Track GTA VI research, prioritize content ideas, draft Shorts scripts, and move approved concepts through one creator workspace. AI outputs are drafts until you verify the source.</p>
+    </section>
+    """, unsafe_allow_html=True)
+
+col_nav, col_main = st.columns([1.15, 5.2], gap="large")
+with col_nav:
+    st.markdown('<div class="vp-brand">👑 VICE<span>PLUG</span> HUB</div>', unsafe_allow_html=True)
+    st.caption("YOUR CONTENT COMMAND CENTER")
+    for label, icon in NAV_ITEMS:
+        is_active = st.session_state.active_tab == label
+        button_label = f"{icon}  {label}"
+        if st.button(button_label, key=f"nav_{label}", use_container_width=True, type="primary" if is_active else "secondary"):
+            st.session_state.active_tab = label
+            st.rerun()
+    st.markdown('<div style="margin-top:24px;color:#64748b;font-size:.68rem;letter-spacing:.08em;font-weight:700;line-height:1.7">GOOD CONTENT<br>BUILDS BIGGER WORLDS.</div>', unsafe_allow_html=True)
+
+with col_main:
+    # =====================================================================
+    # DASHBOARD
+    # =====================================================================
+    if st.session_state.active_tab == "Dashboard":
+        greet_left, greet_right = st.columns([1.4, 1])
+        with greet_left:
+            st.markdown('<div class="vp-page-head" style="border:0;margin-bottom:.5rem;padding-bottom:0"><div><h1 style="font-size:1.55rem">Welcome back, Creator.</h1><p>Your GTA VI research and content overview.</p></div></div>', unsafe_allow_html=True)
+        with greet_right:
+            st.markdown(f'<div style="text-align:right;color:#91a3bd;font-size:.76rem;padding-top:8px">{datetime.now().strftime("%A, %B %d, %Y")}<br><span style="color:{"#10b981" if sheet_status == "connected" else "#f59e0b"};font-weight:700">● {"Google Sheets connected" if sheet_status == "connected" else "Google Sheets not connected"}</span></div>', unsafe_allow_html=True)
+
+        title_col = title_column(df) if not df.empty else None
+        score_col = score_column(df) if not df.empty else None
+        status_col = status_column(df) if not df.empty else None
+        scores = df[score_col].apply(number_value).dropna() if score_col else pd.Series(dtype=float)
+        statuses = df[status_col].fillna("").astype(str).str.lower() if status_col else pd.Series(dtype=str)
+        pending_count = int(statuses.str.contains("review|pending|needs approval|needs review", regex=True).sum()) if len(statuses) else 0
+        approved_count = int(statuses.str.contains("approved|published", regex=True).sum()) if len(statuses) else 0
+        stories_count = int(len(df))
+        avg_score = f"{scores.mean():.0f}/100" if len(scores) else "—"
+        metrics = st.columns(5, gap="small")
+        with metrics[0]: metric_card("Research Records", str(stories_count), "Rows loaded from your sheet" if sheet_status == "connected" else "Connect Sheets for live counts", "📰", "#ff2e93")
+        with metrics[1]: metric_card("Scored Ideas", str(int(len(scores))), "Records with a numeric score", "🎯", "#38d9f5")
+        with metrics[2]: metric_card("Average Score", avg_score, "Based on available score fields", "⭐", "#a855f7")
+        with metrics[3]: metric_card("Needs Review", str(pending_count) if status_col else "—", "Based on your status column", "🧾", "#f43f5e")
+        with metrics[4]: metric_card("Approved / Published", str(approved_count) if status_col else "—", "Based on your status column", "✅", "#10b981")
+
+        st.markdown("<div style='height:12px'></div>", unsafe_allow_html=True)
+        main_col, side_col = st.columns([1.45, 1], gap="medium")
+        with main_col:
+            st.markdown('<div class="vp-panel"><div class="vp-panel-title">🔥 Top Research Opportunities</div><div class="vp-muted">Ranked using the score already stored in your sheet. A score is a prioritization estimate, not a promise of virality.</div></div>', unsafe_allow_html=True)
+            if df.empty or not title_col:
+                show_missing_data(sheet_message if sheet_status != "connected" else "Add a title column and research records to your worksheet.")
+            else:
+                best = sorted_by_score(df).head(5)
+                for i, (_, row) in enumerate(best.iterrows(), start=1):
+                    title = safe_text(row.get(title_col, "Untitled record"), 110)
+                    score = number_value(row.get(score_col)) if score_col else None
+                    fact_col = fact_column(df)
+                    fact = safe_text(row.get(fact_col, "Fact status not recorded"), 60) if fact_col else "Fact status not recorded"
+                    st.markdown(f'<div class="vp-panel" style="display:flex;gap:12px;align-items:center;margin-bottom:8px;padding:12px"><div style="color:#73839d;font-family:Space Grotesk;font-weight:700">{i:02d}</div><div style="flex:1;min-width:0"><div style="font-weight:700;font-size:.88rem;color:#f8fafc">{title}</div><div class="vp-muted">{fact}</div></div><div style="white-space:nowrap;color:#ff63b0;font-family:Space Grotesk;font-weight:700">{f"{score:.0f}/100" if score is not None else "Unscored"}</div></div>', unsafe_allow_html=True)
+        with side_col:
+            st.markdown('<div class="vp-panel"><div class="vp-panel-title">⚡ Content Pipeline</div><div class="vp-muted">Progress inferred from your sheet status column.</div></div>', unsafe_allow_html=True)
+            if not status_col:
+                st.info("Your worksheet does not appear to have a Review Status or Status column, so pipeline counts are unavailable.")
+            else:
+                pipeline_stages = [
+                    ("Research", len(df), "#38d9f5"),
+                    ("Needs Review", int(statuses.str.contains("review|pending|needs", regex=True).sum()), "#f59e0b"),
+                    ("Approved", int(statuses.str.contains("approved", regex=True).sum()), "#10b981"),
+                    ("Published", int(statuses.str.contains("published", regex=True).sum()), "#a855f7"),
+                ]
+                for stage, count, color in pipeline_stages:
+                    st.markdown(f'<div style="display:flex;justify-content:space-between;gap:10px;padding:12px 2px;border-bottom:1px solid #1a263b"><span style="color:#cbd5e1">● &nbsp;{stage}</span><b style="color:{color}">{count}</b></div>', unsafe_allow_html=True)
+            st.markdown('<div class="vp-panel" style="margin-top:12px"><div class="vp-panel-title">🧠 Quick Actions</div></div>', unsafe_allow_html=True)
+            quick1, quick2 = st.columns(2)
+            with quick1:
+                if st.button("Open AI Studio", use_container_width=True):
+                    st.session_state.active_tab = "AI Studio"; st.rerun()
+            with quick2:
+                if st.button("Review Queue", use_container_width=True):
+                    st.session_state.active_tab = "Review Queue"; st.rerun()
+        st.markdown('<div class="vp-panel" style="margin-top:10px"><span class="vp-pill">DATA NOTE</span><div class="vp-muted" style="margin-top:8px">The dashboard no longer invents trend counts, view totals, confidence percentages, or breaking-news headlines. Figures appear only when the connected worksheet contains the relevant data.</div></div>', unsafe_allow_html=True)
+
+    # =====================================================================
+    # RESEARCH FEED / VIDEO DISCOVERY
+    # =====================================================================
+    elif st.session_state.active_tab in ["Research Feed", "Video Discovery"]:
+        page_title = st.session_state.active_tab
+        render_page_header(page_title, "Search and inspect records already collected in your Google Sheet.")
+        if df.empty:
+            show_missing_data(sheet_message)
+        else:
+            query = st.text_input("Search records", placeholder="Search titles, source links, summaries…", key=f"search_{page_title}")
+            view = df.copy()
+            if query.strip():
+                mask = view.astype(str).apply(lambda c: c.str.contains(query.strip(), case=False, na=False)).any(axis=1)
+                view = view[mask]
+            with st.container(border=True):
+                st.markdown(f"**{len(view)} records** · Worksheet data, not a live web search")
+                if title_column(view):
+                    st.dataframe(clean_display_df(view, 12), use_container_width=True, hide_index=True, height=470)
+                else:
+                    st.warning("No title-like column was detected. Showing the available sheet columns so you can check the headers.")
+                    st.dataframe(clean_display_df(view, 12), use_container_width=True, hide_index=True, height=400)
+                link_col = url_column(view)
+                if link_col and len(view):
+                    chosen_index = st.selectbox("Open a source record", view.index.tolist(), format_func=lambda idx: str(view.loc[idx, title_column(view)] if title_column(view) else f"Row {idx + 1}")[:100])
+                    url = str(view.loc[chosen_index, link_col]).strip()
+                    if url.startswith("https://") or url.startswith("http://"):
+                        st.link_button("Open selected source ↗", url)
+                    else:
+                        st.caption("No valid source URL is saved for this record.")
+
+    # =====================================================================
+    # VIRAL OPPORTUNITIES
+    # =====================================================================
+    elif st.session_state.active_tab == "Viral Opportunities":
+        render_page_header("Viral Opportunities", "Prioritize ideas using the score and fact-status fields already saved in your data.")
+        if df.empty:
+            show_missing_data(sheet_message)
+        elif not score_column(df):
+            st.info("No score column was detected. Run AI analysis or add a column such as AI Priority Score / Viral Score to rank ideas.")
+            st.dataframe(clean_display_df(df), use_container_width=True, hide_index=True)
+        else:
+            min_score = st.slider("Minimum priority score", 0, 100, 60)
+            ranked = sorted_by_score(df)
+            ranked = ranked[ranked["_numeric_score"].fillna(-1) >= min_score]
+            st.caption(f"Showing {len(ranked)} records with a score of {min_score}+.")
+            st.dataframe(clean_display_df(ranked.drop(columns=["_numeric_score"], errors="ignore"), 12), use_container_width=True, hide_index=True, height=470)
+            st.caption("Priority scores help organize review; they do not predict actual views or guarantee virality.")
+
+    # =====================================================================
+    # AI STUDIO — analyze existing record
+    # =====================================================================
+    elif st.session_state.active_tab == "AI Studio":
+        render_page_header("AI Studio", "Turn a saved research record into a reviewable content brief.")
+        if df.empty or not title_column(df):
+            show_missing_data(sheet_message if sheet_status != "connected" else "Add records with a Title column to analyze them here.")
+        else:
+            tcol = title_column(df)
+            selected_idx = st.selectbox("Choose a research record", df.index.tolist(), format_func=lambda idx: str(df.loc[idx, tcol])[:130])
+            record = df.loc[selected_idx].drop(labels=["_sheet_row"], errors="ignore").to_dict()
+            with st.expander("Source fields sent to the AI", expanded=False):
+                st.json({k: str(v)[:1200] for k, v in record.items()})
+            st.warning("Groq analyzes the text fields you provide. This code does not watch the video, fetch fresh news, or independently verify claims.")
+            if st.button("✨ Analyze selected record with Groq", type="primary", use_container_width=True):
+                system_prompt = """You are VicePlug Hub's GTA VI research editor. Use only information in the supplied record. Never invent gameplay, trailer frames, patents, leaks, release dates, view counts, or quotes. If the record lacks evidence, state that clearly. Distinguish official information, reputable reporting, creator commentary, speculation, and unverified claims. Return one JSON object with keys: relevance (High/Medium/Low), priority_score (1-100), fact_status, summary, why_it_matters, hook, commentary_draft (20-35 seconds), on_screen_text, title, caption, hashtags (array), verification_needed (array), rights_note, recommended_action. A score is only a prioritization estimate, not a prediction of virality."""
+                user_prompt = "Analyze this saved sheet record. Treat all fields as unverified unless the source field itself clearly establishes provenance.\n\n" + json.dumps(record, ensure_ascii=False, default=str)
+                try:
+                    with st.spinner("Preparing the content brief…"):
+                        result = call_groq(system_prompt, user_prompt, max_tokens=1900)
+                    st.session_state.generated_script = result
+                    st.success("Draft generated. Verify every factual claim and source before using it.")
+                except Exception as exc:
+                    st.error(f"AI analysis failed: {exc}")
+            if st.session_state.generated_script:
+                st.markdown("### Generated content brief")
+                st.json(st.session_state.generated_script)
+                st.download_button("Download brief as JSON", data=json.dumps(st.session_state.generated_script, ensure_ascii=False, indent=2), file_name="viceplug_ai_brief.json", mime="application/json", use_container_width=True)
+
+    # =====================================================================
+    # SCRIPT GENERATOR
+    # =====================================================================
+    elif st.session_state.active_tab == "Script Generator":
+        render_page_header("Script Generator", "Draft a short-form script from a topic and evidence you provide.")
+        st.markdown('<div class="vp-panel"><div class="vp-panel-title">Create a Short concept</div><div class="vp-muted">The generator should not make up details to make a story sound more exciting. Add source facts and a URL when available.</div></div>', unsafe_allow_html=True)
+        topic = st.text_input("Video opportunity topic", placeholder="e.g. A confirmed detail from an official GTA VI trailer", key="script_topic")
+        source_url = st.text_input("Source URL (optional)", placeholder="https://…", key="script_source_url")
+        evidence = st.text_area("Verified facts / source notes", placeholder="Paste the facts that the script is allowed to state. Separate confirmed details from speculation.", height=130, key="script_evidence")
+        angle = st.selectbox("Content angle", ["Explain a confirmed detail", "Compare GTA V and GTA VI", "Summarize reputable reporting", "Explore a clearly labelled theory", "React to creator commentary"])
+        length = st.select_slider("Target length", options=[15, 20, 30, 40, 50, 60], value=30, format_func=lambda v: f"{v} seconds")
+        if st.button("✨ Generate script with Groq", type="primary", use_container_width=True):
+            if not topic.strip():
+                st.warning("Enter a topic first.")
+            elif not evidence.strip():
+                st.warning("Add source facts or notes first. Without evidence, the script may only discuss the topic as an unverified idea.")
+            else:
+                system_prompt = """You write engaging short-form gaming scripts for VicePlug Hub. Use only supplied evidence. Do not invent events, trailer details, quotes, patents, leaks, release timing, numbers, or claims about what Rockstar confirmed. Label speculation. If evidence is insufficient, say so in verification_needed and avoid stating the claim as fact. Return JSON only with keys: title, spoken_hook, voiceover_script, timestamped_beats (array of objects with start, end, narration, visual_direction), on_screen_text (array), caption, hashtags (array), verification_needed (array), rights_note, why_this_angle. Make it punchy but accurate. Do not claim to have watched a source."""
+                user_prompt = json.dumps({"topic": topic, "source_url": source_url, "evidence": evidence, "angle": angle, "target_seconds": length, "platforms": ["YouTube Shorts", "TikTok"]}, ensure_ascii=False)
+                try:
+                    with st.spinner("Drafting the script and on-screen beats…"):
+                        result = call_groq(system_prompt, user_prompt, max_tokens=2200)
+                    st.session_state.generated_script = result
+                    st.success("Script draft generated. Review sources, edit it, and approve before publishing.")
+                except Exception as exc:
+                    st.error(f"Script generation failed: {exc}")
+        if st.session_state.generated_script:
+            st.markdown("### Your generated draft")
+            result = st.session_state.generated_script
+            st.json(result)
+            st.download_button("Download script brief", data=json.dumps(result, ensure_ascii=False, indent=2), file_name="viceplug_script_draft.json", mime="application/json", use_container_width=True)
+
+    # =====================================================================
+    # CONTENT PIPELINE / REVIEW QUEUE
+    # =====================================================================
+    elif st.session_state.active_tab in ["Content Pipeline", "Review Queue"]:
+        if st.session_state.active_tab == "Content Pipeline":
+            render_page_header("Content Pipeline", "Track research records from discovery through review and publication.")
+        else:
+            render_page_header("Review Queue", "Focus on records that still need human review or approval.")
+        if df.empty:
+            show_missing_data(sheet_message)
+        else:
+            s_col = status_column(df)
+            if not s_col:
+                st.warning("No Review Status / Status column was detected. Add a status column to your Video Discovery worksheet to enable stage tracking.")
+                st.dataframe(clean_display_df(df), use_container_width=True, hide_index=True)
+            else:
+                statuses = df[s_col].fillna("").astype(str).str.strip()
+                if st.session_state.active_tab == "Review Queue":
+                    mask = statuses.str.lower().str.contains("review|pending|needs|draft|unreviewed", regex=True)
+                    shown = df[mask]
+                else:
+                    shown = df.copy()
+                stages = st.columns(4)
+                labels = ["Needs Review", "Script Draft", "Approved", "Published"]
+                patterns = ["review|pending|needs|unreviewed", "script|draft", "approved", "published"]
+                for slot, label, pattern in zip(stages, labels, patterns):
+                    count = int(statuses.str.lower().str.contains(pattern, regex=True).sum())
+                    with slot:
+                        st.markdown(f'<div class="vp-card"><div class="vp-metric-label">{label}</div><div class="vp-metric-value">{count}</div><div class="vp-metric-note">Matching status values</div></div>', unsafe_allow_html=True)
+                st.markdown(" ")
+                st.dataframe(clean_display_df(shown, 12), use_container_width=True, hide_index=True, height=350)
+                title_col = title_column(shown)
+                if len(shown):
+                    record_index = st.selectbox("Select a record to update", shown.index.tolist(), format_func=lambda idx: str(shown.loc[idx, title_col])[:120] if title_col else f"Sheet row {shown.loc[idx, '_sheet_row']}")
+                    current_status = str(df.loc[record_index, s_col]) or "Unspecified"
+                    st.caption(f"Current status: {current_status}")
+                    new_status = st.selectbox("New status", ["Needs Review", "Script Draft", "In Review", "Approved", "Ready to Edit", "Ready to Publish", "Published", "Rejected"], index=0, key="new_pipeline_status")
+                    if st.button("Save status to Google Sheets", type="primary"):
+                        if worksheet is None or sheet_status != "connected":
+                            st.error("Google Sheets is not connected, so the status was not saved.")
+                        else:
+                            actual_headers = [str(h).strip() for h in worksheet.row_values(1)]
+                            normalized = [h.lower() for h in actual_headers]
+                            try:
+                                status_index = next(i for i, h in enumerate(normalized) if h in ["review status", "pipeline status", "content status", "status"])
+                                sheet_row = int(df.loc[record_index, "_sheet_row"])
+                                worksheet.update_cell(sheet_row, status_index + 1, new_status)
+                                st.success(f"Updated row {sheet_row} to '{new_status}'.")
+                                st.rerun()
+                            except StopIteration:
+                                st.error("Could not find a supported status header in row 1; nothing was changed.")
+                            except Exception as exc:
+                                st.error(f"Could not save status: {exc}")
+
+    # =====================================================================
+    # TRENDS & ANALYTICS — no invented analytics
+    # =====================================================================
+    elif st.session_state.active_tab == "Trends & Analytics":
+        render_page_header("Trends & Analytics", "See only the trends supported by records and metrics you have actually collected.")
+        if df.empty:
+            show_missing_data(sheet_message)
+        else:
+            topic_col = first_matching_column(df, ["Topic", "Category", "Keyword", "Trend", "Content Pillar"])
+            date_col = first_matching_column(df, ["Published At", "Date Published", "Date", "Created At", "Collected At", "Timestamp", "End Timestamp"])
+            views_col = first_matching_column(df, ["Views", "View Count", "Views Count", "Video Views"])
+            score_col = score_column(df)
+            left, right = st.columns(2)
+            with left:
+                st.markdown('<div class="vp-panel"><div class="vp-panel-title">Score distribution</div><div class="vp-muted">Only numeric scores stored in the worksheet are included.</div></div>', unsafe_allow_html=True)
+                if score_col:
+                    chart_df = pd.DataFrame({"Priority score": df[score_col].apply(number_value).dropna()})
+                    if len(chart_df):
+                        st.bar_chart(chart_df["Priority score"].value_counts(bins=10, sort=False).sort_index())
+                    else:
+                        st.info("Score column exists, but contains no numeric scores yet.")
+                else:
+                    st.info("Add an AI Priority Score or Viral Score column to chart scores.")
+            with right:
+                st.markdown('<div class="vp-panel"><div class="vp-panel-title">Recorded views</div><div class="vp-muted">Not a prediction. This chart needs real view counts from your sheet.</div></div>', unsafe_allow_html=True)
+                if views_col:
+                    views = df[views_col].apply(number_value).dropna()
+                    if len(views):
+                        st.bar_chart(views.reset_index(drop=True).rename("Views"))
+                    else:
+                        st.info("View-count column exists, but there are no numeric values.")
+                else:
+                    st.info("No views column detected. Connect platform analytics before making performance claims.")
+            if topic_col:
+                st.markdown("### Most frequent recorded topics")
+                counts = df[topic_col].fillna("").astype(str).str.strip()
+                counts = counts[counts != ""].value_counts().head(10)
+                if len(counts):
+                    st.bar_chart(counts)
+                else:
+                    st.info("The topic/category column is empty.")
+            else:
+                st.info("Add a Topic, Category, Keyword, Trend, or Content Pillar column to analyze recurring subjects.")
+            if date_col:
+                st.caption(f"Date-like field detected: {date_col}. Date-based growth comparisons can be added once the values are consistently formatted.")
+
+    # =====================================================================
+    # GOOGLE SHEETS SYNC
+    # =====================================================================
+    elif st.session_state.active_tab == "Google Sheets Sync":
+        render_page_header("Google Sheets Sync", "Inspect your connected research worksheet and check connection setup.")
+        if sheet_status == "connected":
+            st.success(sheet_message)
+            st.caption("This screen currently reads the configured research worksheet. Status edits in Content Pipeline / Review Queue are written back when a supported status column exists.")
+            st.dataframe(clean_display_df(df, 14), use_container_width=True, hide_index=True, height=470)
+            if st.button("Refresh from Google Sheets", type="primary"):
+                st.rerun()
+        else:
+            st.error("Google Sheets is not connected.")
+            st.code("GOOGLE_SHEET_ID = \"your-spreadsheet-id\"\nGROQ_API_KEY = \"your-groq-key\"\n\n[gcp_service_account]\ntype = \"service_account\"\n... = \"your service account fields\"", language="toml")
+            st.markdown("In Streamlit Community Cloud, add secrets under **App → Settings → Secrets**. Share the spreadsheet with the service-account email as an Editor. Do not paste API keys into this Python file or a public repository.")
+            if sheet_message:
+                with st.expander("Connection detail"):
+                    st.code(sheet_message)
+
+    # =====================================================================
+    # SETTINGS
+    # =====================================================================
+    elif st.session_state.active_tab == "Settings":
+        render_page_header("Settings & Integrations", "Review configuration without exposing your API keys.")
+        groq_configured = bool(get_secret("GROQ_API_KEY"))
+        account_configured = bool(get_service_account_info() or (get_secret("GOOGLE_SERVICE_ACCOUNT_FILE") and os.path.exists(str(get_secret("GOOGLE_SERVICE_ACCOUNT_FILE")))))
+        settings = [
+            ("Groq API", "Connected / key present" if groq_configured and HAS_GROQ else "Not configured" if not groq_configured else "Package missing", "#10b981" if groq_configured and HAS_GROQ else "#f59e0b"),
+            ("Google Sheets", "Connected" if sheet_status == "connected" else "Not connected", "#10b981" if sheet_status == "connected" else "#f59e0b"),
+            ("Spreadsheet credentials", "Configured" if account_configured else "Missing", "#10b981" if account_configured else "#f59e0b"),
+            ("Groq model", str(get_secret("GROQ_MODEL", "openai/gpt-oss-20b")), "#38d9f5"),
+            ("Research worksheet", str(get_secret("VIDEO_DISCOVERY_WORKSHEET", "Video Discovery")), "#a855f7"),
+        ]
+        for label, value, color in settings:
+            st.markdown(f'<div class="vp-panel" style="display:flex;align-items:center;justify-content:space-between;gap:14px"><div style="font-weight:700">{html.escape(label)}</div><div style="color:{color};font-weight:700;text-align:right">{html.escape(value)}</div></div>', unsafe_allow_html=True)
+        st.markdown("### Required Streamlit Secrets")
+        st.code('GROQ_API_KEY = "your-groq-api-key"\nGROQ_MODEL = "openai/gpt-oss-20b"\nGOOGLE_SHEET_ID = "your-google-sheet-id"\nVIDEO_DISCOVERY_WORKSHEET = "Video Discovery"\n\n[gcp_service_account]\ntype = "service_account"\nproject_id = "..."\nprivate_key_id = "..."\nprivate_key = "..."\nclient_email = "..."\nclient_id = "..."\nauth_uri = "https://accounts.google.com/o/oauth2/auth"\ntoken_uri = "https://oauth2.googleapis.com/token"\nauth_provider_x509_cert_url = "https://www.googleapis.com/oauth2/v1/certs"\nclient_x509_cert_url = "..."', language="toml")
+        st.caption("Use your actual service-account values in Streamlit Secrets; the example above is a template, not a working credential.")
+
+# Footer in normal flow, inside the selected workspace only.
+st.markdown('<div style="margin-top:24px;padding:12px 14px;border:1px solid #34204a;border-radius:12px;background:#090e1b;display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;color:#8696af;font-size:.73rem"><span><b style="color:#ff477f">VICEPLUG HUB</b> · RESEARCH → VERIFY → CREATE → REVIEW → PUBLISH</span><span>AI-generated drafts require human fact-checking and rights review.</span></div>', unsafe_allow_html=True)
