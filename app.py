@@ -247,7 +247,17 @@ def url_column(df: pd.DataFrame) -> Optional[str]:
 
 
 def score_column(df: pd.DataFrame) -> Optional[str]:
-    return first_matching_column(df, ["AI Priority Score", "Priority Score", "Viral Score", "Priority", "Score"])
+    """Return the most useful score column, preferring one with numeric values."""
+    candidates = ["AI Priority Score", "Discovery Priority Score", "Priority Score", "Viral Score", "Priority", "Score"]
+    found = []
+    for candidate in candidates:
+        col = first_matching_column(df, [candidate])
+        if col and col not in found:
+            found.append(col)
+    for col in found:
+        if df[col].apply(number_value).notna().any():
+            return col
+    return found[0] if found else None
 
 
 def status_column(df: pd.DataFrame) -> Optional[str]:
@@ -400,18 +410,89 @@ NEWS_DEFAULT_QUERY = '("Grand Theft Auto VI" OR "GTA VI" OR "GTA 6")'
 NEWS_BASE_HEADERS = [
     "Title", "Source", "Source URL", "Indexed At", "Discovery Query",
     "Research Type", "Fact Status", "Review Status", "Notes",
+    "Discovery Priority Score", "Discovery Priority Reasons", "Collected At (UTC)", "Collection Method",
 ]
 
 
 def _article_type_hint(title: str, domain: str) -> str:
     """Heuristic triage only; never treats the outlet/title as proof."""
-    d = (domain or "").lower().strip()
+    d = (domain or "").lower().strip().removeprefix("www.")
     t = (title or "").lower()
     if d == "rockstargames.com" or d.endswith(".rockstargames.com") or d == "take2games.com" or d.endswith(".take2games.com"):
         return "Potential official source — verify"
     if any(term in t for term in ("leak", "rumor", "rumour", "theory", "speculation", "alleged", "reportedly", "unconfirmed")):
         return "Claim/speculation terms detected — verify"
     return "News/reporting candidate — verify"
+
+
+def _priority_score_and_reasons(title: str, domain: str, date_text: str = "") -> Tuple[int, str]:
+    """Transparent sorting heuristic. It is not an AI judgment or virality prediction."""
+    t = (title or "").lower()
+    d = (domain or "").lower().strip().removeprefix("www.")
+    score = 35
+    reasons: List[str] = []
+
+    if "grand theft auto vi" in t or "grand theft auto 6" in t:
+        score += 24; reasons.append("Strong GTA VI title match")
+    elif "gta vi" in t:
+        score += 22; reasons.append("Explicit GTA VI title match")
+    elif "gta 6" in t:
+        score += 18; reasons.append("GTA 6 title match")
+    elif "rockstar" in t:
+        score += 8; reasons.append("Rockstar-related headline")
+
+    date_value = (date_text or "").strip()
+    parsed = None
+    for fmt in ("%Y-%m-%d %H:%M UTC", "%Y-%m-%dT%H:%M:%SZ", "%Y-%m-%d", "%a, %d %b %Y %H:%M:%S %Z"):
+        try:
+            parsed = datetime.strptime(date_value, fmt).replace(tzinfo=timezone.utc)
+            break
+        except ValueError:
+            continue
+    if parsed is None:
+        try:
+            from email.utils import parsedate_to_datetime
+            parsed = parsedate_to_datetime(date_value)
+            if parsed.tzinfo is None:
+                parsed = parsed.replace(tzinfo=timezone.utc)
+            parsed = parsed.astimezone(timezone.utc)
+        except Exception:
+            parsed = None
+    if parsed is not None:
+        age_hours = max(0.0, (datetime.now(timezone.utc) - parsed).total_seconds() / 3600)
+        if age_hours <= 24:
+            score += 22; reasons.append("Date appears within 24 hours")
+        elif age_hours <= 72:
+            score += 15; reasons.append("Date appears within 3 days")
+        elif age_hours <= 168:
+            score += 8; reasons.append("Date appears within 7 days")
+        else:
+            reasons.append("Older than 7 days by supplied date")
+    else:
+        score += 3; reasons.append("Date unavailable; freshness is uncertain")
+
+    strong_terms = ("official", "trailer", "gameplay", "release date", "release window", "confirmed", "launch", "pre-order", "preorder", "price", "map", "delay", "update", "rockstar games", "take-two")
+    hits = [term for term in strong_terms if term in t]
+    if hits:
+        score += min(10, 3 + len(hits))
+        reasons.append("Specific news terms: " + ", ".join(hits[:3]))
+
+    official_domains = ("rockstargames.com", "take2games.com")
+    established_outlets = ("reuters.com", "bbc.com", "ign.com", "gamespot.com", "eurogamer.net", "videogameschronicle.com", "polygon.com", "pcgamer.com", "kotaku.com", "theverge.com", "axios.com", "gamesindustry.biz")
+    if any(d == x or d.endswith("." + x) for x in official_domains):
+        score += 12; reasons.append("Official-domain candidate; still verify page")
+    elif any(d == x or d.endswith("." + x) for x in established_outlets):
+        score += 6; reasons.append("Known games/news outlet domain")
+
+    speculation_terms = ("leak", "rumor", "rumour", "theory", "speculation", "alleged", "reportedly", "unconfirmed", "fake", "hoax")
+    found_speculation = [term for term in speculation_terms if term in t]
+    if found_speculation:
+        score -= 16; reasons.append("Caution terms: " + ", ".join(found_speculation[:3]))
+
+    score = max(10, min(95, score))
+    if not reasons:
+        reasons.append("General GTA VI relevance; manual review needed")
+    return score, "; ".join(reasons)
 
 
 def _format_gdelt_date(raw: Any) -> str:
@@ -428,7 +509,8 @@ def _format_gdelt_date(raw: Any) -> str:
 
 
 def _make_news_record(title: str, url: str, domain: str, indexed_at: str, provider: str) -> Dict[str, str]:
-    """Normalize a discovery result while making its limitations explicit."""
+    """Normalize discovery metadata and assign a transparent, non-predictive triage score."""
+    score, reasons = _priority_score_and_reasons(title, domain, indexed_at)
     return {
         "Title": title.strip(),
         "Source": (domain or "Unknown publisher").strip(),
@@ -441,6 +523,10 @@ def _make_news_record(title: str, url: str, domain: str, indexed_at: str, provid
             f"Discovered via {provider}. Headline and metadata are not evidence that a claim is true. "
             "Open the original publisher source, verify the publication date and corroborate important claims before scripting."
         ),
+        "Discovery Priority Score": str(score),
+        "Discovery Priority Reasons": reasons,
+        "Collected At (UTC)": datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC"),
+        "Collection Method": provider,
     }
 
 
@@ -644,6 +730,10 @@ def save_news_to_research_sheet(articles: List[Dict[str, str]], discovery_query:
         ("Fact Status", ["fact status", "verification status"]),
         ("Review Status", ["review status", "pipeline status", "content status", "status"]),
         ("Notes", ["notes", "research notes", "editor notes"]),
+        ("Discovery Priority Score", ["discovery priority score", "triage score", "discovery score"]),
+        ("Discovery Priority Reasons", ["discovery priority reasons", "priority reasons", "score reasons"]),
+        ("Collected At (UTC)", ["collected at (utc)", "collected at", "automation timestamp"]),
+        ("Collection Method", ["collection method", "discovery provider", "provider"]),
     ]
     missing_required = [(canonical, aliases) for canonical, aliases in required if col_for(aliases) is None]
     if missing_required:
@@ -678,6 +768,10 @@ def save_news_to_research_sheet(articles: List[Dict[str, str]], discovery_query:
             "Indexed At": article.get("Indexed At", ""), "Discovery Query": discovery_query,
             "Research Type": article.get("Research Type", ""), "Fact Status": "Unverified — headline/metadata only",
             "Review Status": "Needs Review", "Notes": article.get("Notes", ""),
+            "Discovery Priority Score": article.get("Discovery Priority Score", ""),
+            "Discovery Priority Reasons": article.get("Discovery Priority Reasons", ""),
+            "Collected At (UTC)": article.get("Collected At (UTC)", datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")),
+            "Collection Method": article.get("Collection Method", "On-demand discovery"),
         }
         for canonical, aliases in required:
             idx = col_for(aliases)
@@ -781,14 +875,14 @@ with col_main:
             with quick2:
                 if st.button("Review Queue", use_container_width=True):
                     st.session_state.active_tab = "Review Queue"; st.rerun()
-        st.markdown('<div class="vp-panel" style="margin-top:10px"><span class="vp-pill">DATA NOTE</span><div class="vp-muted" style="margin-top:8px">The dashboard no longer invents trend counts, view totals, confidence percentages, or breaking-news headlines. Figures appear only when the connected worksheet contains the relevant data.</div></div>', unsafe_allow_html=True)
+        st.markdown('<div class="vp-panel" style="margin-top:10px"><span class="vp-pill">DATA NOTE</span><div class="vp-muted" style="margin-top:8px">The dashboard no longer invents trend counts, view totals, confidence percentages, or breaking-news headlines. Figures appear only when the connected worksheet contains the relevant data.</div><div class="vp-muted" style="margin-top:8px">Automated collection is performed by the optional GitHub Actions workflow, not by keeping this Streamlit page open. Research Feed items receive transparent heuristic priority scores and still require source verification.</div></div>', unsafe_allow_html=True)
 
     # =====================================================================
     # RESEARCH FEED / VIDEO DISCOVERY
     # =====================================================================
     elif st.session_state.active_tab == "Research Feed":
         render_page_header("Research Feed", "Discover recent GTA VI coverage from public news metadata, then choose what to save for human review.")
-        st.markdown('<div class="vp-panel"><div class="vp-panel-title">🌐 Live News Discovery</div><div class="vp-muted">Searches GDELT first and automatically falls back to Google News RSS if GDELT is rate-limited or unavailable. Results are discovery leads, not fact-checked stories; open and verify the original publisher before scripting. Successful searches are cached for 15 minutes to reduce repeated requests.</div></div>', unsafe_allow_html=True)
+        st.markdown('<div class="vp-panel"><div class="vp-panel-title">🌐 Live & scheduled News Discovery</div><div class="vp-muted">On-demand search tries GDELT first and falls back to Google News RSS when needed. The optional GitHub Actions collector can search the RSS feed twice daily and save new items to this same worksheet. Both workflows add a transparent discovery priority score; headlines remain unverified leads, not confirmed facts.</div></div>', unsafe_allow_html=True)
         search_left, search_right = st.columns([2.2, 1])
         with search_left:
             discovery_query = st.text_input("Search query", value=st.session_state.get("news_query", NEWS_DEFAULT_QUERY), key="news_query_input", help='Try a phrase, e.g. \"GTA VI\" OR Rockstar OR \"Grand Theft Auto 6\"')
@@ -820,6 +914,8 @@ with col_main:
             edit_df = pd.DataFrame([{
                 "_Discovery ID": i, "Save": False, "Title": item["Title"], "Publisher / domain": item["Source"],
                 "Date / index timestamp": item["Indexed At"], "Triage hint (not verification)": item["Research Type"],
+                "Priority Score (heuristic)": item.get("Discovery Priority Score", ""),
+                "Why prioritized": item.get("Discovery Priority Reasons", ""),
                 "Source URL": item["Source URL"],
             } for i, item in enumerate(found)])
             edited = st.data_editor(
@@ -829,7 +925,7 @@ with col_main:
                     "Save": st.column_config.CheckboxColumn("Save", help="Select this item for the Research Feed."),
                     "Source URL": st.column_config.LinkColumn("Source URL", display_text="Open source ↗"),
                 },
-                disabled=["_Discovery ID", "Title", "Publisher / domain", "Date / index timestamp", "Triage hint (not verification)", "Source URL"],
+                disabled=["_Discovery ID", "Title", "Publisher / domain", "Date / index timestamp", "Triage hint (not verification)", "Priority Score (heuristic)", "Why prioritized", "Source URL"],
                 key="news_discovery_editor",
             )
             selected_positions = [int(row["_Discovery ID"]) for _, row in edited.iterrows() if bool(row["Save"])]
@@ -861,7 +957,13 @@ with col_main:
             saved_view = news_df.copy()
             if saved_query.strip():
                 saved_view = saved_view[saved_view.astype(str).apply(lambda col: col.str.contains(saved_query.strip(), case=False, na=False)).any(axis=1)]
-            st.dataframe(clean_display_df(saved_view, 12), use_container_width=True, hide_index=True, height=320)
+            saved_score_col = score_column(saved_view)
+            if saved_score_col:
+                saved_view = sorted_by_score(saved_view)
+                saved_view = saved_view.drop(columns=["_numeric_score"], errors="ignore")
+            st.dataframe(clean_display_df(saved_view, 14), use_container_width=True, hide_index=True, height=320)
+            if saved_score_col:
+                st.caption(f"Sorted by {saved_score_col}. This is a sorting heuristic, not a fact-check or view prediction.")
             saved_url_col = url_column(saved_view)
             if saved_url_col and len(saved_view):
                 open_idx = st.selectbox("Open saved article", saved_view.index.tolist(), format_func=lambda idx: str(saved_view.loc[idx, saved_title_col] if saved_title_col else f"Sheet row {idx + 1}")[:120], key="saved_news_open_idx")
@@ -906,19 +1008,39 @@ with col_main:
     # VIRAL OPPORTUNITIES
     # =====================================================================
     elif st.session_state.active_tab == "Viral Opportunities":
-        render_page_header("Viral Opportunities", "Prioritize ideas using the score and fact-status fields already saved in your data.")
-        if df.empty:
-            show_missing_data(sheet_message)
-        elif not score_column(df):
-            st.info("No score column was detected. Run AI analysis or add a column such as AI Priority Score / Viral Score to rank ideas.")
-            st.dataframe(clean_display_df(df), use_container_width=True, hide_index=True)
+        render_page_header("Viral Opportunities", "Rank research leads with transparent prioritization signals; scores do not predict views or verify facts.")
+        opportunity_source = st.radio("Rank records from", ["Research Feed", "Video Discovery"], horizontal=True, key="opportunity_source")
+        if opportunity_source == "Research Feed":
+            opp_df, opp_ws, opp_message, opp_status = _load_named_worksheet_records(NEWS_WORKSHEET_NAME)
         else:
-            min_score = st.slider("Minimum priority score", 0, 100, 60)
-            ranked = sorted_by_score(df)
+            opp_df, opp_ws, opp_message, opp_status = df, worksheet, sheet_message, sheet_status
+        if opp_df.empty:
+            show_missing_data(opp_message)
+        elif not score_column(opp_df):
+            st.info("No score column was detected. For Research Feed items, run a fresh search or the scheduled collector to populate Discovery Priority Score.")
+            st.dataframe(clean_display_df(opp_df, 12), use_container_width=True, hide_index=True)
+        else:
+            opp_score_col = score_column(opp_df)
+            min_score = st.slider("Minimum priority score", 0, 100, 45, key=f"minimum_priority_{opportunity_source}")
+            ranked = sorted_by_score(opp_df)
             ranked = ranked[ranked["_numeric_score"].fillna(-1) >= min_score]
-            st.caption(f"Showing {len(ranked)} records with a score of {min_score}+.")
-            st.dataframe(clean_display_df(ranked.drop(columns=["_numeric_score"], errors="ignore"), 12), use_container_width=True, hide_index=True, height=470)
-            st.caption("Priority scores help organize review; they do not predict actual views or guarantee virality.")
+            st.caption(f"Showing {len(ranked)} records scoring {min_score}+ from {opportunity_source}. Scores use metadata heuristics or saved AI analysis, depending on the selected field.")
+            st.dataframe(clean_display_df(ranked.drop(columns=["_numeric_score"], errors="ignore"), 14), use_container_width=True, hide_index=True, height=470)
+            if len(ranked):
+                reasons_col = first_matching_column(ranked, ["Discovery Priority Reasons", "Priority Reasons", "AI Why It Matters"])
+                title_col_opp = title_column(ranked)
+                url_col_opp = url_column(ranked)
+                best_idx = ranked.index[0]
+                if title_col_opp:
+                    st.markdown("### Highest-ranked opportunity")
+                    st.write(str(ranked.loc[best_idx, title_col_opp]))
+                    if reasons_col:
+                        st.caption("Ranking rationale: " + str(ranked.loc[best_idx, reasons_col] or "No rationale saved."))
+                    if url_col_opp:
+                        best_url = str(ranked.loc[best_idx, url_col_opp] or "").strip()
+                        if best_url.startswith(("https://", "http://")):
+                            st.link_button("Open source to verify ↗", best_url)
+            st.info("The discovery score is a transparent sorting aid based on headline match, apparent freshness, selected source-domain signals and caution terms. It is not an estimate of views, truth, or virality. Verify the publisher and claims yourself.")
 
     # =====================================================================
     # AI STUDIO — analyze existing record
