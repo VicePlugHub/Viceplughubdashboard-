@@ -394,6 +394,234 @@ label, [data-testid="stWidgetLabel"] { color:#cbd5e1 !important; font-weight:600
   .vp-setting-value { min-height:0; }
 }
 
+
+/* --------------------------------------------------------------------------
+   VICEPLUG / SIGNAL ROOM — 2026 visual system
+   Inspiration synthesis: Bento Grids, Landingfolio, Webframe, UI Design Daily.
+   Design intent: editorial intelligence terminal, calm density, compact controls.
+   -------------------------------------------------------------------------- */
+:root {
+  --vp-bg:#080b0e;
+  --vp-bg-raised:#0d1115;
+  --vp-surface:#10161b;
+  --vp-surface-2:#151d23;
+  --vp-border:rgba(194,211,213,.13);
+  --vp-border-strong:rgba(212,255,79,.36);
+  --vp-pink:#d4ff4f;
+  --vp-pink-strong:#c5f13a;
+  --vp-purple:#b8a6ff;
+  --vp-cyan:#83e7df;
+  --vp-green:#b8f36e;
+  --vp-amber:#f5ca78;
+  --vp-text:#f1f4ee;
+  --vp-muted:#a0aca9;
+  --vp-dim:#687672;
+  --vp-radius:17px;
+}
+html, body, [class*="css"] { font-family:'DM Sans',sans-serif; color:var(--vp-text); }
+.stApp {
+  background:
+    radial-gradient(ellipse at 91% -6%, rgba(184,166,255,.095), transparent 27%),
+    radial-gradient(ellipse at -9% 44%, rgba(131,231,223,.045), transparent 31%),
+    #080b0e;
+}
+#MainMenu, footer { visibility:hidden; }
+header[data-testid="stHeader"] { background:rgba(8,11,14,.76); }
+.block-container { max-width:1660px; padding:1rem clamp(.85rem,2.2vw,2rem) 2.4rem; }
+h1,h2,h3,h4 { font-family:'Space Grotesk',sans-serif !important; letter-spacing:-.04em; }
+.stMarkdown, .stText, p { color:var(--vp-text); }
+.stMarkdown p { line-height:1.68; }
+div[data-testid="column"] { min-width:0; }
+
+/* Top command bar */
+.vp-topbar-brand { display:flex; align-items:center; gap:11px; min-height:55px; }
+.vp-topbar-mark { width:39px; height:39px; display:grid; place-items:center; flex:0 0 39px; border-radius:12px; color:#10140c; font:800 .95rem 'Space Grotesk',sans-serif; letter-spacing:-.09em; background:var(--vp-pink); box-shadow:0 0 28px rgba(212,255,79,.12); }
+.vp-topbar-name { font:700 1.03rem/1.05 'Space Grotesk',sans-serif; letter-spacing:-.045em; color:#f7f8f2; }
+.vp-topbar-name span { color:var(--vp-pink); }
+.vp-topbar-sub { margin-top:5px; color:#7f8d89; font-size:.57rem; font-weight:800; letter-spacing:.15em; }
+.vp-topbar-status { display:flex; flex-direction:column; justify-content:center; align-items:flex-end; min-height:48px; text-align:right; }
+.vp-topbar-status-label { color:#76847f; font-size:.56rem; letter-spacing:.17em; font-weight:800; }
+.vp-topbar-status-value { display:flex; align-items:center; gap:7px; margin-top:5px; font-size:.73rem; font-weight:700; color:#d9e5d9; }
+.vp-topbar-status-dot { width:7px; height:7px; border-radius:50%; display:inline-block; background:var(--vp-green); box-shadow:0 0 9px rgba(184,243,110,.42); }
+.vp-topbar-status-dot.offline { background:var(--vp-amber); box-shadow:0 0 9px rgba(245,202,120,.3); }
+.vp-topbar-rule { height:1px; width:100%; margin:.45rem 0 1.5rem; background:linear-gradient(90deg,rgba(212,255,79,.42),rgba(194,211,213,.14) 24%,rgba(194,211,213,.06) 100%); }
+/* the workspace switcher reads as a compact command input */
+div[class*="st-key-vp_workspace_selector"] { margin-top:7px; }
+div[class*="st-key-vp_workspace_selector"] div[data-baseweb="select"] { background:#11171b !important; border:1px solid rgba(194,211,213,.17) !important; border-radius:12px !important; min-height:42px !important; }
+div[class*="st-key-vp_workspace_selector"] div[data-baseweb="select"] > div { background:transparent !important; color:#eaf0e8 !important; }
+div[class*="st-key-vp_workspace_selector"] div[data-baseweb="select"]:hover { border-color:rgba(212,255,79,.42) !important; }
+[data-testid="stWidgetLabel"] { color:#aebbb5 !important; font-weight:650 !important; }
+
+/* Editorial hero — a single focal point, with signal visualization */
+.vp-hero { display:grid; grid-template-columns:minmax(0,1.32fr) minmax(250px,.68fr); gap:clamp(20px,3vw,42px); align-items:center; min-height:255px; position:relative; isolation:isolate; overflow:hidden; border:1px solid rgba(212,255,79,.19); border-radius:22px; padding:clamp(25px,3.1vw,42px); margin:0 0 25px; background:linear-gradient(112deg,#12191a 0%,#10151a 48%,#171725 100%); box-shadow:0 25px 70px rgba(0,0,0,.20), inset 0 1px 0 rgba(255,255,255,.025); }
+.vp-hero:before { content:""; position:absolute; inset:0; z-index:-1; opacity:.18; background-image:linear-gradient(rgba(194,211,213,.13) 1px,transparent 1px),linear-gradient(90deg,rgba(194,211,213,.13) 1px,transparent 1px); background-size:31px 31px; mask-image:linear-gradient(90deg,black,transparent 86%); }
+.vp-hero:after { content:""; position:absolute; width:340px; height:340px; border-radius:50%; right:10%; top:-220px; z-index:-1; background:rgba(212,255,79,.055); filter:blur(24px); }
+.vp-hero-copy { position:relative; z-index:2; }
+.vp-hero-topline { display:flex; align-items:center; gap:9px; color:var(--vp-pink); font-size:.62rem; font-weight:800; letter-spacing:.16em; text-transform:uppercase; }
+.vp-live-dot { width:7px; height:7px; display:inline-block; background:var(--vp-green); border-radius:50%; box-shadow:0 0 12px rgba(184,243,110,.7); }
+.vp-hero h1 { font:700 clamp(2.15rem,4vw,3.6rem)/.99 'Space Grotesk',sans-serif; letter-spacing:-.075em; margin:.85rem 0 .8rem; color:#f6f8f1; }
+.vp-hero h1 span { color:var(--vp-pink); background:none; -webkit-text-fill-color:currentColor; }
+.vp-hero p { color:#aebbb7; max-width:630px; font-size:.9rem; line-height:1.72; margin:0; }
+.vp-hero-tags { display:flex; gap:7px; flex-wrap:wrap; margin-top:19px; }
+.vp-hero-tags span { padding:6px 9px; border:1px solid rgba(194,211,213,.13); background:rgba(4,8,9,.28); color:#ccd7cf; border-radius:7px; font-size:.6rem; font-weight:800; letter-spacing:.09em; }
+.vp-hero-art { min-height:190px; position:relative; display:grid; place-items:center; overflow:hidden; border:1px solid rgba(194,211,213,.14); border-radius:17px; background:linear-gradient(150deg,rgba(8,13,15,.65),rgba(15,17,29,.83)); }
+.vp-hero-art:before { content:""; position:absolute; inset:0; background:radial-gradient(circle at 50% 48%,rgba(184,166,255,.15),transparent 36%),linear-gradient(0deg,rgba(212,255,79,.03),transparent 45%); }
+.vp-orbit { position:absolute; left:50%; top:50%; border:1px solid rgba(212,255,79,.33); border-radius:50%; transform:translate(-50%,-50%) rotate(-18deg); }
+.vp-orbit-one { width:168px; height:168px; }
+.vp-orbit-two { width:126px; height:184px; border-color:rgba(184,166,255,.46); transform:translate(-50%,-50%) rotate(48deg); }
+.vp-orbit-three { width:210px; height:71px; border-color:rgba(131,231,223,.32); transform:translate(-50%,-50%) rotate(-34deg); }
+.vp-hero-core { z-index:1; width:72px; height:72px; border-radius:20px; display:grid; place-items:center; font:700 1.6rem 'Space Grotesk',sans-serif; letter-spacing:-.1em; color:#0d120a; background:linear-gradient(145deg,#e0ff82,#c2f33e); border:1px solid rgba(255,255,255,.56); box-shadow:0 0 35px rgba(212,255,79,.16),inset 0 1px 0 rgba(255,255,255,.68); transform:rotate(-7deg); }
+.vp-hero-code { position:absolute; color:#92a39e; font:700 .55rem 'Space Grotesk',sans-serif; letter-spacing:.14em; }
+.vp-hero-code.top { top:12px; left:13px; }
+.vp-hero-code.bottom { bottom:12px; right:13px; color:#d9ee96; }
+
+/* Page headers and hierarchy */
+.vp-page-head { display:flex; align-items:flex-end; justify-content:space-between; gap:1.1rem; border-bottom:1px solid var(--vp-border); padding:0 0 1.15rem; margin:0 0 1.35rem; }
+.vp-page-head h1 { font-size:clamp(1.72rem,2.4vw,2.2rem); line-height:1.08; margin:.35rem 0 .35rem; color:#f5f7f1; }
+.vp-page-head p { color:var(--vp-muted); margin:.3rem 0 0; font-size:.88rem; line-height:1.6; max-width:860px; }
+.vp-eyebrow { font-size:.61rem; font-weight:800; letter-spacing:.18em; color:var(--vp-pink); text-transform:uppercase; }
+.vp-pill { display:inline-flex; align-items:center; gap:7px; border:1px solid rgba(212,255,79,.22); color:#e1f6a7; background:rgba(212,255,79,.055); border-radius:999px; padding:6px 9px; font-size:.61rem; font-weight:800; white-space:nowrap; letter-spacing:.04em; }
+.vp-pill:before { content:""; display:inline-block; width:5px; height:5px; border-radius:50%; background:var(--vp-pink); }
+.vp-muted { color:var(--vp-muted); font-size:.82rem; line-height:1.62; }
+
+/* Cards: bento-like surface language, consistent radii and density */
+.vp-card { height:100%; min-height:121px; background:linear-gradient(148deg,rgba(20,28,29,.98),rgba(13,18,21,.98)); border:1px solid var(--vp-border); border-radius:15px; padding:17px 17px 15px; box-shadow:0 8px 26px rgba(0,0,0,.11),inset 0 1px 0 rgba(255,255,255,.018); transition:transform .18s ease,border-color .18s ease; }
+.vp-card:hover { transform:translateY(-2px); border-color:rgba(212,255,79,.28); }
+.vp-metric-label { color:#aebbb4; font-size:.72rem; font-weight:650; }
+.vp-metric-value { font:700 clamp(1.6rem,2vw,2rem)/1.12 'Space Grotesk',sans-serif; letter-spacing:-.055em; margin:.46rem 0 .25rem; color:#f7f9f2; }
+.vp-metric-note { color:#77857f; font-size:.67rem; line-height:1.48; }
+.vp-panel { background:linear-gradient(155deg,rgba(17,24,26,.94),rgba(12,17,20,.97)); border:1px solid var(--vp-border); border-radius:16px; padding:clamp(15px,1.4vw,21px); margin-bottom:14px; box-shadow:0 8px 27px rgba(0,0,0,.09),inset 0 1px 0 rgba(255,255,255,.018); }
+.vp-panel-title { font:700 1rem 'Space Grotesk',sans-serif; letter-spacing:-.03em; margin:0 0 .38rem; color:#f2f5ed; }
+.vp-empty { text-align:center; padding:35px 18px; border:1px dashed rgba(153,178,172,.24); border-radius:15px; color:var(--vp-muted); background:rgba(14,21,22,.38); line-height:1.65; }
+.vp-card-grid-note { color:#81908a; font-size:.74rem; margin:0 0 12px; }
+
+/* Record cards / research rows */
+.vp-result-row { min-height:210px; height:calc(100% - 3px); border:1px solid rgba(194,211,213,.12); border-radius:15px; padding:16px 17px 14px; background:linear-gradient(137deg,rgba(20,28,29,.98),rgba(12,17,20,.99)); margin:0 0 3px; box-shadow:0 8px 22px rgba(0,0,0,.11); transition:transform .18s ease,border-color .18s ease; display:flex; flex-direction:column; }
+.vp-result-row:hover { border-color:rgba(212,255,79,.3); transform:translateY(-1px); }
+.vp-result-eyebrow { color:#9aaa8c; font-size:.58rem; font-weight:800; letter-spacing:.14em; text-transform:uppercase; margin-bottom:7px; }
+.vp-result-title { color:#f5f7ef; font:700 clamp(.96rem,1.02vw,1.08rem)/1.38 'Space Grotesk',sans-serif; letter-spacing:-.025em; margin:0 0 8px; }
+.vp-result-summary { color:#a9b5b0; font-size:.79rem; line-height:1.58; margin:0 0 11px; display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; flex:1; }
+.vp-result-meta { display:flex; flex-wrap:wrap; gap:6px; align-items:center; }
+.vp-result-chip { display:inline-flex; align-items:center; padding:5px 8px; border:1px solid rgba(194,211,213,.12); background:rgba(5,9,10,.45); border-radius:7px; color:#c1cec6; font-size:.61rem; font-weight:650; line-height:1.35; }
+.vp-result-chip.status { color:#dfd4ff; background:rgba(184,166,255,.075); border-color:rgba(184,166,255,.18); }
+.vp-result-chip.fact { color:#ffdfa6; background:rgba(245,202,120,.055); border-color:rgba(245,202,120,.16); }
+.vp-result-date { color:#76857f; font-size:.64rem; margin-top:8px; }
+.vp-record-card { display:flex; flex-direction:column; gap:12px; min-height:242px; height:100%; padding:19px; margin:0 0 6px; border-radius:16px; background:linear-gradient(150deg,rgba(20,28,29,.98),rgba(12,17,20,.98)); border:1px solid rgba(194,211,213,.13); box-shadow:0 12px 29px rgba(0,0,0,.13); overflow-wrap:anywhere; }
+.vp-record-card:hover { border-color:rgba(212,255,79,.27); }
+.vp-record-top { display:flex; align-items:center; justify-content:space-between; gap:12px; }
+.vp-record-kicker { color:#82938b; font-size:.6rem; font-weight:800; letter-spacing:.14em; text-transform:uppercase; }
+.vp-record-score { display:inline-flex; align-items:center; gap:6px; border:1px solid rgba(212,255,79,.25); color:#e3f7a2; background:rgba(212,255,79,.065); padding:5px 9px; border-radius:999px; font-size:.64rem; font-weight:800; }
+.vp-record-card h3 { font:700 1.04rem/1.42 'Space Grotesk',sans-serif; letter-spacing:-.025em; color:#f7f8f2; margin:0; }
+.vp-record-summary { color:#a7b4ae; font-size:.82rem; line-height:1.65; margin:0; }
+.vp-record-chips { display:flex; flex-wrap:wrap; align-items:center; gap:6px; margin-top:1px; }
+.vp-record-chip { display:inline-flex; align-items:center; gap:5px; color:#c5d1c9; font-size:.64rem; font-weight:650; padding:5px 8px; border-radius:7px; border:1px solid rgba(194,211,213,.12); background:rgba(5,9,10,.3); }
+.vp-record-chip.status { color:#ddd4ff; border-color:rgba(184,166,255,.2); background:rgba(184,166,255,.07); }
+.vp-record-chip.fact { color:#f8db9d; border-color:rgba(245,202,120,.18); background:rgba(245,202,120,.055); }
+.vp-record-meta { display:flex; flex-wrap:wrap; justify-content:space-between; gap:8px; padding-top:2px; color:#778680; font-size:.68rem; }
+.vp-record-footer { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-top:auto; padding-top:11px; border-top:1px solid rgba(194,211,213,.1); }
+.vp-record-footer a { color:var(--vp-cyan); text-decoration:none; font-size:.75rem; font-weight:750; }
+.vp-record-footer a:hover { color:#fff; text-decoration:underline; }
+.vp-record-footer span { color:#778680; font-size:.66rem; }
+
+/* Briefs, detail modal, analytics and settings */
+.vp-brief-hero { border:1px solid rgba(212,255,79,.2); border-radius:18px; padding:23px; margin:8px 0 16px; background:linear-gradient(125deg,rgba(212,255,79,.055),rgba(184,166,255,.055) 60%,rgba(14,20,22,.8)); }
+.vp-brief-title { color:#f5f8ee; font:700 1.35rem/1.32 'Space Grotesk',sans-serif; letter-spacing:-.04em; margin:0 0 9px; }
+.vp-brief-lead { color:#d6e1d5; font-size:.96rem; line-height:1.7; margin:0; }
+.vp-brief-card { height:100%; min-height:125px; padding:18px; margin-bottom:13px; border-radius:14px; border:1px solid var(--vp-border); background:linear-gradient(150deg,rgba(17,25,26,.96),rgba(11,16,18,.96)); }
+.vp-brief-card h4 { color:#d9f79a; font-size:.68rem; line-height:1.4; letter-spacing:.13em; text-transform:uppercase; margin:0 0 10px; }
+.vp-brief-card p { white-space:pre-wrap; color:#dce5dd; font-size:.85rem; line-height:1.72; margin:0; }
+.vp-brief-list { display:flex; flex-wrap:wrap; gap:7px; }
+.vp-brief-tag { border:1px solid rgba(131,231,223,.19); background:rgba(131,231,223,.055); color:#aeece6; border-radius:8px; padding:6px 9px; font-size:.74rem; }
+.vp-detail-hero { border:1px solid rgba(212,255,79,.22); border-radius:19px; padding:clamp(20px,2.5vw,30px); margin:.2rem 0 19px; background:linear-gradient(120deg,rgba(212,255,79,.055),rgba(184,166,255,.055) 75%,rgba(15,21,23,.9)); }
+.vp-detail-title { font:700 clamp(1.45rem,2.3vw,2rem)/1.24 'Space Grotesk',sans-serif; color:#f6f8f1; letter-spacing:-.045em; margin:.5rem 0 .9rem; overflow-wrap:anywhere; }
+.vp-detail-url { overflow-wrap:anywhere; color:#95eee6; font-size:.82rem; line-height:1.65; }
+.vp-detail-field { border:1px solid rgba(194,211,213,.12); border-radius:13px; padding:15px 16px; min-height:88px; margin-bottom:10px; background:linear-gradient(150deg,rgba(17,25,26,.88),rgba(10,15,17,.94)); }
+.vp-detail-field-label { color:#d9f79a; font-size:.6rem; text-transform:uppercase; letter-spacing:.13em; font-weight:800; margin-bottom:8px; }
+.vp-detail-field-value { color:#dce5dd; font-size:.83rem; line-height:1.72; white-space:pre-wrap; word-break:break-word; }
+.vp-delete-zone { border:1px solid rgba(248,113,113,.23); background:rgba(127,29,29,.08); padding:17px; border-radius:14px; margin-top:16px; }
+.vp-analytics-section-intro { margin:29px 0 16px; padding:15px 18px; border-left:2px solid var(--vp-pink); border-radius:0 12px 12px 0; background:linear-gradient(90deg,rgba(212,255,79,.06),rgba(131,231,223,.025)); }
+.vp-analytics-section-intro .eyebrow { color:#e1f6a7; font-size:.61rem; letter-spacing:.16em; font-weight:800; }
+.vp-analytics-section-intro h2 { font:700 1.17rem/1.3 'Space Grotesk',sans-serif; margin:6px 0 4px; color:#f5f7f1; }
+.vp-analytics-section-intro p { color:#9ba9a3; font-size:.79rem; line-height:1.6; margin:0; }
+.vp-setting-status { min-height:106px; padding:16px; border:1px solid var(--vp-border); border-radius:14px; background:linear-gradient(145deg,rgba(18,27,28,.95),rgba(10,15,17,.95)); }
+.vp-setting-status-label { color:#8d9b95; font-size:.62rem; text-transform:uppercase; font-weight:800; letter-spacing:.12em; margin-bottom:9px; }
+.vp-setting-status-value { font:700 .96rem/1.35 'Space Grotesk',sans-serif; margin-bottom:7px; overflow-wrap:anywhere; }
+.vp-setting-status-note { color:#8d9b95; font-size:.72rem; line-height:1.55; }
+.vp-setting-value { padding:14px 15px; border:1px solid var(--vp-border); border-radius:12px; background:rgba(12,19,20,.76); margin-bottom:10px; min-height:78px; }
+.vp-setting-value-label { color:#84938c; font-size:.61rem; letter-spacing:.1em; text-transform:uppercase; font-weight:800; margin-bottom:7px; }
+.vp-setting-value-data { color:#e9efe7; font-size:.87rem; font-weight:700; overflow-wrap:anywhere; line-height:1.5; }
+.vp-settings-section { margin:23px 0 12px; padding-top:16px; border-top:1px solid var(--vp-border); }
+.vp-settings-section h2 { font-size:1.05rem; margin:0 0 6px; color:#f5f7f1; }
+.vp-settings-section p { font-size:.78rem; line-height:1.65; color:#95a39c; margin:0; }
+.vp-analytics-hero { border:1px solid rgba(212,255,79,.2); border-radius:18px; padding:24px 26px; margin-bottom:21px; background:linear-gradient(120deg,rgba(212,255,79,.055),rgba(184,166,255,.045),rgba(12,18,20,.9)); }
+.vp-analytics-hero h2 { color:#f4f7ef; font:700 clamp(1.3rem,2vw,1.7rem)/1.3 'Space Grotesk',sans-serif; letter-spacing:-.04em; margin:.35rem 0 .5rem; }
+.vp-analytics-hero p { color:#aab8b0; line-height:1.7; margin:0; max-width:840px; font-size:.86rem; }
+.vp-chart-panel { padding:18px 19px 15px; background:linear-gradient(150deg,rgba(15,23,24,.96),rgba(9,14,16,.98)); border:1px solid var(--vp-border); border-radius:16px; margin-bottom:15px; }
+.vp-chart-title { color:#f5f7f1; font:700 .95rem 'Space Grotesk',sans-serif; margin-bottom:4px; }
+.vp-chart-subtitle { color:#899890; font-size:.73rem; line-height:1.55; margin-bottom:12px; }
+[data-testid="stPlotlyChart"] { border-radius:12px; overflow:hidden; }
+[data-testid="stDataFrame"], [data-testid="stDataEditor"] { border:1px solid var(--vp-border); border-radius:12px; overflow:hidden; }
+[data-testid="stExpander"] { margin:10px 0 15px; border:1px solid var(--vp-border); border-radius:12px; overflow:hidden; background:rgba(11,17,18,.6); }
+[data-testid="stAlert"] { border-radius:12px; border-width:1px; }
+[data-testid="stTabs"] button { font-weight:650; }
+[data-testid="stCaptionContainer"] { color:#82918a; line-height:1.55; }
+
+/* Inputs and actions — quieter controls, single confident primary accent */
+.stTextInput input, .stTextArea textarea, .stNumberInput input,
+.stSelectbox div[data-baseweb="select"], .stMultiSelect div[data-baseweb="select"] { background:#101719 !important; border:1px solid #293432 !important; border-radius:10px !important; color:#f0f4ec !important; min-height:41px !important; font-size:.88rem !important; }
+.stTextInput input:focus, .stTextArea textarea:focus, .stNumberInput input:focus { border-color:rgba(212,255,79,.65) !important; box-shadow:0 0 0 1px rgba(212,255,79,.2) !important; }
+.stButton > button, .stDownloadButton > button, [data-testid="stLinkButton"] a { min-height:2.5rem; border-radius:10px; border:1px solid #293432; background:#141d1e; color:#eaf0e8; font-size:.82rem; font-weight:700; transition:all .16s ease; box-shadow:none; }
+.stButton > button:hover, .stDownloadButton > button:hover, [data-testid="stLinkButton"] a:hover { border-color:rgba(212,255,79,.45); color:#fff; background:#1a2524; transform:translateY(-1px); }
+button[kind="primary"] { background:var(--vp-pink) !important; border:1px solid rgba(212,255,79,.5) !important; color:#10150b !important; box-shadow:0 5px 19px rgba(212,255,79,.08) !important; }
+button[kind="primary"]:hover { filter:brightness(1.04); box-shadow:0 8px 22px rgba(212,255,79,.13) !important; }
+.stRadio [role="radiogroup"] { gap:7px; }
+.stRadio [role="radio"] { padding:7px 11px; border-radius:9px; }
+.stSlider { padding-top:.4rem; padding-bottom:.35rem; }
+.stSlider [role="slider"] { border:3px solid #f3f6ef !important; box-shadow:0 0 0 4px rgba(212,255,79,.13),0 0 18px rgba(212,255,79,.28) !important; }
+.stSlider [data-testid="stTickBar"] { display:none; }
+
+.vp-footer { margin-top:25px; padding:13px 15px; border:1px solid var(--vp-border); border-radius:12px; background:rgba(9,14,15,.78); display:flex; justify-content:space-between; gap:10px; flex-wrap:wrap; color:#7f8f87; font-size:.68rem; }
+.vp-footer strong { color:var(--vp-pink); letter-spacing:.04em; }
+/* Dialog follows the active color system; Streamlit supplies the real overlay. */
+div[data-testid="stDialog"] div[role="dialog"] { border:1px solid rgba(212,255,79,.26); border-radius:19px; background:linear-gradient(155deg,#151d1e,#0b1012 75%); box-shadow:0 28px 100px rgba(0,0,0,.65),0 0 42px rgba(212,255,79,.055); }
+div[data-testid="stDialog"] div[role="dialog"] > div:first-child { padding-top:1rem; }
+div[data-testid="stDialog"] h2 { font-size:1.15rem !important; }
+div[data-testid="stDialog"] { backdrop-filter:blur(9px); background:rgba(3,6,7,.59); }
+[data-testid="stHorizontalBlock"] { gap:clamp(10px,1.25vw,20px); }
+
+@media (max-width:1050px) {
+ .block-container { padding: .9rem .9rem 2rem; }
+ .vp-hero { padding:25px; gap:20px; }
+ .vp-page-head { align-items:flex-start; }
+ .vp-page-head .vp-pill { display:none; }
+ .vp-result-row { min-height:190px; padding:14px; }
+}
+@media (max-width:700px) {
+ .block-container { padding:.6rem .55rem 1.5rem; }
+ .vp-topbar-brand { gap:8px; }
+ .vp-topbar-mark { width:34px; height:34px; flex-basis:34px; border-radius:10px; }
+ .vp-topbar-name { font-size:.9rem; }
+ .vp-topbar-sub { font-size:.49rem; }
+ .vp-topbar-status-label { font-size:.48rem; }
+ .vp-topbar-status-value { font-size:.62rem; }
+ .vp-hero { grid-template-columns:1fr; min-height:0; padding:21px 18px; gap:17px; border-radius:17px; }
+ .vp-hero h1 { font-size:2.2rem; }
+ .vp-hero p { font-size:.83rem; }
+ .vp-hero-art { min-height:132px; }
+ .vp-page-head { flex-direction:column; margin-bottom:1.1rem; padding-bottom:.95rem; }
+ .vp-panel { padding:14px; border-radius:13px; }
+ .vp-card { min-height:108px; padding:14px; }
+ .vp-result-row { min-height:0; padding:14px; border-radius:13px; }
+ .vp-result-chip { font-size:.59rem; }
+ .vp-record-card { min-height:0; padding:16px; }
+ .vp-brief-hero, .vp-analytics-hero { padding:17px; border-radius:15px; }
+ .vp-brief-card, .vp-detail-field { padding:14px; }
+ .vp-chart-panel { padding:13px; border-radius:14px; }
+ .vp-setting-status { min-height:0; padding:14px; }
+ .vp-setting-value { min-height:0; }
+ .vp-footer { font-size:.62rem; }
+}
+
 </style>
 """, unsafe_allow_html=True)
 
@@ -1506,55 +1734,38 @@ def _dismiss_discovery_result(position: int) -> None:
 df, worksheet, sheet_message, sheet_status = load_sheet_records()
 PRIMARY_WORKSHEET_NAME = worksheet.title if worksheet is not None else str(get_secret("VIDEO_DISCOVERY_WORKSHEET", "Video Discovery"))
 
-# Hero only appears on Dashboard, not at the top of every workspace.
-if st.session_state.active_tab == "Dashboard":
-    st.markdown("""
-    <section class="vp-hero">
-      <div class="vp-hero-copy">
-        <div class="vp-hero-topline"><span class="vp-live-dot"></span> VICE CITY INTELLIGENCE / CREATOR TERMINAL</div>
-        <h1>STAY AHEAD OF<br><span>VICE CITY.</span></h1>
-        <p>Your GTA VI research command center. Discover new coverage, prioritize leads, develop Shorts scripts, and move ideas through review—with the original source always in reach.</p>
-        <div class="vp-hero-tags"><span>RESEARCH</span><span>VERIFY</span><span>CREATE</span><span>PUBLISH</span></div>
-      </div>
-      <div class="vp-hero-art" aria-hidden="true">
-        <div class="vp-hero-code top">VP / INTEL UNIT 06</div>
-        <div class="vp-orbit vp-orbit-one"></div><div class="vp-orbit vp-orbit-two"></div><div class="vp-orbit vp-orbit-three"></div>
-        <div class="vp-hero-core">VP</div>
-        <div class="vp-hero-code bottom">VICEPLUG HUB • 2026</div>
-      </div>
-    </section>
-    """, unsafe_allow_html=True)
-
-col_nav, col_main = st.columns([0.82, 5.78], gap="large")
-with col_nav:
-    st.markdown('''<div class="vp-logo-lockup"><div class="vp-logo-mark">VP</div><div><div class="vp-brand">VICE<span>PLUG</span> HUB</div><div class="vp-logo-sub">GTA VI CONTENT INTEL</div></div></div>''', unsafe_allow_html=True)
-    nav_groups = {
-        "Dashboard": "OVERVIEW",
-        "Research Feed": "DISCOVER",
-        "Viral Opportunities": "DISCOVER",
-        "Video Discovery": "DISCOVER",
-        "AI Studio": "CREATE",
-        "Script Generator": "CREATE",
-        "Content Pipeline": "WORKFLOW",
-        "Review Queue": "WORKFLOW",
-        "Trends & Analytics": "INSIGHTS",
-        "Google Sheets Sync": "SYSTEM",
-        "Settings": "SYSTEM",
-    }
-    last_group = None
-    for label, icon in NAV_ITEMS:
-        group = nav_groups.get(label, "WORKSPACE")
-        if group != last_group:
-            st.markdown(f'<div class="vp-nav-group">{html.escape(group)}</div>', unsafe_allow_html=True)
-            last_group = group
-        is_active = st.session_state.active_tab == label
-        button_label = f"{icon}  {label}"
-        if st.button(button_label, key=f"nav_{label}", use_container_width=True, type="primary" if is_active else "secondary"):
-            close_record_detail()
-            st.session_state.active_tab = label
-            st.rerun()
-    st.markdown('<div class="vp-nav-foot">GOOD CONTENT<br><b style="color:#b8c4da">BUILDS BIGGER WORLDS.</b><br><span style="color:#586780">RESEARCH → VERIFY → CREATE</span></div>', unsafe_allow_html=True)
-
+# Compact command bar. Navigation is a single workspace switcher instead of a tall sidebar.
+nav_brand_col, nav_select_col, nav_status_col = st.columns([1.42, 2.35, 1.1], gap="medium")
+with nav_brand_col:
+    st.markdown(
+        '<div class="vp-topbar-brand"><div class="vp-topbar-mark">VP</div><div>'
+        '<div class="vp-topbar-name">VICE<span>PLUG</span> HUB</div>'
+        '<div class="vp-topbar-sub">GTA VI SIGNAL ROOM</div></div></div>',
+        unsafe_allow_html=True,
+    )
+with nav_select_col:
+    nav_labels = [label for label, _icon in NAV_ITEMS]
+    if st.session_state.get("vp_workspace_selector") != st.session_state.active_tab:
+        st.session_state.vp_workspace_selector = st.session_state.active_tab
+    selected_workspace = st.selectbox(
+        "Workspace", nav_labels,
+        index=nav_labels.index(st.session_state.active_tab) if st.session_state.active_tab in nav_labels else 0,
+        key="vp_workspace_selector", label_visibility="collapsed",
+    )
+    if selected_workspace != st.session_state.active_tab:
+        close_record_detail()
+        st.session_state.active_tab = selected_workspace
+        st.rerun()
+with nav_status_col:
+    connection_color = "" if sheet_status == "connected" else " offline"
+    connection_text = "SHEETS CONNECTED" if sheet_status == "connected" else "SHEETS OFFLINE"
+    st.markdown(
+        '<div class="vp-topbar-status"><div class="vp-topbar-status-label">SYSTEM STATUS</div>'
+        f'<div class="vp-topbar-status-value"><span class="vp-topbar-status-dot{connection_color}"></span>{connection_text}</div></div>',
+        unsafe_allow_html=True,
+    )
+st.markdown('<div class="vp-topbar-rule"></div>', unsafe_allow_html=True)
+col_main = st.container()
 with col_main:
     if st.session_state.get("record_action_notice"):
         st.success(st.session_state.pop("record_action_notice"))
@@ -1564,11 +1775,26 @@ with col_main:
     # DASHBOARD
     # =====================================================================
     elif st.session_state.active_tab == "Dashboard":
-        greet_left, greet_right = st.columns([1.4, 1])
-        with greet_left:
-            st.markdown('<div class="vp-page-head" style="border:0;margin-bottom:.5rem;padding-bottom:0"><div><h1 style="font-size:1.55rem">Welcome back, Creator.</h1><p>Your GTA VI research and content overview.</p></div></div>', unsafe_allow_html=True)
-        with greet_right:
-            st.markdown(f'<div style="text-align:right;color:#91a3bd;font-size:.76rem;padding-top:8px">{datetime.now().strftime("%A, %B %d, %Y")}<br><span style="color:{"#10b981" if sheet_status == "connected" else "#f59e0b"};font-weight:700">● {"Google Sheets connected" if sheet_status == "connected" else "Google Sheets not connected"}</span></div>', unsafe_allow_html=True)
+        st.markdown("""
+        <section class="vp-hero">
+          <div class="vp-hero-copy">
+            <div class="vp-hero-topline"><span class="vp-live-dot"></span> VICE CITY INTELLIGENCE / CREATOR TERMINAL</div>
+            <h1>Find the signal.<br><span>Make the moment.</span></h1>
+            <p>Your GTA VI research and content workspace. Surface stories, rank opportunities, build evidence-aware Shorts, and move every idea through human review.</p>
+            <div class="vp-hero-tags"><span>01 / DISCOVER</span><span>02 / VERIFY</span><span>03 / CREATE</span><span>04 / PUBLISH</span></div>
+          </div>
+          <div class="vp-hero-art" aria-hidden="true">
+            <div class="vp-hero-code top">VP / SIGNAL ANALYSIS</div>
+            <div class="vp-orbit vp-orbit-one"></div><div class="vp-orbit vp-orbit-two"></div><div class="vp-orbit vp-orbit-three"></div>
+            <div class="vp-hero-core">VP</div>
+            <div class="vp-hero-code bottom">INTELLIGENCE UNIT · 06</div>
+          </div>
+        </section>
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin:0 0 13px;flex-wrap:wrap">
+          <div><div class="vp-eyebrow">THE WORKSPACE</div><div style="font:700 1.18rem 'Space Grotesk',sans-serif;color:#f4f7ef;margin-top:4px;letter-spacing:-.04em">Today at a glance</div></div>
+          <div style="font-size:.7rem;color:#83918a">LIVE OVERVIEW · WORKSPACE STATUS</div>
+        </div>
+        """, unsafe_allow_html=True)
 
         title_col = title_column(df) if not df.empty else None
         score_col = score_column(df) if not df.empty else None
