@@ -301,23 +301,37 @@ label, [data-testid="stWidgetLabel"] { color:#cbd5e1 !important; font-weight:600
   div[data-testid="column"]:has([class*="st-key-nav_Dashboard"]) { padding:13px 9px; border-radius:16px; }
 }
 
-/* Final refinement: airy result rows, focused detail view, and analytics studio */
-.block-container { max-width: 1880px; padding: 1.6rem clamp(1rem, 2.2vw, 2.5rem) 3.8rem; }
-.vp-page-head { margin-bottom: 2rem; padding-bottom: 1.65rem; }
-.vp-page-head p { max-width: 980px; }
-.vp-panel { padding: clamp(20px, 2vw, 30px); margin-bottom: 22px; }
-.vp-card { padding: 23px 24px; min-height: 145px; }
-.vp-card-grid-note { margin: 0 0 18px; font-size: .82rem; }
-.vp-result-row { border:1px solid rgba(153,173,211,.16); border-radius:19px; padding:22px 25px; background:linear-gradient(130deg,rgba(20,30,52,.98),rgba(10,16,30,.98)); margin:0 0 8px; box-shadow:0 14px 32px rgba(0,0,0,.12); overflow-wrap:anywhere; transition:border-color .18s ease,transform .18s ease; }
+/* Refined 2.0: balanced sizing, tighter cards, dedicated analytics spacing */
+.block-container { max-width: 1780px; padding: 1.35rem clamp(.9rem, 1.8vw, 2rem) 3rem; }
+.vp-page-head { margin-bottom: 1.55rem; padding-bottom: 1.25rem; }
+.vp-page-head p { max-width: 920px; }
+.vp-panel { padding: clamp(17px, 1.45vw, 23px); margin-bottom: 17px; }
+.vp-card { padding: 18px 19px; min-height: 124px; border-radius: 16px; }
+.vp-card-grid-note { margin: 0 0 13px; font-size: .78rem; }
+.vp-result-row { border:1px solid rgba(153,173,211,.16); border-radius:16px; padding:17px 18px 15px; background:linear-gradient(130deg,rgba(20,30,52,.98),rgba(10,16,30,.98)); margin:0 0 3px; box-shadow:0 10px 25px rgba(0,0,0,.10); overflow-wrap:anywhere; transition:border-color .18s ease,transform .18s ease; }
 .vp-result-row:hover { border-color:rgba(183,123,255,.4); transform:translateY(-1px); }
-.vp-result-eyebrow { color:#a995df; font-size:.65rem; font-weight:800; letter-spacing:.16em; text-transform:uppercase; margin-bottom:8px; }
-.vp-result-title { color:#fbfcff; font:700 clamp(1rem,1.15vw,1.22rem)/1.42 'Space Grotesk',sans-serif; letter-spacing:-.025em; margin:0 0 9px; }
-.vp-result-summary { color:#aab8d0; font-size:.87rem; line-height:1.75; margin:0 0 13px; }
-.vp-result-meta { display:flex; flex-wrap:wrap; gap:8px; align-items:center; }
-.vp-result-chip { display:inline-flex; align-items:center; padding:6px 9px; border:1px solid rgba(151,169,202,.14); background:rgba(7,11,23,.48); border-radius:9px; color:#c7d4e9; font-size:.69rem; font-weight:650; }
+.vp-result-eyebrow { color:#a995df; font-size:.61rem; font-weight:800; letter-spacing:.14em; text-transform:uppercase; margin-bottom:6px; }
+.vp-result-title { color:#fbfcff; font:700 clamp(.96rem,1.02vw,1.1rem)/1.38 'Space Grotesk',sans-serif; letter-spacing:-.02em; margin:0 0 7px; }
+.vp-result-summary { color:#aab8d0; font-size:.82rem; line-height:1.58; margin:0 0 10px; display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; }
+.vp-result-meta { display:flex; flex-wrap:wrap; gap:6px; align-items:center; }
+.vp-result-chip { display:inline-flex; align-items:center; padding:5px 8px; border:1px solid rgba(151,169,202,.14); background:rgba(7,11,23,.48); border-radius:8px; color:#c7d4e9; font-size:.65rem; font-weight:650; }
 .vp-result-chip.status { color:#dccbff; background:rgba(130,83,223,.1); border-color:rgba(167,139,250,.22); }
 .vp-result-chip.fact { color:#ffdda5; background:rgba(244,195,106,.07); border-color:rgba(244,195,106,.2); }
-.vp-result-date { color:#7787a4; font-size:.72rem; margin-top:12px; }
+.vp-result-date { color:#7787a4; font-size:.68rem; margin-top:8px; }
+.vp-setting-status { min-height:112px; padding:17px 17px 15px; border:1px solid rgba(153,173,211,.15); border-radius:16px; background:linear-gradient(145deg,rgba(18,28,48,.95),rgba(10,16,30,.95)); box-shadow:0 10px 24px rgba(0,0,0,.08); }
+.vp-setting-status-label { color:#8e9db7; font-size:.68rem; text-transform:uppercase; font-weight:800; letter-spacing:.12em; margin-bottom:10px; }
+.vp-setting-status-value { font:700 1rem/1.35 'Space Grotesk',sans-serif; color:#f5f7ff; margin-bottom:7px; overflow-wrap:anywhere; }
+.vp-setting-status-note { color:#8796b0; font-size:.76rem; line-height:1.55; }
+.vp-setting-value { padding:15px 16px; border:1px solid rgba(153,173,211,.14); border-radius:14px; background:rgba(12,19,35,.72); margin-bottom:10px; min-height:82px; }
+.vp-setting-value-label { color:#8292ae; font-size:.67rem; letter-spacing:.1em; text-transform:uppercase; font-weight:800; margin-bottom:7px; }
+.vp-setting-value-data { color:#e9edfa; font-size:.91rem; font-weight:700; overflow-wrap:anywhere; line-height:1.5; }
+.vp-settings-section { margin: 26px 0 13px; padding-top: 18px; border-top:1px solid rgba(153,173,211,.13); }
+.vp-settings-section h2 { font-size:1.1rem; margin:0 0 6px; color:#f7f8ff; }
+.vp-settings-section p { font-size:.82rem; line-height:1.65; color:#8999b3; margin:0; }
+.vp-analytics-section-intro { margin:35px 0 19px; padding:17px 21px; border-left:3px solid #c084fc; border-radius:0 14px 14px 0; background:linear-gradient(90deg,rgba(167,139,250,.10),rgba(85,223,242,.025),transparent); }
+.vp-analytics-section-intro .eyebrow { color:#c7a6ff; font-size:.65rem; letter-spacing:.16em; font-weight:800; }
+.vp-analytics-section-intro h2 { font:700 1.25rem/1.3 'Space Grotesk',sans-serif; margin:6px 0 4px; color:#f7f8ff; }
+.vp-analytics-section-intro p { color:#8e9db7; font-size:.82rem; line-height:1.6; margin:0; }
 .vp-record-action-col { display:flex; flex-direction:column; justify-content:center; height:100%; }
 .vp-record-action-col .stButton button { width:100%; white-space:normal; min-height:3.15rem; }
 .vp-detail-hero { border:1px solid rgba(183,123,255,.28); border-radius:24px; padding:clamp(22px,3vw,36px); margin:.25rem 0 24px; background:radial-gradient(ellipse at 87% 4%,rgba(255,79,160,.15),transparent 32%),linear-gradient(142deg,#121b31,#101326 65%,#20162f); box-shadow:0 20px 55px rgba(0,0,0,.17); }
@@ -341,18 +355,24 @@ label, [data-testid="stWidgetLabel"] { color:#cbd5e1 !important; font-weight:600
 .stCaptionContainer { line-height:1.6; }
 @media (max-width: 1050px) {
   .block-container { padding:1rem .9rem 2.4rem; }
-  .vp-result-row { padding:17px; }
-  .vp-analytics-hero { padding:23px; }
+  .vp-result-row { padding:15px; }
+  .vp-analytics-hero { padding:22px; }
+  .vp-setting-status { min-height:100px; }
 }
 @media (max-width: 650px) {
   .block-container { padding:.65rem .5rem 1.6rem; }
-  .vp-page-head { margin-bottom:1.25rem; padding-bottom:1.1rem; }
-  .vp-panel { padding:16px; margin-bottom:14px; }
-  .vp-result-row { padding:16px; border-radius:16px; }
+  .vp-page-head { margin-bottom:1.2rem; padding-bottom:1rem; }
+  .vp-panel { padding:15px; margin-bottom:13px; }
+  .vp-card { padding:15px; min-height:112px; }
+  .vp-result-row { padding:14px; border-radius:14px; }
+  .vp-result-chip { font-size:.62rem; }
   .vp-detail-hero { padding:19px; border-radius:18px; }
   .vp-detail-field { padding:14px; }
   .vp-analytics-hero { padding:18px; border-radius:18px; }
   .vp-chart-panel { padding:14px; border-radius:16px; }
+  .vp-analytics-section-intro { margin-top:27px; padding:14px 15px; }
+  .vp-setting-status { min-height:0; padding:15px; }
+  .vp-setting-value { min-height:0; }
 }
 
 </style>
@@ -638,66 +658,69 @@ def render_record_cards(
     date_col = first_matching_column(shown, ["Published At", "Publication Date", "Date Published", "Indexed At", "Collected At (UTC)", "Date", "Timestamp", "End Timestamp"])
 
     target_sheet = worksheet_name or str(get_secret("VIDEO_DISCOVERY_WORKSHEET", "Video Discovery"))
+    visible_columns = max(1, min(int(columns_count or 1), 3))
+    card_columns = st.columns(visible_columns, gap="medium") if visible_columns > 1 else [st.container()]
     for card_idx, (record_index, row) in enumerate(shown.iterrows()):
-        title_raw = _value_text(row.get(title_col, ""), "Untitled research record") if title_col else "Untitled research record"
-        summary_raw = _value_text(row.get(summary_col, ""), "No summary saved yet. Open the source and review the record details.") if summary_col else "No summary saved yet. Open the source and review the record details."
-        source_raw = _value_text(row.get(source_col, ""), "") if source_col else ""
-        source_url = _value_text(row.get(src_url_col, ""), "") if src_url_col else ""
-        domain = ""
-        if source_url.startswith(("https://", "http://")):
-            try:
-                domain = urlparse(source_url).netloc.lower().removeprefix("www.")
-            except Exception:
-                domain = ""
-        source_label = source_raw or domain or "Source not recorded"
-        score_num = number_value(row.get(score_col)) if score_col else None
-        score_text = f"{score_num:.0f}/100" if score_num is not None else "Not scored"
-        status_text = _value_text(row.get(status_col_local, ""), "Needs review") if status_col_local else "Needs review"
-        fact_text = _value_text(row.get(fact_col_local, ""), "Unverified") if fact_col_local else "Unverified"
-        date_text = _value_text(row.get(date_col, ""), "Date not recorded") if date_col else "Date not recorded"
-        sheet_row = row.get("_sheet_row", None)
-        try:
-            sheet_row_num = int(float(sheet_row)) if sheet_row is not None and str(sheet_row).strip() else None
-        except (TypeError, ValueError):
-            sheet_row_num = None
-
-        score_chip = f'<span class="vp-result-chip">◈ Priority {html.escape(score_text)}</span>'
-        status_chip = f'<span class="vp-result-chip status">{safe_text(status_text, 48)}</span>'
-        fact_chip = f'<span class="vp-result-chip fact">{safe_text(fact_text, 48)}</span>'
-        st.markdown(
-            f"""<article class="vp-result-row">
-              <div class="vp-result-eyebrow">VICEPLUG INTELLIGENCE · RECORD {card_idx + 1:02d}</div>
-              <div class="vp-result-title">{safe_text(title_raw, 260)}</div>
-              <p class="vp-result-summary">{safe_text(summary_raw, 330)}</p>
-              <div class="vp-result-meta"><span class="vp-result-chip">◉ {safe_text(source_label, 85)}</span>{score_chip}{status_chip}{fact_chip}</div>
-              <div class="vp-result-date">◷ {safe_text(date_text, 64)}{f' · Sheet row {sheet_row_num}' if sheet_row_num else ''}</div>
-            </article>""",
-            unsafe_allow_html=True,
-        )
-        action_cols = st.columns([1.7, 8], gap="medium")
-        with action_cols[0]:
-            if st.button("View details ↗", key=f"{key_prefix}_detail_{sheet_row_num or record_index}_{card_idx}", type="primary", use_container_width=True):
-                row_payload: Dict[str, str] = {}
-                for field, value in row.to_dict().items():
-                    if field == "_numeric_score" or field == "_sheet_row":
-                        continue
-                    row_payload[str(field)] = _value_text(value, "")
-                st.session_state["record_detail"] = {
-                    "worksheet_name": target_sheet,
-                    "sheet_row": sheet_row_num,
-                    "record": row_payload,
-                    "title_column": title_col or "",
-                    "title_value": title_raw,
-                    "url_column": src_url_col or "",
-                    "url_value": source_url,
-                    "return_tab": st.session_state.active_tab,
-                    "return_key": key_prefix,
-                    "deletable": bool(sheet_row_num and worksheet_name),
-                }
-                st.rerun()
-        with action_cols[1]:
+        with card_columns[card_idx % visible_columns]:
+            title_raw = _value_text(row.get(title_col, ""), "Untitled research record") if title_col else "Untitled research record"
+            summary_raw = _value_text(row.get(summary_col, ""), "No summary saved yet. Open the source and review the record details.") if summary_col else "No summary saved yet. Open the source and review the record details."
+            source_raw = _value_text(row.get(source_col, ""), "") if source_col else ""
+            source_url = _value_text(row.get(src_url_col, ""), "") if src_url_col else ""
+            domain = ""
             if source_url.startswith(("https://", "http://")):
-                st.markdown(f'<div style="padding:11px 2px"><a style="color:#82e8f6;font-weight:700;font-size:.82rem;text-decoration:none" href="{html.escape(source_url, quote=True)}" target="_blank" rel="noopener noreferrer">Open original source ↗</a></div>', unsafe_allow_html=True)
+                try:
+                    domain = urlparse(source_url).netloc.lower().removeprefix("www.")
+                except Exception:
+                    domain = ""
+            source_label = source_raw or domain or "Source not recorded"
+            score_num = number_value(row.get(score_col)) if score_col else None
+            score_text = f"{score_num:.0f}/100" if score_num is not None else "Not scored"
+            status_text = _value_text(row.get(status_col_local, ""), "Needs review") if status_col_local else "Needs review"
+            fact_text = _value_text(row.get(fact_col_local, ""), "Unverified") if fact_col_local else "Unverified"
+            date_text = _value_text(row.get(date_col, ""), "Date not recorded") if date_col else "Date not recorded"
+            sheet_row = row.get("_sheet_row", None)
+            try:
+                sheet_row_num = int(float(sheet_row)) if sheet_row is not None and str(sheet_row).strip() else None
+            except (TypeError, ValueError):
+                sheet_row_num = None
+
+            score_chip = f'<span class="vp-result-chip">◈ Priority {html.escape(score_text)}</span>'
+            status_chip = f'<span class="vp-result-chip status">{safe_text(status_text, 48)}</span>'
+            fact_chip = f'<span class="vp-result-chip fact">{safe_text(fact_text, 48)}</span>'
+            st.markdown(
+                f"""<article class="vp-result-row">
+                  <div class="vp-result-eyebrow">VICEPLUG INTELLIGENCE · RECORD {start_at + card_idx + 1:02d}</div>
+                  <div class="vp-result-title">{safe_text(title_raw, 260)}</div>
+                  <p class="vp-result-summary">{safe_text(summary_raw, 330)}</p>
+                  <div class="vp-result-meta"><span class="vp-result-chip">◉ {safe_text(source_label, 85)}</span>{score_chip}{status_chip}{fact_chip}</div>
+                  <div class="vp-result-date">◷ {safe_text(date_text, 64)}{f' · Sheet row {sheet_row_num}' if sheet_row_num else ''}</div>
+                </article>""",
+                unsafe_allow_html=True,
+            )
+            action_cols = st.columns([1.2, 1], gap="small")
+            with action_cols[0]:
+                if st.button("View details ↗", key=f"{key_prefix}_detail_{sheet_row_num or record_index}_{card_idx}", type="primary", use_container_width=True):
+                    row_payload: Dict[str, str] = {}
+                    for field, value in row.to_dict().items():
+                        if field == "_numeric_score" or field == "_sheet_row":
+                            continue
+                        row_payload[str(field)] = _value_text(value, "")
+                    st.session_state["record_detail"] = {
+                        "worksheet_name": target_sheet,
+                        "sheet_row": sheet_row_num,
+                        "record": row_payload,
+                        "title_column": title_col or "",
+                        "title_value": title_raw,
+                        "url_column": src_url_col or "",
+                        "url_value": source_url,
+                        "return_tab": st.session_state.active_tab,
+                        "return_key": key_prefix,
+                        "deletable": bool(sheet_row_num and worksheet_name),
+                    }
+                    st.rerun()
+            with action_cols[1]:
+                if source_url.startswith(("https://", "http://")):
+                    st.markdown(f'<div style="padding:10px 0"><a style="color:#82e8f6;font-weight:700;font-size:.76rem;text-decoration:none" href="{html.escape(source_url, quote=True)}" target="_blank" rel="noopener noreferrer">Open source ↗</a></div>', unsafe_allow_html=True)
 
     if total_pages > 1:
         st.caption(f"Showing {len(shown)} records on this page. Use Previous / Next to browse the rest without cluttering the workspace.")
@@ -1707,7 +1730,7 @@ with col_main:
             if saved_score_col:
                 saved_view = sorted_by_score(saved_view)
                 saved_view = saved_view.drop(columns=["_numeric_score"], errors="ignore")
-            render_record_cards(saved_view, key_prefix="saved_news_cards", max_items=40, columns_count=1, show_raw_expander=True, worksheet_name=NEWS_WORKSHEET_NAME)
+            render_record_cards(saved_view, key_prefix="saved_news_cards", max_items=40, columns_count=2, show_raw_expander=True, worksheet_name=NEWS_WORKSHEET_NAME)
             if saved_score_col:
                 st.caption(f"Sorted by {saved_score_col}. This is a sorting heuristic, not a fact-check or view prediction.")
         else:
@@ -1731,7 +1754,7 @@ with col_main:
             st.markdown(f'<div class="vp-panel"><div class="vp-panel-title">Your video research library</div><div class="vp-muted">{len(view)} records match the current search. Each card keeps the source and review context close to the title.</div></div>', unsafe_allow_html=True)
             if not title_column(view):
                 st.warning("No title-like column was detected. Showing the records with available fields.")
-            render_record_cards(view, key_prefix="video_discovery_cards", max_items=40, columns_count=1, show_raw_expander=True, worksheet_name=PRIMARY_WORKSHEET_NAME)
+            render_record_cards(view, key_prefix="video_discovery_cards", max_items=40, columns_count=2, show_raw_expander=True, worksheet_name=PRIMARY_WORKSHEET_NAME)
 
     # =====================================================================
     # VIRAL OPPORTUNITIES
@@ -1747,14 +1770,14 @@ with col_main:
             show_missing_data(opp_message)
         elif not score_column(opp_df):
             st.info("No score column was detected. For Research Feed items, run a fresh search or the scheduled collector to populate Discovery Priority Score. Records are still shown as cards below.")
-            render_record_cards(opp_df, key_prefix="opportunities_unscored", max_items=40, columns_count=1, show_raw_expander=True, worksheet_name=NEWS_WORKSHEET_NAME if opportunity_source == "Research Feed" else PRIMARY_WORKSHEET_NAME)
+            render_record_cards(opp_df, key_prefix="opportunities_unscored", max_items=40, columns_count=2, show_raw_expander=True, worksheet_name=NEWS_WORKSHEET_NAME if opportunity_source == "Research Feed" else PRIMARY_WORKSHEET_NAME)
         else:
             opp_score_col = score_column(opp_df)
             min_score = st.slider("Minimum priority score", 0, 100, 45, key=f"minimum_priority_{opportunity_source}")
             ranked = sorted_by_score(opp_df)
             ranked = ranked[ranked["_numeric_score"].fillna(-1) >= min_score]
             st.caption(f"Showing {len(ranked)} records scoring {min_score}+ from {opportunity_source}. Scores use metadata heuristics or saved AI analysis, depending on the selected field.")
-            render_record_cards(ranked.drop(columns=["_numeric_score"], errors="ignore"), key_prefix=f"opportunities_{opportunity_source}", max_items=40, columns_count=1, show_raw_expander=True, worksheet_name=NEWS_WORKSHEET_NAME if opportunity_source == "Research Feed" else PRIMARY_WORKSHEET_NAME)
+            render_record_cards(ranked.drop(columns=["_numeric_score"], errors="ignore"), key_prefix=f"opportunities_{opportunity_source}", max_items=40, columns_count=2, show_raw_expander=True, worksheet_name=NEWS_WORKSHEET_NAME if opportunity_source == "Research Feed" else PRIMARY_WORKSHEET_NAME)
             st.info("The discovery score is a transparent sorting aid based on headline match, apparent freshness, selected source-domain signals and caution terms. It is not an estimate of views, truth, or virality. Verify the publisher and claims yourself.")
 
     # =====================================================================
@@ -1867,7 +1890,7 @@ with col_main:
             s_col = status_column(pipeline_df)
             if not s_col:
                 st.warning(f"No Review Status / Status column was detected in {pipeline_sheet_name}. Add a status column to enable stage tracking.")
-                render_record_cards(pipeline_df, key_prefix=f"pipeline_no_status_{pipeline_source}", max_items=40, columns_count=1, show_raw_expander=True, worksheet_name=pipeline_sheet_name)
+                render_record_cards(pipeline_df, key_prefix=f"pipeline_no_status_{pipeline_source}", max_items=40, columns_count=2, show_raw_expander=True, worksheet_name=pipeline_sheet_name)
             else:
                 statuses = pipeline_df[s_col].fillna("").astype(str).str.strip()
                 if st.session_state.active_tab == "Review Queue":
@@ -1883,7 +1906,7 @@ with col_main:
                     with slot:
                         st.markdown(f'<div class="vp-card"><div class="vp-metric-label">{label}</div><div class="vp-metric-value">{count}</div><div class="vp-metric-note">Matching status values</div></div>', unsafe_allow_html=True)
                 st.markdown(" ")
-                render_record_cards(shown, key_prefix=f"pipeline_{st.session_state.active_tab}_{pipeline_source}", max_items=40, columns_count=1, show_raw_expander=True, worksheet_name=pipeline_sheet_name)
+                render_record_cards(shown, key_prefix=f"pipeline_{st.session_state.active_tab}_{pipeline_source}", max_items=40, columns_count=2, show_raw_expander=True, worksheet_name=pipeline_sheet_name)
                 shown_title_col = title_column(shown)
                 if len(shown):
                     record_index = st.selectbox("Select a record to update", shown.index.tolist(), format_func=lambda idx: str(shown.loc[idx, shown_title_col])[:120] if shown_title_col else f"Sheet row {shown.loc[idx, '_sheet_row']}", key=f"pipeline_record_{st.session_state.active_tab}_{pipeline_source}")
@@ -2026,6 +2049,14 @@ with col_main:
             elif filtered.empty:
                 st.info(f"No records with parseable dates fall inside {analytics_period.lower()}. Choose a longer period or use All records with dates.")
 
+            # Clear visual break between the KPI row and the first chart row.
+            st.markdown(
+                '<div class="vp-analytics-section-intro"><div class="eyebrow">SIGNAL INTELLIGENCE</div>'
+                '<h2>Research momentum &amp; priority profile</h2>'
+                '<p>Explore when records arrive and how saved priority scores are distributed. A little extra separation keeps this analysis distinct from the summary metrics above.</p></div>',
+                unsafe_allow_html=True,
+            )
+
             # Timeline chart: records per day, using actual stored dates only.
             c_timeline, c_distribution = st.columns([1.65, 1], gap="large")
             with c_timeline:
@@ -2146,7 +2177,7 @@ with col_main:
         if sheet_status == "connected":
             st.success(sheet_message)
             st.caption("This screen reads your configured research worksheet. Status edits in Content Pipeline / Review Queue are written back when a supported status column exists.")
-            render_record_cards(df, key_prefix="sheets_sync_cards", max_items=40, columns_count=1, show_raw_expander=True, worksheet_name=PRIMARY_WORKSHEET_NAME)
+            render_record_cards(df, key_prefix="sheets_sync_cards", max_items=40, columns_count=2, show_raw_expander=True, worksheet_name=PRIMARY_WORKSHEET_NAME)
             if st.button("Refresh from Google Sheets", type="primary"):
                 st.rerun()
         else:
@@ -2161,22 +2192,76 @@ with col_main:
     # SETTINGS
     # =====================================================================
     elif st.session_state.active_tab == "Settings":
-        render_page_header("Settings & Integrations", "Review configuration without exposing your API keys.")
-        groq_configured = bool(get_secret("GROQ_API_KEY"))
-        account_configured = bool(get_service_account_info() or (get_secret("GOOGLE_SERVICE_ACCOUNT_FILE") and os.path.exists(str(get_secret("GOOGLE_SERVICE_ACCOUNT_FILE")))))
-        settings = [
-            ("Groq API", "Connected / key present" if groq_configured and HAS_GROQ else "Not configured" if not groq_configured else "Package missing", "#10b981" if groq_configured and HAS_GROQ else "#f59e0b"),
-            ("Google Sheets", "Connected" if sheet_status == "connected" else "Not connected", "#10b981" if sheet_status == "connected" else "#f59e0b"),
-            ("Spreadsheet credentials", "Configured" if account_configured else "Missing", "#10b981" if account_configured else "#f59e0b"),
-            ("Groq model", str(get_secret("GROQ_MODEL", "openai/gpt-oss-20b")), "#38d9f5"),
-            ("Research worksheet", str(get_secret("VIDEO_DISCOVERY_WORKSHEET", "Video Discovery")), "#a855f7"),
-            ("News research worksheet", NEWS_WORKSHEET_NAME, "#ff2e93"),
+        render_page_header("Settings & Integrations", "A clear view of service health, active worksheet names and required configuration.", eyebrow="SYSTEM CONTROL")
+        groq_key_present = bool(get_secret("GROQ_API_KEY"))
+        groq_ok = groq_key_present and HAS_GROQ
+        service_account_present = bool(get_service_account_info() or (get_secret("GOOGLE_SERVICE_ACCOUNT_FILE") and os.path.exists(str(get_secret("GOOGLE_SERVICE_ACCOUNT_FILE")))))
+
+        st.markdown(
+            '<div class="vp-settings-section" style="margin-top:0;padding-top:0;border-top:0"><h2>Connection health</h2>'
+            '<p>These indicators show whether configuration is present. API key presence alone does not guarantee every request will succeed.</p></div>',
+            unsafe_allow_html=True,
+        )
+        status_cols = st.columns(3, gap="medium")
+        status_items = [
+            ("Groq API", "Key configured" if groq_ok else ("Package missing" if groq_key_present else "Not configured"), "Secret detected and Groq client available." if groq_ok else ("Install the groq package in requirements.txt." if groq_key_present else "Add GROQ_API_KEY to Streamlit Secrets."), "#4adea6" if groq_ok else "#f4c36a"),
+            ("Google Sheets", "Connected" if sheet_status == "connected" else "Not connected", sheet_message if sheet_status == "connected" else "Check the spreadsheet ID, service-account credentials, and sharing permissions.", "#4adea6" if sheet_status == "connected" else "#f4c36a"),
+            ("Service account", "Configured" if service_account_present else "Missing", "Credentials were detected by the app." if service_account_present else "Add the service-account details to Streamlit Secrets or configure the credential file.", "#4adea6" if service_account_present else "#f4c36a"),
         ]
-        for label, value, color in settings:
-            st.markdown(f'<div class="vp-panel" style="display:flex;align-items:center;justify-content:space-between;gap:14px"><div style="font-weight:700">{html.escape(label)}</div><div style="color:{color};font-weight:700;text-align:right">{html.escape(value)}</div></div>', unsafe_allow_html=True)
-        st.markdown("### Required Streamlit Secrets")
-        st.code('GROQ_API_KEY = "your-groq-api-key"\nGROQ_MODEL = "openai/gpt-oss-20b"\nGOOGLE_SHEET_ID = "your-google-sheet-id"\nVIDEO_DISCOVERY_WORKSHEET = "Video Discovery"\nNEWS_RESEARCH_WORKSHEET = "Research Feed"\n\n[gcp_service_account]\ntype = "service_account"\nproject_id = "..."\nprivate_key_id = "..."\nprivate_key = "..."\nclient_email = "..."\nclient_id = "..."\nauth_uri = "https://accounts.google.com/o/oauth2/auth"\ntoken_uri = "https://oauth2.googleapis.com/token"\nauth_provider_x509_cert_url = "https://www.googleapis.com/oauth2/v1/certs"\nclient_x509_cert_url = "..."', language="toml")
-        st.caption("Use your actual service-account values in Streamlit Secrets; the example above is a template, not a working credential.")
+        for col, (label, value, note, color) in zip(status_cols, status_items):
+            with col:
+                st.markdown(
+                    f'<div class="vp-setting-status"><div class="vp-setting-status-label">{html.escape(label)}</div>'
+                    f'<div class="vp-setting-status-value" style="color:{color}">{html.escape(value)}</div>'
+                    f'<div class="vp-setting-status-note">{html.escape(str(note)[:220])}</div></div>',
+                    unsafe_allow_html=True,
+                )
+
+        st.markdown(
+            '<div class="vp-settings-section"><h2>Workspace configuration</h2>'
+            '<p>Values below are read from the current application configuration. Change them through Streamlit Secrets or the corresponding environment configuration—not by editing this display.</p></div>',
+            unsafe_allow_html=True,
+        )
+        model_name = str(get_secret("GROQ_MODEL", "openai/gpt-oss-20b"))
+        video_sheet_name = str(get_secret("VIDEO_DISCOVERY_WORKSHEET", "Video Discovery"))
+        news_sheet_name = str(get_secret("NEWS_RESEARCH_WORKSHEET", NEWS_WORKSHEET_NAME))
+        config_cols = st.columns(2, gap="large")
+        with config_cols[0]:
+            st.markdown(
+                '<div class="vp-setting-value"><div class="vp-setting-value-label">AI provider</div>'
+                f'<div class="vp-setting-value-data">Groq</div><div class="vp-setting-status-note" style="margin-top:5px">Model: {html.escape(model_name)}</div></div>',
+                unsafe_allow_html=True,
+            )
+            st.markdown(
+                '<div class="vp-setting-value"><div class="vp-setting-value-label">Video research worksheet</div>'
+                f'<div class="vp-setting-value-data">{html.escape(video_sheet_name)}</div><div class="vp-setting-status-note" style="margin-top:5px">Saved video research and AI analysis fields.</div></div>',
+                unsafe_allow_html=True,
+            )
+        with config_cols[1]:
+            st.markdown(
+                '<div class="vp-setting-value"><div class="vp-setting-value-label">News research worksheet</div>'
+                f'<div class="vp-setting-value-data">{html.escape(news_sheet_name)}</div><div class="vp-setting-status-note" style="margin-top:5px">Scheduled and on-demand discovery leads.</div></div>',
+                unsafe_allow_html=True,
+            )
+            st.markdown(
+                '<div class="vp-setting-value"><div class="vp-setting-value-label">Background collector</div>'
+                '<div class="vp-setting-value-data">GitHub Actions</div><div class="vp-setting-status-note" style="margin-top:5px">Scheduled collection runs outside this dashboard; check the repository Actions tab for run history.</div></div>',
+                unsafe_allow_html=True,
+            )
+
+        st.markdown(
+            '<div class="vp-settings-section"><h2>Configuration guidance</h2>'
+            '<p>Keep private keys in secret storage. This page never displays the live secret values.</p></div>',
+            unsafe_allow_html=True,
+        )
+        if not groq_ok:
+            st.warning("Groq AI analysis may be unavailable until GROQ_API_KEY is configured and the groq package is installed.")
+        if sheet_status != "connected":
+            st.warning("Google Sheets is not connected. Review GOOGLE_SHEET_ID, the service-account fields, and Editor access to the spreadsheet.")
+        st.info("For scheduled research, manage GOOGLE_SHEET_ID and GOOGLE_SERVICE_ACCOUNT_JSON under GitHub repository Settings → Secrets and variables → Actions. These are separate from Streamlit Secrets.")
+        with st.expander("Secret names and example format", expanded=False):
+            st.markdown("Use your real values in Streamlit Secrets. The template below contains placeholders only; do not paste private credentials into chat or commit them to GitHub.")
+            st.code('GROQ_API_KEY = "your-groq-api-key"\nGROQ_MODEL = "openai/gpt-oss-20b"\nGOOGLE_SHEET_ID = "your-google-sheet-id"\nVIDEO_DISCOVERY_WORKSHEET = "Video Discovery"\nNEWS_RESEARCH_WORKSHEET = "Research Feed"\n\n[gcp_service_account]\ntype = "service_account"\nproject_id = "..."\nprivate_key_id = "..."\nprivate_key = "..."\nclient_email = "..."\nclient_id = "..."\nauth_uri = "https://accounts.google.com/o/oauth2/auth"\ntoken_uri = "https://oauth2.googleapis.com/token"\nauth_provider_x509_cert_url = "https://www.googleapis.com/oauth2/v1/certs"\nclient_x509_cert_url = "..."', language="toml")
 
 # Footer in normal flow, inside the selected workspace only.
 st.markdown('<div class="vp-footer"><span><strong>VICEPLUG HUB</strong> · RESEARCH → VERIFY → CREATE → REVIEW → PUBLISH</span><span>AI drafts require human fact-checking and rights review.</span></div>', unsafe_allow_html=True)
