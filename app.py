@@ -122,6 +122,25 @@ div[class*="st-key-nav_"] button[kind="primary"] {
 }
 .vp-nav-foot { margin:26px 8px 0; padding-top:14px; border-top:1px solid var(--vp-border); color:#6f7f9d; font-size:.66rem; line-height:1.65; }
 
+/* Refined compact navigation and native modal */
+.vp-logo-lockup { gap:8px; margin:0 3px 15px; }
+.vp-logo-mark { flex-basis:35px; height:35px; border-radius:11px; font-size:.88rem; }
+.vp-brand { font-size:.91rem; }
+.vp-logo-sub { font-size:.54rem; letter-spacing:.12em; }
+.vp-nav-group { margin:14px 7px 5px; font-size:.57rem; letter-spacing:.14em; }
+div[data-testid="column"]:has([class*="st-key-nav_Dashboard"]) { padding:14px 10px 16px; border-radius:18px; }
+div[class*="st-key-nav_"] { margin:0 0 3px; }
+div[class*="st-key-nav_"] button { min-height:36px; padding:6px 9px !important; border-radius:9px !important; font-size:.76rem !important; }
+.vp-nav-foot { margin:20px 7px 0; padding-top:11px; font-size:.61rem; }
+/* Streamlit dialog: dim and blur the app behind the focused record */
+div[data-testid="stDialog"] div[role="dialog"] { border:1px solid rgba(167,139,250,.34); border-radius:22px; background:linear-gradient(155deg,#10182a,#090e1b 75%); box-shadow:0 28px 100px rgba(0,0,0,.62),0 0 45px rgba(167,139,250,.12); }
+div[data-testid="stDialog"] div[role="dialog"] > div:first-child { padding-top:1.1rem; }
+div[data-testid="stDialog"] h2 { font-size:1.2rem !important; }
+[data-testid="stDialog"] ~ div, div[data-testid="stAppViewContainer"]:has(div[data-testid="stDialog"]) { }
+div[data-testid="stDialog"] { backdrop-filter:blur(9px); background:rgba(3,5,13,.58); }
+.vp-result-row { border-radius:13px; padding:14px 15px 12px; box-shadow:0 7px 20px rgba(0,0,0,.08); }
+.vp-result-title { line-height:1.35; }
+
 /* Typography and page headings */
 h1,h2,h3,h4 { font-family:'Space Grotesk',sans-serif !important; letter-spacing:-.035em; }
 .vp-eyebrow { font-size:.66rem; font-weight:800; letter-spacing:.18em; color:#c7a6ff; text-transform:uppercase; }
@@ -699,7 +718,7 @@ def render_record_cards(
             )
             action_cols = st.columns([1.2, 1], gap="small")
             with action_cols[0]:
-                if st.button("View details ↗", key=f"{key_prefix}_detail_{sheet_row_num or record_index}_{card_idx}", type="primary", use_container_width=True):
+                if st.button("Quick view ↗", key=f"{key_prefix}_detail_{sheet_row_num or record_index}_{card_idx}", type="primary", use_container_width=True):
                     row_payload: Dict[str, str] = {}
                     for field, value in row.to_dict().items():
                         if field == "_numeric_score" or field == "_sheet_row":
@@ -781,7 +800,7 @@ def render_record_detail(detail: Dict[str, Any]) -> None:
     title = str(detail.get("title_value") or "Untitled research record")
     worksheet_name = str(detail.get("worksheet_name") or "Worksheet")
     source_url = str(detail.get("url_value") or "").strip()
-    st.button("← Back to results", key="record_detail_back", on_click=close_record_detail)
+    st.caption("Full record information · Close this dialog to return to your results.")
     st.markdown(
         f"""<section class="vp-detail-hero"><div class="vp-eyebrow">RECORD DETAIL · {safe_text(worksheet_name, 80)}</div>
         <div class="vp-detail-title">{safe_text(title, 350)}</div>
@@ -836,6 +855,21 @@ def render_record_detail(detail: Dict[str, Any]) -> None:
                     st.rerun()
                 except Exception as exc:
                     st.error(f"Could not delete the record: {exc}")
+
+
+@st.dialog("Record details", width="large")
+def record_detail_dialog() -> None:
+    """Show the selected record in a focused modal overlay."""
+    detail = st.session_state.get("record_detail")
+    if not detail:
+        st.info("No record is selected.")
+        return
+    close_col, _ = st.columns([1, 4])
+    with close_col:
+        if st.button("✕ Close details", key="record_detail_modal_close", use_container_width=True):
+            close_record_detail()
+            st.rerun()
+    render_record_detail(detail)
 
 def _display_brief_value(value: Any) -> str:
     if isinstance(value, (list, tuple)):
@@ -1491,7 +1525,7 @@ if st.session_state.active_tab == "Dashboard":
     </section>
     """, unsafe_allow_html=True)
 
-col_nav, col_main = st.columns([1.0, 5.6], gap="large")
+col_nav, col_main = st.columns([0.82, 5.78], gap="large")
 with col_nav:
     st.markdown('''<div class="vp-logo-lockup"><div class="vp-logo-mark">VP</div><div><div class="vp-brand">VICE<span>PLUG</span> HUB</div><div class="vp-logo-sub">GTA VI CONTENT INTEL</div></div></div>''', unsafe_allow_html=True)
     nav_groups = {
@@ -1525,7 +1559,7 @@ with col_main:
     if st.session_state.get("record_action_notice"):
         st.success(st.session_state.pop("record_action_notice"))
     if st.session_state.get("record_detail"):
-        render_record_detail(st.session_state["record_detail"])
+        record_detail_dialog()
     # =====================================================================
     # DASHBOARD
     # =====================================================================
@@ -1669,7 +1703,7 @@ with col_main:
                         </article>''', unsafe_allow_html=True)
                         action_view, action_dismiss, action_select = st.columns([1.15, 1.0, 1.65], gap="small")
                         with action_view:
-                            if st.button("View details ↗", key=f"news_discovery_detail_{position}", use_container_width=True):
+                            if st.button("Quick view ↗", key=f"news_discovery_detail_{position}", use_container_width=True):
                                 item_title = str(item.get("Title", "Untitled story"))
                                 item_url = str(item.get("Source URL", "") or "")
                                 st.session_state["record_detail"] = {
