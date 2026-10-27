@@ -185,6 +185,90 @@ button[kind="primary"]:hover { filter:brightness(1.09); box-shadow:0 10px 27px r
 [data-testid="stCaptionContainer"] { color:#8292ad; }
 label, [data-testid="stWidgetLabel"] { color:#cbd5e1 !important; font-weight:600 !important; }
 
+/* ------------------------------------------------------------------
+   Refined, spacious content system — less compact, more editorial
+   ------------------------------------------------------------------ */
+.block-container { max-width: 1840px; padding: 1.35rem 1.8rem 3.2rem; }
+.vp-page-head { padding-bottom: 1.55rem; margin-bottom: 1.8rem; gap: 1.5rem; }
+.vp-page-head h1 { font-size: clamp(1.9rem, 2.3vw, 2.45rem); margin: .45rem 0 .55rem; }
+.vp-page-head p { font-size: .98rem; line-height: 1.75; max-width: 900px; }
+.vp-eyebrow { font-size: .7rem; letter-spacing: .2em; }
+.vp-hero { min-height: 310px; padding: 38px 42px; margin-bottom: 30px; gap: 32px; }
+.vp-hero h1 { font-size: clamp(2.35rem, 3.4vw, 3.5rem); }
+.vp-hero p { font-size: 1rem; line-height: 1.8; }
+.vp-hero-art { min-height: 222px; }
+.vp-card { min-height: 150px; padding: 22px 22px 20px; border-radius: 20px; }
+.vp-metric-label { font-size: .82rem; }
+.vp-metric-value { font-size: clamp(1.9rem, 2.2vw, 2.35rem); margin: .7rem 0 .35rem; }
+.vp-metric-note { font-size: .76rem; line-height: 1.6; }
+.vp-panel { padding: 23px; margin-bottom: 18px; border-radius: 20px; }
+.vp-panel-title { font-size: 1.12rem; margin-bottom: .6rem; }
+.vp-muted { font-size: .9rem; line-height: 1.75; }
+.vp-empty { padding: 54px 26px; font-size: .95rem; }
+.stTextInput input, .stTextArea textarea, .stNumberInput input,
+.stSelectbox div[data-baseweb="select"], .stMultiSelect div[data-baseweb="select"] {
+  min-height: 46px !important; border-radius: 13px !important; font-size: .94rem !important;
+}
+.stButton > button, .stDownloadButton > button, [data-testid="stLinkButton"] a {
+  min-height: 2.9rem; border-radius: 13px; padding-left: 16px; padding-right: 16px;
+}
+.stSlider { padding-top: .55rem; padding-bottom: .45rem; }
+.stSlider [data-baseweb="slider"] { padding-top: .4rem; padding-bottom: .5rem; }
+.stSlider [role="slider"] { border: 3px solid #fff !important; box-shadow: 0 0 0 5px rgba(255,79,160,.16), 0 0 22px rgba(255,79,160,.45) !important; }
+.stSlider [data-testid="stTickBar"] { display: none; }
+.stRadio [role="radiogroup"] { gap: 10px; }
+.stRadio [role="radio"] { padding: 8px 13px; border-radius: 12px; }
+.vp-record-card {
+  display:flex; flex-direction:column; gap:13px; min-height:260px; height:100%;
+  padding:23px 23px 20px; margin:0 0 6px; border-radius:20px;
+  background:linear-gradient(150deg,rgba(20,30,52,.98),rgba(10,16,30,.98));
+  border:1px solid rgba(153,173,211,.16);
+  box-shadow:0 16px 36px rgba(0,0,0,.15),inset 0 1px 0 rgba(255,255,255,.035);
+  transition:transform .2s ease,border-color .2s ease,box-shadow .2s ease;
+  overflow-wrap:anywhere;
+}
+.vp-record-card:hover { transform:translateY(-3px); border-color:rgba(183,123,255,.43); box-shadow:0 20px 44px rgba(0,0,0,.21),0 0 24px rgba(145,78,220,.07); }
+.vp-record-top { display:flex; align-items:center; justify-content:space-between; gap:12px; }
+.vp-record-kicker { color:#8494b0; font-size:.66rem; font-weight:800; letter-spacing:.14em; text-transform:uppercase; }
+.vp-record-score { display:inline-flex; align-items:center; gap:6px; border:1px solid rgba(255,79,160,.32); color:#ff9fce; background:rgba(255,79,160,.09); padding:6px 10px; border-radius:999px; font:700 .76rem 'Space Grotesk',sans-serif; white-space:nowrap; }
+.vp-record-card h3 { font:700 1.12rem/1.45 'Space Grotesk',sans-serif; letter-spacing:-.025em; color:#f7f8ff; margin:0; }
+.vp-record-summary { color:#a8b5cc; font-size:.88rem; line-height:1.75; margin:0; }
+.vp-record-chips { display:flex; flex-wrap:wrap; align-items:center; gap:7px; margin-top:1px; }
+.vp-record-chip { display:inline-flex; align-items:center; gap:5px; color:#c9d4e8; font-size:.69rem; font-weight:650; padding:6px 9px; border-radius:9px; border:1px solid rgba(151,169,202,.14); background:rgba(7,11,23,.46); }
+.vp-record-chip.status { color:#d9c8ff; border-color:rgba(167,139,250,.22); background:rgba(130,83,223,.1); }
+.vp-record-chip.fact { color:#ffdca2; border-color:rgba(244,195,106,.22); background:rgba(244,195,106,.07); }
+.vp-record-meta { display:flex; flex-wrap:wrap; justify-content:space-between; gap:8px; padding-top:2px; color:#72829e; font-size:.72rem; }
+.vp-record-footer { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-top:auto; padding-top:13px; border-top:1px solid rgba(151,169,202,.12); }
+.vp-record-footer a { color:#83e8f7; text-decoration:none; font-size:.78rem; font-weight:750; }
+.vp-record-footer a:hover { color:#fff; text-decoration:underline; }
+.vp-record-footer span { color:#72829e; font-size:.7rem; }
+.vp-record-select { margin-top:-2px; padding:0 0 10px; }
+.vp-brief-hero { border:1px solid rgba(255,79,160,.28); border-radius:22px; padding:25px; margin:10px 0 18px; background:radial-gradient(ellipse at 90% 5%,rgba(255,79,160,.14),transparent 35%),linear-gradient(140deg,#121a2e,#171327); }
+.vp-brief-title { color:#fff; font:700 1.45rem/1.35 'Space Grotesk',sans-serif; letter-spacing:-.035em; margin:0 0 10px; }
+.vp-brief-lead { color:#e1d7ff; font-size:1.02rem; line-height:1.75; margin:0; }
+.vp-brief-card { height:100%; min-height:135px; padding:21px; margin-bottom:15px; border-radius:17px; border:1px solid var(--vp-border); background:linear-gradient(150deg,rgba(17,27,47,.96),rgba(10,16,30,.96)); }
+.vp-brief-card h4 { color:#d5b9ff; font-size:.75rem; line-height:1.4; letter-spacing:.13em; text-transform:uppercase; margin:0 0 12px; }
+.vp-brief-card p { white-space:pre-wrap; color:#e1e7f3; font-size:.9rem; line-height:1.85; margin:0; }
+.vp-brief-list { display:flex; flex-wrap:wrap; gap:7px; }
+.vp-brief-tag { border:1px solid rgba(85,223,242,.2); background:rgba(85,223,242,.07); color:#adf2fb; border-radius:9px; padding:7px 10px; font-size:.78rem; }
+.vp-card-grid-note { color:#7f90ad; font-size:.77rem; margin:0 0 13px; }
+[data-testid="stDataFrame"], [data-testid="stDataEditor"] { border-radius:16px; }
+@media (max-width: 1150px) {
+  .block-container { padding:1rem 1rem 2.2rem; }
+  .vp-hero { padding:28px; }
+  .vp-record-card { min-height:240px; padding:19px; }
+}
+@media (max-width: 650px) {
+  .block-container { padding:.7rem .55rem 1.6rem; }
+  .vp-hero { min-height:0; padding:22px 18px; gap:18px; }
+  .vp-hero h1 { font-size:2.2rem; }
+  .vp-card { min-height:125px; padding:16px; }
+  .vp-panel { padding:17px; }
+  .vp-record-card { min-height:0; padding:18px; }
+  .vp-brief-hero { padding:19px; }
+  .vp-brief-card { padding:17px; }
+}
+
 /* Footer and subtle transitions */
 .vp-footer { margin-top:26px; padding:15px 17px; border:1px solid var(--vp-border); border-radius:14px; background:rgba(9,14,27,.8); display:flex; justify-content:space-between; gap:10px; flex-wrap:wrap; color:#8190ab; font-size:.72rem; }
 .vp-footer strong { color:var(--vp-pink); letter-spacing:.04em; }
@@ -417,6 +501,163 @@ def clean_display_df(df: pd.DataFrame, max_cols: int = 9) -> pd.DataFrame:
 def safe_text(value: Any, limit: int = 160) -> str:
     result = html.escape(str(value or "").strip())
     return result if len(result) <= limit else result[:limit - 1] + "…"
+
+
+
+def _value_text(value: Any, default: str = "") -> str:
+    if value is None:
+        return default
+    try:
+        if pd.isna(value):
+            return default
+    except (TypeError, ValueError):
+        pass
+    text = str(value).strip()
+    return text if text else default
+
+
+def _row_first_value(row: Any, df: pd.DataFrame, candidates: List[str], default: str = "") -> str:
+    col = first_matching_column(df, candidates)
+    return _value_text(row.get(col, ""), default) if col else default
+
+
+def render_record_cards(
+    records: pd.DataFrame,
+    *,
+    key_prefix: str,
+    max_items: int = 40,
+    columns_count: int = 2,
+    show_raw_expander: bool = False,
+) -> None:
+    '''Render Google Sheet records as spacious editorial cards, not a default grid.'''
+    if records is None or records.empty:
+        show_missing_data("No records match these filters.")
+        return
+
+    view = records.copy()
+    if "_numeric_score" in view.columns:
+        view = view.drop(columns=["_numeric_score"], errors="ignore")
+    shown = view.head(max_items)
+    st.markdown(
+        f'<div class="vp-card-grid-note">Showing <b>{len(shown)}</b> of <b>{len(view)}</b> records · Open each original source before treating a claim as verified.</div>',
+        unsafe_allow_html=True,
+    )
+    title_col = title_column(shown)
+    source_col = first_matching_column(shown, ["Source", "Publisher", "Channel", "Source Domain", "Creator", "Website"])
+    summary_col = first_matching_column(shown, [
+        "AI Summary", "Summary", "AI Why It Matters", "Why It Matters", "Discovery Priority Reasons",
+        "Description", "Moment Explanation", "Notes", "Research Type", "Commentary Draft"
+    ])
+    url_col = url_column(shown)
+    score_col = score_column(shown)
+    status_col_local = status_column(shown)
+    fact_col_local = fact_column(shown)
+    date_col = first_matching_column(shown, ["Published At", "Publication Date", "Date Published", "Indexed At", "Collected At (UTC)", "Date", "Timestamp"])
+
+    items = list(shown.iterrows())
+    count = max(1, min(3, columns_count))
+    for offset in range(0, len(items), count):
+        slots = st.columns(count, gap="large")
+        for local_i, (record_index, row) in enumerate(items[offset:offset + count]):
+            with slots[local_i]:
+                title = safe_text(_value_text(row.get(title_col, ""), "Untitled research record"), 210) if title_col else "Untitled research record"
+                summary_value = _value_text(row.get(summary_col, ""), "No summary saved yet. Open the original source to review the details.") if summary_col else "No summary saved yet. Open the original source to review the details."
+                summary = safe_text(summary_value, 370)
+                source = _value_text(row.get(source_col, ""), "") if source_col else ""
+                url = _value_text(row.get(url_col, ""), "") if url_col else ""
+                domain = ""
+                if url.startswith(("https://", "http://")):
+                    try:
+                        domain = urlparse(url).netloc.lower().removeprefix("www.")
+                    except Exception:
+                        domain = ""
+                source_label = safe_text(source or domain or "Source not recorded", 72)
+                score_num = number_value(row.get(score_col)) if score_col else None
+                score_chip = f'<span class="vp-record-score">{score_num:.0f}<span style="opacity:.7">/100</span></span>' if score_num is not None else '<span class="vp-record-kicker">UNSCORED</span>'
+                status = safe_text(_value_text(row.get(status_col_local, ""), "Needs review") if status_col_local else "Needs review", 45)
+                fact = safe_text(_value_text(row.get(fact_col_local, ""), "Unverified") if fact_col_local else "Unverified", 45)
+                date_label = safe_text(_value_text(row.get(date_col, ""), "Date not recorded") if date_col else "Date not recorded", 48)
+                row_number = _value_text(row.get("_sheet_row", ""), "")
+                link_html = f'<a href="{html.escape(url, quote=True)}" target="_blank" rel="noopener noreferrer">Open original source ↗</a>' if url.startswith(("https://", "http://")) else '<span>No source URL saved</span>'
+                st.markdown(
+                    f'''<article class="vp-record-card">
+                      <div class="vp-record-top"><span class="vp-record-kicker">RESEARCH RECORD</span>{score_chip}</div>
+                      <h3>{title}</h3>
+                      <p class="vp-record-summary">{summary}</p>
+                      <div class="vp-record-chips"><span class="vp-record-chip">◈ {source_label}</span><span class="vp-record-chip status">{status}</span><span class="vp-record-chip fact">{fact}</span></div>
+                      <div class="vp-record-meta"><span>◷ {date_label}</span><span>{f'Sheet row {html.escape(row_number)}' if row_number else html.escape(str(record_index + 1) if isinstance(record_index, int) else '')}</span></div>
+                      <div class="vp-record-footer">{link_html}<span>Review before use</span></div>
+                    </article>''',
+                    unsafe_allow_html=True,
+                )
+    if len(view) > max_items:
+        st.caption(f"{len(view) - max_items} more records are not shown in this card view. Use the search/filter controls to narrow the list.")
+    if show_raw_expander:
+        with st.expander("Advanced: inspect raw worksheet columns", expanded=False):
+            st.dataframe(clean_display_df(records, 24), use_container_width=True, hide_index=True, height=340)
+
+
+def _display_brief_value(value: Any) -> str:
+    if isinstance(value, (list, tuple)):
+        chunks = [str(item).strip() for item in value if str(item).strip()]
+        if not chunks:
+            return "Not provided."
+        return "\n".join(f"• {item}" for item in chunks)
+    if isinstance(value, dict):
+        return json.dumps(value, ensure_ascii=False, indent=2)
+    return _value_text(value, "Not provided.")
+
+
+def render_generated_brief(result: Dict[str, Any], mode: str = "AI brief") -> None:
+    '''Render generated script/analysis data as editable-looking editorial sections.'''
+    if not isinstance(result, dict):
+        st.json(result)
+        return
+    title = _value_text(result.get("title"), "Your content draft")
+    lead = _value_text(result.get("spoken_hook"), _value_text(result.get("hook"), _value_text(result.get("summary"), "Review the draft below and verify every factual claim.")))
+    st.markdown(
+        f'<section class="vp-brief-hero"><div class="vp-eyebrow">{html.escape(mode.upper())} · HUMAN REVIEW REQUIRED</div><div class="vp-brief-title">{safe_text(title, 220)}</div><p class="vp-brief-lead">{safe_text(lead, 650)}</p></section>',
+        unsafe_allow_html=True,
+    )
+    field_groups = [
+        ("Voiceover / commentary", ["voiceover_script", "commentary_draft", "script"]),
+        ("Why this angle matters", ["why_this_angle", "why_it_matters", "recommended_action"]),
+        ("On-screen text", ["on_screen_text"]),
+        ("Caption", ["caption"]),
+        ("Hashtags", ["hashtags"]),
+        ("Verification checklist", ["verification_needed"]),
+        ("Rights / usage note", ["rights_note"]),
+        ("Timestamped beats", ["timestamped_beats"]),
+    ]
+    used = {"title", "spoken_hook", "hook", "summary"}
+    cards = []
+    for label, keys in field_groups:
+        key = next((k for k in keys if k in result and result[k] not in (None, "", [], {})), None)
+        if key:
+            used.add(key)
+            value = result[key]
+            if isinstance(value, list) and label in ("Hashtags", "On-screen text"):
+                tags = "".join(f'<span class="vp-brief-tag">{safe_text(x, 150)}</span>' for x in value if str(x).strip())
+                content = f'<div class="vp-brief-list">{tags}</div>' if tags else '<p>Not provided.</p>'
+            else:
+                content = f'<p>{safe_text(_display_brief_value(value), 1500)}</p>'
+            cards.append((label, content))
+    for offset in range(0, len(cards), 2):
+        cols = st.columns(2, gap="large")
+        for col, (label, content) in zip(cols, cards[offset:offset + 2]):
+            with col:
+                st.markdown(f'<section class="vp-brief-card"><h4>{html.escape(label)}</h4>{content}</section>', unsafe_allow_html=True)
+    other = [(k, v) for k, v in result.items() if k not in used and v not in (None, "", [], {})]
+    if other:
+        with st.expander("Additional AI fields", expanded=False):
+            extra_cards = []
+            for key, value in other:
+                extra_cards.append((str(key).replace("_", " ").title(), safe_text(_display_brief_value(value), 1200)))
+            for offset in range(0, len(extra_cards), 2):
+                cols = st.columns(2, gap="large")
+                for col, (label, content) in zip(cols, extra_cards[offset:offset + 2]):
+                    with col:
+                        st.markdown(f'<section class="vp-brief-card"><h4>{html.escape(label)}</h4><p>{content}</p></section>', unsafe_allow_html=True)
 
 
 def call_groq(system_prompt: str, user_prompt: str, max_tokens: int = 1600) -> Dict[str, Any]:
@@ -932,7 +1173,7 @@ if st.session_state.active_tab == "Dashboard":
     </section>
     """, unsafe_allow_html=True)
 
-col_nav, col_main = st.columns([1.15, 5.2], gap="large")
+col_nav, col_main = st.columns([1.0, 5.6], gap="large")
 with col_nav:
     st.markdown('''<div class="vp-logo-lockup"><div class="vp-logo-mark">VP</div><div><div class="vp-brand">VICE<span>PLUG</span> HUB</div><div class="vp-logo-sub">GTA VI CONTENT INTEL</div></div></div>''', unsafe_allow_html=True)
     nav_groups = {
@@ -981,7 +1222,7 @@ with col_main:
         approved_count = int(statuses.str.contains("approved|published", regex=True).sum()) if len(statuses) else 0
         stories_count = int(len(df))
         avg_score = f"{scores.mean():.0f}/100" if len(scores) else "—"
-        metrics = st.columns(5, gap="small")
+        metrics = st.columns(5, gap="large")
         with metrics[0]: metric_card("Research Records", str(stories_count), "Rows loaded from your sheet" if sheet_status == "connected" else "Connect Sheets for live counts", "📰", "#ff2e93")
         with metrics[1]: metric_card("Scored Ideas", str(int(len(scores))), "Records with a numeric score", "🎯", "#38d9f5")
         with metrics[2]: metric_card("Average Score", avg_score, "Based on available score fields", "⭐", "#a855f7")
@@ -989,19 +1230,14 @@ with col_main:
         with metrics[4]: metric_card("Approved / Published", str(approved_count) if status_col else "—", "Based on your status column", "✅", "#10b981")
 
         st.markdown("<div style='height:12px'></div>", unsafe_allow_html=True)
-        main_col, side_col = st.columns([1.45, 1], gap="medium")
+        main_col, side_col = st.columns([1.5, 1], gap="large")
         with main_col:
             st.markdown('<div class="vp-panel"><div class="vp-panel-title">🔥 Top Research Opportunities</div><div class="vp-muted">Ranked using the score already stored in your sheet. A score is a prioritization estimate, not a promise of virality.</div></div>', unsafe_allow_html=True)
             if df.empty or not title_col:
                 show_missing_data(sheet_message if sheet_status != "connected" else "Add a title column and research records to your worksheet.")
             else:
                 best = sorted_by_score(df).head(5)
-                for i, (_, row) in enumerate(best.iterrows(), start=1):
-                    title = safe_text(row.get(title_col, "Untitled record"), 110)
-                    score = number_value(row.get(score_col)) if score_col else None
-                    fact_col = fact_column(df)
-                    fact = safe_text(row.get(fact_col, "Fact status not recorded"), 60) if fact_col else "Fact status not recorded"
-                    st.markdown(f'<div class="vp-panel" style="display:flex;gap:12px;align-items:center;margin-bottom:8px;padding:12px"><div style="color:#73839d;font-family:Space Grotesk;font-weight:700">{i:02d}</div><div style="flex:1;min-width:0"><div style="font-weight:700;font-size:.88rem;color:#f8fafc">{title}</div><div class="vp-muted">{fact}</div></div><div style="white-space:nowrap;color:#ff63b0;font-family:Space Grotesk;font-weight:700">{f"{score:.0f}/100" if score is not None else "Unscored"}</div></div>', unsafe_allow_html=True)
+                render_record_cards(best, key_prefix="dashboard_top_opportunities", max_items=5, columns_count=1)
         with side_col:
             st.markdown('<div class="vp-panel"><div class="vp-panel-title">⚡ Content Pipeline</div><div class="vp-muted">Progress inferred from your sheet status column.</div></div>', unsafe_allow_html=True)
             if not status_col:
@@ -1037,7 +1273,7 @@ with col_main:
         with search_right:
             timespan_label = st.selectbox("Coverage window", ["Past 24 hours", "Past 3 days", "Past 7 days", "Past 30 days"], index=2, key="news_timespan_label")
         timespan = {"Past 24 hours": "1d", "Past 3 days": "3d", "Past 7 days": "7d", "Past 30 days": "30d"}[timespan_label]
-        result_limit = st.select_slider("Maximum results", options=[10, 20, 30, 50], value=20, key="news_result_limit")
+        result_limit = st.slider("Maximum results", min_value=5, max_value=100, value=25, step=1, key="news_result_limit", help="Choose any count from 5 to 100 using one-result increments.")
         if st.button("🔎 Search fresh coverage", type="primary", use_container_width=True):
             if not discovery_query.strip():
                 st.warning("Enter a search query.")
@@ -1045,12 +1281,17 @@ with col_main:
                 try:
                     with st.spinner("Searching recent news metadata…"):
                         found = fetch_gdelt_news(discovery_query.strip(), timespan, result_limit)
-                    st.session_state.pop("news_discovery_editor", None)
+                    previous_found = st.session_state.get("news_discovery_results", [])
+                    for i in range(len(previous_found)):
+                        st.session_state.pop(f"news_discovery_pick_{i}", None)
                     st.session_state.news_discovery_results = found
                     st.session_state.news_discovery_query = discovery_query.strip()
                     st.session_state.news_discovery_error = ""
                     st.success(f"Found {len(found)} candidate articles. Review the original sources before using any claim.")
                 except Exception as exc:
+                    previous_found = st.session_state.get("news_discovery_results", [])
+                    for i in range(len(previous_found)):
+                        st.session_state.pop(f"news_discovery_pick_{i}", None)
                     st.session_state.news_discovery_error = str(exc)
                     st.session_state.news_discovery_results = []
         if st.session_state.get("news_discovery_error"):
@@ -1058,39 +1299,51 @@ with col_main:
         found = st.session_state.get("news_discovery_results", [])
         if found:
             st.markdown("### Discovery results")
-            st.caption("Select the stories to save. Duplicate links and titles already in the Research Feed will be skipped.")
-            edit_df = pd.DataFrame([{
-                "_Discovery ID": i, "Save": False, "Title": item["Title"], "Publisher / domain": item["Source"],
-                "Date / index timestamp": item["Indexed At"], "Triage hint (not verification)": item["Research Type"],
-                "Priority Score (heuristic)": item.get("Discovery Priority Score", ""),
-                "Why prioritized": item.get("Discovery Priority Reasons", ""),
-                "Source URL": item["Source URL"],
-            } for i, item in enumerate(found)])
-            edited = st.data_editor(
-                edit_df, use_container_width=True, hide_index=True, num_rows="fixed", height=min(520, 44 + 36 * len(edit_df)),
-                column_config={
-                    "_Discovery ID": None,
-                    "Save": st.column_config.CheckboxColumn("Save", help="Select this item for the Research Feed."),
-                    "Source URL": st.column_config.LinkColumn("Source URL", display_text="Open source ↗"),
-                },
-                disabled=["_Discovery ID", "Title", "Publisher / domain", "Date / index timestamp", "Triage hint (not verification)", "Priority Score (heuristic)", "Why prioritized", "Source URL"],
-                key="news_discovery_editor",
-            )
-            selected_positions = [int(row["_Discovery ID"]) for _, row in edited.iterrows() if bool(row["Save"])]
-            save_col, clear_col = st.columns([2, 1])
+            st.caption("Choose individual stories to save. Duplicate links and titles already in Research Feed will be skipped.")
+            selected_positions = []
+            for offset in range(0, len(found), 2):
+                slots = st.columns(2, gap="large")
+                for local_i, item in enumerate(found[offset:offset + 2]):
+                    position = offset + local_i
+                    with slots[local_i]:
+                        title = safe_text(item.get("Title", "Untitled story"), 230)
+                        source = safe_text(item.get("Source", "Publisher not recorded"), 85)
+                        indexed_at = safe_text(item.get("Indexed At", "Date not recorded"), 55)
+                        triage = safe_text(item.get("Research Type", "Needs verification"), 50)
+                        score_val = number_value(item.get("Discovery Priority Score", ""))
+                        score_chip = f'<span class="vp-record-score">{score_val:.0f}<span style="opacity:.7">/100</span></span>' if score_val is not None else '<span class="vp-record-kicker">UNSCORED</span>'
+                        reasons = safe_text(item.get("Discovery Priority Reasons", "No prioritization explanation was provided."), 320)
+                        source_url = str(item.get("Source URL", "") or "").strip()
+                        source_link = f'<a href="{html.escape(source_url, quote=True)}" target="_blank" rel="noopener noreferrer">Open original source ↗</a>' if source_url.startswith(("https://", "http://")) else '<span>No source URL saved</span>'
+                        st.markdown(f'''<article class="vp-record-card">
+                          <div class="vp-record-top"><span class="vp-record-kicker">NEW DISCOVERY · {position + 1:02d}</span>{score_chip}</div>
+                          <h3>{title}</h3>
+                          <p class="vp-record-summary">{reasons}</p>
+                          <div class="vp-record-chips"><span class="vp-record-chip">◈ {source}</span><span class="vp-record-chip fact">{triage}</span><span class="vp-record-chip status">Unverified lead</span></div>
+                          <div class="vp-record-meta"><span>◷ {indexed_at}</span><span>Review before scripting</span></div>
+                          <div class="vp-record-footer">{source_link}<span>News metadata</span></div>
+                        </article>''', unsafe_allow_html=True)
+                        checked = st.checkbox("Select this story to save", key=f"news_discovery_pick_{position}")
+                        if checked:
+                            selected_positions.append(position)
+            save_col, clear_col = st.columns([2, 1], gap="large")
             with save_col:
-                if st.button(f"💾 Save {len(selected_positions)} selected to Google Sheets", type="primary", use_container_width=True, disabled=not selected_positions):
+                if st.button(f"💾 Save {len(selected_positions)} selected stories to Google Sheets", type="primary", use_container_width=True, disabled=not selected_positions):
                     try:
                         selected_articles = [found[i] for i in selected_positions]
                         with st.spinner("Saving selected discovery records…"):
                             saved_count, skipped_count, message = save_news_to_research_sheet(selected_articles, st.session_state.get("news_discovery_query", discovery_query.strip()))
                         st.success(f"{message} Added {saved_count}; skipped {skipped_count} duplicate(s).")
+                        for i in range(len(found)):
+                            st.session_state.pop(f"news_discovery_pick_{i}", None)
                         st.session_state.news_discovery_results = []
                         st.rerun()
                     except Exception as exc:
                         st.error(f"Could not save discoveries: {exc}")
             with clear_col:
                 if st.button("Clear results", use_container_width=True):
+                    for i in range(len(found)):
+                        st.session_state.pop(f"news_discovery_pick_{i}", None)
                     st.session_state.news_discovery_results = []
                     st.rerun()
         else:
@@ -1109,15 +1362,9 @@ with col_main:
             if saved_score_col:
                 saved_view = sorted_by_score(saved_view)
                 saved_view = saved_view.drop(columns=["_numeric_score"], errors="ignore")
-            st.dataframe(clean_display_df(saved_view, 14), use_container_width=True, hide_index=True, height=320)
+            render_record_cards(saved_view, key_prefix="saved_news_cards", max_items=40, columns_count=2, show_raw_expander=True)
             if saved_score_col:
                 st.caption(f"Sorted by {saved_score_col}. This is a sorting heuristic, not a fact-check or view prediction.")
-            saved_url_col = url_column(saved_view)
-            if saved_url_col and len(saved_view):
-                open_idx = st.selectbox("Open saved article", saved_view.index.tolist(), format_func=lambda idx: str(saved_view.loc[idx, saved_title_col] if saved_title_col else f"Sheet row {idx + 1}")[:120], key="saved_news_open_idx")
-                target_url = str(saved_view.loc[open_idx, saved_url_col]).strip()
-                if target_url.startswith(("https://", "http://")):
-                    st.link_button("Open original source ↗", target_url)
         else:
             st.info(news_message or f"No saved Research Feed worksheet yet. Select results above and save them to create '{NEWS_WORKSHEET_NAME}'.")
         st.caption("Discovery providers: GDELT Project, with Google News RSS as an automatic fallback. The date may be a publisher publication date or an index timestamp, depending on the provider. Headlines and metadata are leads only; verify the original publisher source before using claims in a script. Google News RSS is an unofficial feed endpoint and may change.")
@@ -1136,21 +1383,10 @@ with col_main:
             if query.strip():
                 mask = view.astype(str).apply(lambda c: c.str.contains(query.strip(), case=False, na=False)).any(axis=1)
                 view = view[mask]
-            with st.container(border=True):
-                st.markdown(f"**{len(view)} records** · Google Sheets video research data")
-                if title_column(view):
-                    st.dataframe(clean_display_df(view, 12), use_container_width=True, hide_index=True, height=470)
-                else:
-                    st.warning("No title-like column was detected. Showing the available sheet columns so you can check the headers.")
-                    st.dataframe(clean_display_df(view, 12), use_container_width=True, hide_index=True, height=400)
-                link_col = url_column(view)
-                if link_col and len(view):
-                    chosen_index = st.selectbox("Open a source record", view.index.tolist(), format_func=lambda idx: str(view.loc[idx, title_column(view)] if title_column(view) else f"Row {idx + 1}")[:100], key="video_open_source")
-                    url = str(view.loc[chosen_index, link_col]).strip()
-                    if url.startswith("https://") or url.startswith("http://"):
-                        st.link_button("Open selected source ↗", url)
-                    else:
-                        st.caption("No valid source URL is saved for this record.")
+            st.markdown(f'<div class="vp-panel"><div class="vp-panel-title">Your video research library</div><div class="vp-muted">{len(view)} records match the current search. Each card keeps the source and review context close to the title.</div></div>', unsafe_allow_html=True)
+            if not title_column(view):
+                st.warning("No title-like column was detected. Showing the records with available fields.")
+            render_record_cards(view, key_prefix="video_discovery_cards", max_items=40, columns_count=2, show_raw_expander=True)
 
     # =====================================================================
     # VIRAL OPPORTUNITIES
@@ -1165,29 +1401,15 @@ with col_main:
         if opp_df.empty:
             show_missing_data(opp_message)
         elif not score_column(opp_df):
-            st.info("No score column was detected. For Research Feed items, run a fresh search or the scheduled collector to populate Discovery Priority Score.")
-            st.dataframe(clean_display_df(opp_df, 12), use_container_width=True, hide_index=True)
+            st.info("No score column was detected. For Research Feed items, run a fresh search or the scheduled collector to populate Discovery Priority Score. Records are still shown as cards below.")
+            render_record_cards(opp_df, key_prefix="opportunities_unscored", max_items=40, columns_count=2, show_raw_expander=True)
         else:
             opp_score_col = score_column(opp_df)
             min_score = st.slider("Minimum priority score", 0, 100, 45, key=f"minimum_priority_{opportunity_source}")
             ranked = sorted_by_score(opp_df)
             ranked = ranked[ranked["_numeric_score"].fillna(-1) >= min_score]
             st.caption(f"Showing {len(ranked)} records scoring {min_score}+ from {opportunity_source}. Scores use metadata heuristics or saved AI analysis, depending on the selected field.")
-            st.dataframe(clean_display_df(ranked.drop(columns=["_numeric_score"], errors="ignore"), 14), use_container_width=True, hide_index=True, height=470)
-            if len(ranked):
-                reasons_col = first_matching_column(ranked, ["Discovery Priority Reasons", "Priority Reasons", "AI Why It Matters"])
-                title_col_opp = title_column(ranked)
-                url_col_opp = url_column(ranked)
-                best_idx = ranked.index[0]
-                if title_col_opp:
-                    st.markdown("### Highest-ranked opportunity")
-                    st.write(str(ranked.loc[best_idx, title_col_opp]))
-                    if reasons_col:
-                        st.caption("Ranking rationale: " + str(ranked.loc[best_idx, reasons_col] or "No rationale saved."))
-                    if url_col_opp:
-                        best_url = str(ranked.loc[best_idx, url_col_opp] or "").strip()
-                        if best_url.startswith(("https://", "http://")):
-                            st.link_button("Open source to verify ↗", best_url)
+            render_record_cards(ranked.drop(columns=["_numeric_score"], errors="ignore"), key_prefix=f"opportunities_{opportunity_source}", max_items=40, columns_count=2, show_raw_expander=True)
             st.info("The discovery score is a transparent sorting aid based on headline match, apparent freshness, selected source-domain signals and caution terms. It is not an estimate of views, truth, or virality. Verify the publisher and claims yourself.")
 
     # =====================================================================
@@ -1234,7 +1456,7 @@ with col_main:
                            st.session_state.get("generated_ai_sheet") == analysis_sheet_name)
             if brief and same_record:
                 st.markdown("### Generated content brief")
-                st.json(brief)
+                render_generated_brief(brief, mode="AI analysis brief")
                 st.download_button("Download brief as JSON", data=json.dumps(brief, ensure_ascii=False, indent=2), file_name="viceplug_ai_brief.json", mime="application/json", use_container_width=True, key="download_ai_brief")
                 if st.button("💾 Save AI brief to this Google Sheets record", type="primary", use_container_width=True, key="save_ai_brief_to_sheet"):
                     try:
@@ -1274,7 +1496,7 @@ with col_main:
         if st.session_state.generated_script:
             st.markdown("### Your generated draft")
             result = st.session_state.generated_script
-            st.json(result)
+            render_generated_brief(result, mode="Script studio draft")
             st.download_button("Download script brief", data=json.dumps(result, ensure_ascii=False, indent=2), file_name="viceplug_script_draft.json", mime="application/json", use_container_width=True)
 
     # =====================================================================
@@ -1300,7 +1522,7 @@ with col_main:
             s_col = status_column(pipeline_df)
             if not s_col:
                 st.warning(f"No Review Status / Status column was detected in {pipeline_sheet_name}. Add a status column to enable stage tracking.")
-                st.dataframe(clean_display_df(pipeline_df), use_container_width=True, hide_index=True)
+                render_record_cards(pipeline_df, key_prefix=f"pipeline_no_status_{pipeline_source}", max_items=40, columns_count=2, show_raw_expander=True)
             else:
                 statuses = pipeline_df[s_col].fillna("").astype(str).str.strip()
                 if st.session_state.active_tab == "Review Queue":
@@ -1316,7 +1538,7 @@ with col_main:
                     with slot:
                         st.markdown(f'<div class="vp-card"><div class="vp-metric-label">{label}</div><div class="vp-metric-value">{count}</div><div class="vp-metric-note">Matching status values</div></div>', unsafe_allow_html=True)
                 st.markdown(" ")
-                st.dataframe(clean_display_df(shown, 12), use_container_width=True, hide_index=True, height=350)
+                render_record_cards(shown, key_prefix=f"pipeline_{st.session_state.active_tab}_{pipeline_source}", max_items=40, columns_count=2, show_raw_expander=True)
                 shown_title_col = title_column(shown)
                 if len(shown):
                     record_index = st.selectbox("Select a record to update", shown.index.tolist(), format_func=lambda idx: str(shown.loc[idx, shown_title_col])[:120] if shown_title_col else f"Sheet row {shown.loc[idx, '_sheet_row']}", key=f"pipeline_record_{st.session_state.active_tab}_{pipeline_source}")
@@ -1395,8 +1617,8 @@ with col_main:
         render_page_header("Google Sheets Sync", "Inspect your connected research worksheet and check connection setup.")
         if sheet_status == "connected":
             st.success(sheet_message)
-            st.caption("This screen currently reads the configured research worksheet. Status edits in Content Pipeline / Review Queue are written back when a supported status column exists.")
-            st.dataframe(clean_display_df(df, 14), use_container_width=True, hide_index=True, height=470)
+            st.caption("This screen reads your configured research worksheet. Status edits in Content Pipeline / Review Queue are written back when a supported status column exists.")
+            render_record_cards(df, key_prefix="sheets_sync_cards", max_items=40, columns_count=2, show_raw_expander=True)
             if st.button("Refresh from Google Sheets", type="primary"):
                 st.rerun()
         else:
