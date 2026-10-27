@@ -42,7 +42,7 @@ except ImportError:
 # Page configuration and visual system
 # -----------------------------------------------------------------------------
 st.set_page_config(
-    page_title="VicePlug Hub | GTA VI Intelligence",
+    page_title="VicePlug Hub | Vice City Dispatch",
     page_icon="👑",
     layout="wide",
     initial_sidebar_state="collapsed",
@@ -50,7 +50,7 @@ st.set_page_config(
 
 st.markdown(r"""
 <style>
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Instrument+Serif:ital@0;1&family=Space+Grotesk:wght@400;500;600;700&display=swap');
 :root {
   --vp-bg:#070914;
   --vp-bg-raised:#0b1020;
@@ -622,6 +622,377 @@ div[data-testid="stDialog"] { backdrop-filter:blur(9px); background:rgba(3,6,7,.
  .vp-footer { font-size:.62rem; }
 }
 
+
+
+/* =======================================================================
+   VICEPLUG DISPATCH — EDITORIAL REDESIGN
+   Reference principles: bento-style content grouping, editorial hierarchy,
+   restrained colors, deliberate spacing, strong alignment and typography.
+   ======================================================================= */
+:root {
+  --vp-bg:#F4F0E7 !important;
+  --vp-bg-raised:#FFFCF6 !important;
+  --vp-surface:#FFFCF6 !important;
+  --vp-surface-2:#F8F3E9 !important;
+  --vp-border:#D8D2C7 !important;
+  --vp-border-strong:#22252A !important;
+  --vp-pink:#ED5D45 !important;
+  --vp-pink-strong:#DF4D36 !important;
+  --vp-purple:#2D4BEA !important;
+  --vp-cyan:#83CFC5 !important;
+  --vp-green:#2C7E62 !important;
+  --vp-amber:#D49A26 !important;
+  --vp-text:#202329 !important;
+  --vp-muted:#5E6268 !important;
+  --vp-dim:#777A7E !important;
+  --vp-radius:10px !important;
+}
+html, body, [class*="css"], .stApp { font-family:'DM Sans',sans-serif !important; color:#202329 !important; }
+.stApp { background:#F4F0E7 !important; }
+[data-testid="stAppViewContainer"] { background:#F4F0E7 !important; }
+[data-testid="stHeader"] { background:rgba(244,240,231,.96) !important; }
+#MainMenu, footer { visibility:hidden; }
+.block-container { max-width:1640px !important; padding:1.25rem clamp(1rem,2.4vw,2.45rem) 3.2rem !important; }
+div[data-testid="column"] { min-width:0; }
+.stMarkdown, .stMarkdown p, .stMarkdown li, .stCaptionContainer, [data-testid="stWidgetLabel"], label { color:#25282D !important; }
+h1,h2,h3,h4,h5,h6 { color:#202329 !important; font-family:'DM Sans',sans-serif !important; letter-spacing:-.04em !important; }
+
+/* Masthead and navigation: clearly labelled, compact, visibly interactive */
+.vp-topbar-brand { min-height:57px !important; gap:10px !important; }
+.vp-topbar-mark { background:#E95740 !important; color:#FFF9F1 !important; border:1px solid #202329 !important; border-radius:5px !important; box-shadow:3px 3px 0 #202329 !important; width:40px !important; height:40px !important; flex-basis:40px !important; font-family:'DM Sans',sans-serif !important; }
+.vp-topbar-name { color:#202329 !important; font-family:'DM Sans',sans-serif !important; font-size:1.03rem !important; font-weight:800 !important; letter-spacing:-.07em !important; }
+.vp-topbar-name span { color:#2D4BEA !important; }
+.vp-topbar-sub { color:#696B70 !important; font-size:.58rem !important; letter-spacing:.16em !important; }
+.vp-topbar-status { align-items:flex-end !important; }
+.vp-topbar-status-label { color:#777A7E !important; font-size:.55rem !important; letter-spacing:.13em !important; }
+.vp-topbar-status-value { color:#25282D !important; font-size:.7rem !important; }
+.vp-topbar-status-dot { background:#2C7E62 !important; box-shadow:none !important; }
+.vp-topbar-status-dot.offline { background:#D49A26 !important; box-shadow:none !important; }
+.vp-topbar-rule { height:2px !important; margin:.55rem 0 1.7rem !important; background:linear-gradient(90deg,#202329 0%,#202329 72%,#E95740 72%,#E95740 100%) !important; }
+[data-testid="stSelectbox"] label { color:#777A7E !important; font-size:.61rem !important; text-transform:uppercase !important; letter-spacing:.14em !important; font-weight:800 !important; padding-bottom:3px !important; }
+.stSelectbox div[data-baseweb="select"], .stMultiSelect div[data-baseweb="select"] { background:#FFFCF6 !important; color:#202329 !important; border:1px solid #BFB9AE !important; border-radius:5px !important; min-height:40px !important; }
+.stSelectbox div[data-baseweb="select"] * , .stMultiSelect div[data-baseweb="select"] * { color:#202329 !important; }
+[data-baseweb="popover"] [role="listbox"] { background:#FFFCF6 !important; border:1px solid #D8D2C7 !important; }
+[data-baseweb="popover"] [role="option"] { color:#202329 !important; }
+[data-baseweb="popover"] [role="option"]:hover { background:#EAE5DA !important; }
+
+/* Page headings use editorial rules rather than floating neon pills */
+.vp-eyebrow { color:#2D4BEA !important; font-size:.65rem !important; letter-spacing:.18em !important; font-weight:800 !important; }
+.vp-page-head { border-bottom:1px solid #BDB7AC !important; padding:0 0 1.25rem !important; margin:0 0 1.65rem !important; gap:1.25rem !important; }
+.vp-page-head h1 { color:#202329 !important; font-family:'Instrument Serif',serif !important; font-size:clamp(2.2rem,3.2vw,3.35rem) !important; line-height:.98 !important; letter-spacing:-.025em !important; margin:.45rem 0 .45rem !important; font-weight:400 !important; }
+.vp-page-head p { color:#5E6268 !important; font-size:.92rem !important; line-height:1.7 !important; max-width:820px !important; }
+.vp-pill { color:#202329 !important; border:1px solid #202329 !important; background:#F6D869 !important; border-radius:4px !important; padding:7px 10px !important; font-size:.61rem !important; letter-spacing:.06em !important; }
+.vp-pill:before { background:#E95740 !important; box-shadow:none !important; }
+.vp-muted { color:#65686D !important; font-size:.84rem !important; line-height:1.7 !important; }
+.vp-section-title { font:400 1.85rem/1.1 'Instrument Serif',serif !important; color:#202329 !important; margin-top:4px; }
+
+/* Editorial masthead hero with a poster-style illustration */
+.vp-hero { display:grid !important; grid-template-columns:minmax(0,1.2fr) minmax(280px,.8fr) !important; gap:clamp(20px,3vw,42px) !important; min-height:320px !important; padding:clamp(24px,3.25vw,46px) !important; margin:0 0 28px !important; border:1px solid #202329 !important; border-radius:5px !important; background:#FFFCF6 !important; box-shadow:6px 6px 0 #202329 !important; position:relative !important; }
+.vp-hero:before { content:'VP / FIELD NOTE 001' !important; position:absolute !important; top:13px !important; right:15px !important; z-index:2 !important; color:#202329 !important; font:800 .56rem 'DM Sans',sans-serif !important; letter-spacing:.14em !important; opacity:.7 !important; background:none !important; mask-image:none !important; }
+.vp-hero-copy { padding-top:9px !important; }
+.vp-hero-topline { color:#2D4BEA !important; font-size:.63rem !important; letter-spacing:.15em !important; font-weight:800 !important; }
+.vp-live-dot { width:7px !important; height:7px !important; background:#E95740 !important; box-shadow:none !important; }
+.vp-hero h1 { color:#202329 !important; font:400 clamp(2.75rem,4.5vw,4.6rem)/.92 'Instrument Serif',serif !important; letter-spacing:-.035em !important; margin:.72rem 0 1rem !important; max-width:760px !important; }
+.vp-hero h1 span { background:none !important; color:#2D4BEA !important; -webkit-text-fill-color:#2D4BEA !important; text-decoration:underline !important; text-decoration-color:#E95740 !important; text-decoration-thickness:3px !important; text-underline-offset:5px !important; }
+.vp-hero p { color:#5E6268 !important; font-size:.91rem !important; line-height:1.75 !important; max-width:600px !important; }
+.vp-hero-tags { margin-top:20px !important; gap:7px !important; }
+.vp-hero-tags span { background:#F2ECE1 !important; color:#34373B !important; border:1px solid #CFC8BC !important; border-radius:3px !important; padding:7px 9px !important; font-size:.59rem !important; letter-spacing:.06em !important; }
+.vp-hero-art { min-height:250px !important; position:relative !important; display:grid !important; place-items:stretch !important; overflow:hidden !important; border:1px solid #202329 !important; border-radius:3px !important; background:#2D4BEA !important; box-shadow:4px 4px 0 #E95740 !important; }
+.vp-hero-art:before { content:none !important; }
+.vp-hero-art svg { display:block !important; width:100% !important; height:100% !important; min-height:250px !important; }
+.vp-art-label { position:absolute; left:14px; top:13px; color:#FFF8EC; font-size:.58rem; font-weight:800; letter-spacing:.16em; z-index:2; }
+.vp-art-caption { position:absolute; left:14px; bottom:12px; color:#202329; background:#F6D869; border:1px solid #202329; padding:6px 8px; font-size:.58rem; font-weight:800; letter-spacing:.09em; z-index:2; }
+.vp-hero-art .vp-orbit, .vp-hero-art .vp-hero-core, .vp-hero-art .vp-hero-code { display:none !important; }
+
+/* Bento cards: thin rules, common heights, aligned baselines and no glass effects */
+.vp-card { height:100% !important; min-height:135px !important; padding:18px 19px 17px !important; border-radius:5px !important; border:1px solid #CBC5BA !important; border-top:3px solid #2D4BEA !important; background:#FFFCF6 !important; box-shadow:none !important; transition:transform .16s ease,border-color .16s ease !important; }
+.vp-card:nth-child(2n) { border-top-color:#E95740 !important; }
+.vp-card:hover { transform:translateY(-2px) !important; border-color:#202329 !important; box-shadow:3px 3px 0 #D9D2C6 !important; }
+.vp-metric-label { color:#5E6268 !important; font-size:.72rem !important; font-weight:700 !important; }
+.vp-metric-value { color:#202329 !important; font:700 clamp(1.7rem,2.1vw,2.25rem)/1.08 'DM Sans',sans-serif !important; letter-spacing:-.07em !important; margin:.6rem 0 .32rem !important; }
+.vp-metric-note { color:#777A7E !important; font-size:.68rem !important; line-height:1.5 !important; }
+.vp-panel { background:#FFFCF6 !important; border:1px solid #D4CEC3 !important; border-radius:6px !important; padding:clamp(15px,1.5vw,22px) !important; margin-bottom:14px !important; box-shadow:none !important; }
+.vp-panel-title { color:#202329 !important; font:700 1rem/1.35 'DM Sans',sans-serif !important; letter-spacing:-.025em !important; margin:0 0 .38rem !important; }
+.vp-empty { background:#F8F3E9 !important; border:1px dashed #BDB7AC !important; border-radius:5px !important; color:#5E6268 !important; padding:38px 20px !important; }
+.vp-record-card { height:100% !important; min-height:230px !important; padding:18px !important; border:1px solid #D5CEC3 !important; border-radius:6px !important; background:#FFFCF6 !important; box-shadow:none !important; gap:11px !important; }
+.vp-record-card:hover { transform:translateY(-2px) !important; border-color:#202329 !important; box-shadow:4px 4px 0 #DDD6CA !important; }
+.vp-record-kicker { color:#2D4BEA !important; }
+.vp-record-score { color:#202329 !important; background:#F6D869 !important; border:1px solid #202329 !important; border-radius:3px !important; }
+.vp-record-card h3 { color:#202329 !important; font:700 1.05rem/1.42 'DM Sans',sans-serif !important; }
+.vp-record-summary { color:#62666C !important; font-size:.82rem !important; line-height:1.65 !important; }
+.vp-record-chip { color:#45494F !important; background:#F3EEE5 !important; border:1px solid #DAD3C8 !important; border-radius:3px !important; }
+.vp-record-chip.status { color:#2543D9 !important; background:#E9EDFF !important; border-color:#C6D0FF !important; }
+.vp-record-chip.fact { color:#96502F !important; background:#FFE8DA !important; border-color:#F3CAB7 !important; }
+.vp-record-meta { color:#777A7E !important; }
+.vp-record-footer { border-top:1px solid #E0DAD0 !important; }
+.vp-record-footer a { color:#2D4BEA !important; }
+.vp-record-footer span { color:#777A7E !important; }
+.vp-result-row { border:1px solid #D7D0C5 !important; border-radius:5px !important; padding:17px !important; background:#FFFCF6 !important; box-shadow:none !important; margin-bottom:4px !important; }
+.vp-result-row:hover { border-color:#202329 !important; transform:translateY(-1px) !important; }
+.vp-result-eyebrow { color:#2D4BEA !important; }
+.vp-result-title { color:#202329 !important; font:700 clamp(.96rem,1vw,1.08rem)/1.4 'DM Sans',sans-serif !important; }
+.vp-result-summary { color:#62666C !important; font-size:.81rem !important; line-height:1.65 !important; }
+.vp-result-chip { color:#474A4F !important; background:#F3EEE5 !important; border:1px solid #DDD6CB !important; border-radius:3px !important; }
+.vp-result-chip.status { color:#2645D9 !important; background:#E9EDFF !important; border-color:#C6D0FF !important; }
+.vp-result-chip.fact { color:#96502F !important; background:#FFE8DA !important; border-color:#F3CAB7 !important; }
+.vp-result-date { color:#777A7E !important; }
+.vp-brief-hero, .vp-analytics-hero, .vp-detail-hero { background:#FFFCF6 !important; border:1px solid #202329 !important; border-radius:5px !important; box-shadow:4px 4px 0 #D8D2C7 !important; }
+.vp-brief-title, .vp-analytics-hero h2, .vp-detail-title { color:#202329 !important; }
+.vp-brief-lead, .vp-analytics-hero p { color:#5E6268 !important; }
+.vp-brief-card, .vp-detail-field, .vp-setting-status, .vp-setting-value, .vp-chart-panel { background:#FFFCF6 !important; border:1px solid #D7D0C5 !important; border-radius:5px !important; box-shadow:none !important; }
+.vp-brief-card h4, .vp-detail-field-label { color:#2D4BEA !important; }
+.vp-brief-card p, .vp-detail-field, .vp-detail-url { color:#41454B !important; }
+.vp-brief-tag { border:1px solid #C6D0FF !important; background:#E9EDFF !important; color:#2645D9 !important; border-radius:3px !important; }
+.vp-setting-status-label, .vp-setting-value-label, .vp-chart-subtitle { color:#777A7E !important; }
+.vp-setting-status-value, .vp-setting-value-data, .vp-chart-title { color:#202329 !important; }
+.vp-settings-section { border-top:1px solid #D7D0C5 !important; }
+.vp-settings-section h2 { color:#202329 !important; }
+.vp-settings-section p { color:#62666C !important; }
+.vp-analytics-section-intro { border-left:3px solid #E95740 !important; background:#EEE8DD !important; border-radius:0 5px 5px 0 !important; }
+.vp-analytics-section-intro .eyebrow { color:#2D4BEA !important; }
+.vp-analytics-section-intro h2 { color:#202329 !important; }
+.vp-analytics-section-intro p { color:#62666C !important; }
+
+/* Form elements and buttons use a consistent 4–6px radius */
+.stTextInput input, .stTextArea textarea, .stNumberInput input, .stDateInput input,
+.stSelectbox div[data-baseweb="select"], .stMultiSelect div[data-baseweb="select"] { background:#FFFCF6 !important; border:1px solid #C7C0B5 !important; border-radius:5px !important; color:#202329 !important; min-height:40px !important; font-size:.87rem !important; }
+.stTextInput input:focus, .stTextArea textarea:focus, .stNumberInput input:focus { border-color:#2D4BEA !important; box-shadow:0 0 0 1px rgba(45,75,234,.15) !important; }
+.stTextInput input::placeholder, .stTextArea textarea::placeholder { color:#8B8C8D !important; }
+.stButton > button, .stDownloadButton > button, [data-testid="stLinkButton"] a { min-height:2.5rem !important; border-radius:5px !important; border:1px solid #BBB5AA !important; background:#F7F2E9 !important; color:#202329 !important; font-size:.8rem !important; font-weight:750 !important; box-shadow:none !important; transition:transform .15s ease,background .15s ease,border-color .15s ease !important; }
+.stButton > button:hover, .stDownloadButton > button:hover, [data-testid="stLinkButton"] a:hover { border-color:#202329 !important; color:#202329 !important; background:#EEE8DD !important; transform:translateY(-1px) !important; }
+button[kind="primary"] { background:#2D4BEA !important; border:1px solid #202329 !important; color:#FFFFFF !important; box-shadow:3px 3px 0 #202329 !important; }
+button[kind="primary"]:hover { background:#223DCB !important; color:#FFFFFF !important; box-shadow:2px 2px 0 #202329 !important; }
+.stRadio [role="radiogroup"] { gap:6px !important; }
+.stRadio [role="radio"] { padding:7px 10px !important; border-radius:4px !important; }
+.stSlider [role="slider"] { border:2px solid #FFFCF6 !important; box-shadow:0 0 0 3px rgba(45,75,234,.18) !important; }
+.stSlider [data-testid="stTickBar"] { display:none; }
+[data-testid="stAlert"] { border-radius:5px !important; }
+[data-testid="stExpander"] { border:1px solid #D7D0C5 !important; border-radius:5px !important; background:#FFFCF6 !important; overflow:hidden; }
+[data-testid="stDataFrame"], [data-testid="stDataEditor"] { border:1px solid #D7D0C5 !important; border-radius:5px !important; overflow:hidden; }
+[data-testid="stTabs"] button { font-weight:700 !important; }
+[data-testid="stCaptionContainer"] { color:#777A7E !important; }
+[data-testid="stHorizontalBlock"] { gap:clamp(11px,1.35vw,20px) !important; align-items:stretch !important; }
+[data-testid="stPlotlyChart"] { border:1px solid #D7D0C5 !important; border-radius:5px !important; overflow:hidden !important; background:#FFFCF6 !important; }
+.vp-footer { margin-top:28px !important; padding:13px 0 !important; border:0 !important; border-top:1px solid #BDB7AC !important; border-radius:0 !important; background:transparent !important; color:#6F7277 !important; font-size:.66rem !important; }
+.vp-footer strong { color:#E95740 !important; }
+
+/* Light-paper modal with actual Streamlit backdrop, retaining safe close/delete flow */
+div[data-testid="stDialog"] div[role="dialog"] { border:1px solid #202329 !important; border-radius:6px !important; background:#FFFCF6 !important; color:#202329 !important; box-shadow:8px 8px 0 rgba(32,35,41,.22) !important; }
+div[data-testid="stDialog"] div[role="dialog"] h2, div[data-testid="stDialog"] div[role="dialog"] p, div[data-testid="stDialog"] div[role="dialog"] label { color:#202329 !important; }
+div[data-testid="stDialog"] { backdrop-filter:blur(8px) !important; background:rgba(28,30,35,.32) !important; }
+
+@media (max-width:1050px) {
+ .block-container { padding:1rem 1rem 2.3rem !important; }
+ .vp-hero { grid-template-columns:1fr !important; min-height:0 !important; }
+ .vp-hero-art { min-height:220px !important; }
+ .vp-page-head { align-items:flex-start !important; }
+ .vp-page-head .vp-pill { display:none !important; }
+ .vp-record-card { min-height:0 !important; }
+}
+@media (max-width:700px) {
+ .block-container { padding:.65rem .65rem 1.6rem !important; }
+ .vp-topbar-brand { gap:7px !important; }
+ .vp-topbar-mark { width:32px !important; height:32px !important; flex-basis:32px !important; }
+ .vp-topbar-name { font-size:.85rem !important; }
+ .vp-topbar-sub { font-size:.47rem !important; letter-spacing:.09em !important; }
+ .vp-topbar-status-label { font-size:.45rem !important; }
+ .vp-topbar-status-value { font-size:.58rem !important; }
+ .vp-topbar-rule { margin:.4rem 0 1.1rem !important; }
+ .vp-hero { padding:23px 18px !important; gap:18px !important; box-shadow:4px 4px 0 #202329 !important; }
+ .vp-hero h1 { font-size:2.55rem !important; }
+ .vp-hero p { font-size:.84rem !important; }
+ .vp-hero-art, .vp-hero-art svg { min-height:170px !important; }
+ .vp-page-head { flex-direction:column !important; margin-bottom:1.15rem !important; padding-bottom:.9rem !important; }
+ .vp-page-head h1 { font-size:2.3rem !important; }
+ .vp-card { min-height:112px !important; padding:14px !important; }
+ .vp-panel { padding:14px !important; }
+ .vp-record-card { padding:15px !important; }
+ .vp-brief-hero, .vp-analytics-hero { padding:17px !important; }
+ .vp-brief-card, .vp-detail-field { padding:14px !important; }
+ .vp-topbar-status { padding-top:6px; }
+}
+
+
+/* ================= CINEMATIC NOIR ART DIRECTION ================= */
+:root {
+  --vp-bg:#070912 !important;
+  --vp-bg-raised:#0b0d17 !important;
+  --vp-surface:#10131f !important;
+  --vp-surface-2:#171826 !important;
+  --vp-border:rgba(211,218,255,.12) !important;
+  --vp-border-strong:rgba(255,91,147,.36) !important;
+  --vp-pink:#ff5c93 !important;
+  --vp-pink-strong:#ff477e !important;
+  --vp-purple:#9c86ff !important;
+  --vp-cyan:#76e3e2 !important;
+  --vp-green:#8ee4bc !important;
+  --vp-amber:#f6bc83 !important;
+  --vp-text:#f3eff5 !important;
+  --vp-muted:#a6a4b7 !important;
+  --vp-dim:#77798f !important;
+  --vp-radius:10px !important;
+}
+html, body, [class*="css"], .stApp { color:#f3eff5 !important; font-family:'DM Sans',sans-serif !important; }
+.stApp, [data-testid="stAppViewContainer"] {
+  background:
+    radial-gradient(ellipse at 78% 1%,rgba(124,58,103,.20),transparent 27%),
+    radial-gradient(ellipse at 5% 48%,rgba(42,81,130,.14),transparent 29%),
+    linear-gradient(180deg,#090a13 0%,#080a12 45%,#060810 100%) !important;
+}
+[data-testid="stHeader"] { background:rgba(7,9,18,.82) !important; }
+.block-container { max-width:1680px !important; padding:1.05rem clamp(.8rem,2.2vw,2rem) 3rem !important; }
+h1,h2,h3,h4,h5,h6 { color:#f8f2f4 !important; font-family:'Space Grotesk',sans-serif !important; letter-spacing:-.04em !important; }
+.stMarkdown, .stMarkdown p, .stMarkdown li, .stCaptionContainer, [data-testid="stWidgetLabel"], label { color:#e7e2ec !important; }
+[data-testid="stHorizontalBlock"] { gap:clamp(10px,1.25vw,18px) !important; align-items:stretch !important; }
+
+/* Slim cinematic masthead */
+.vp-topbar-brand { min-height:54px !important; gap:11px !important; }
+.vp-topbar-mark { width:39px !important; height:39px !important; flex-basis:39px !important; border-radius:5px !important; color:#fff !important; background:linear-gradient(145deg,#ff5c93,#8b68f5) !important; border:1px solid rgba(255,255,255,.35) !important; box-shadow:0 0 28px rgba(255,65,132,.24) !important; }
+.vp-topbar-name { color:#fbf5fa !important; font:700 1rem/1.05 'Space Grotesk',sans-serif !important; letter-spacing:-.055em !important; }
+.vp-topbar-name span { color:#ff5c93 !important; }
+.vp-topbar-sub { color:#86849a !important; font-size:.54rem !important; letter-spacing:.16em !important; }
+.vp-topbar-status-label { color:#77798f !important; }
+.vp-topbar-status-value { color:#dad7e7 !important; }
+.vp-topbar-status-dot { background:#8ee4bc !important; box-shadow:0 0 12px rgba(142,228,188,.46) !important; }
+.vp-topbar-status-dot.offline { background:#f6bc83 !important; }
+.vp-topbar-rule { height:1px !important; margin:.5rem 0 1.5rem !important; background:linear-gradient(90deg,rgba(255,92,147,.58),rgba(156,134,255,.22) 35%,rgba(130,149,202,.07) 100%) !important; }
+[data-testid="stSelectbox"] label { color:#7f819a !important; font-size:.58rem !important; letter-spacing:.15em !important; font-weight:800 !important; }
+.stSelectbox div[data-baseweb="select"], .stMultiSelect div[data-baseweb="select"] { background:#10121e !important; border:1px solid rgba(194,198,230,.17) !important; border-radius:6px !important; min-height:40px !important; color:#f5f0f7 !important; }
+.stSelectbox div[data-baseweb="select"] *, .stMultiSelect div[data-baseweb="select"] * { color:#f3eff5 !important; }
+[data-baseweb="popover"] [role="listbox"] { background:#10121e !important; border:1px solid rgba(194,198,230,.17) !important; }
+[data-baseweb="popover"] [role="option"] { color:#f3eff5 !important; }
+[data-baseweb="popover"] [role="option"]:hover { background:#222036 !important; }
+
+/* Movie-poster hero: hard light, dark skyline, subtle frame */
+.vp-hero { display:grid !important; grid-template-columns:minmax(0,1.12fr) minmax(280px,.88fr) !important; gap:clamp(20px,3vw,40px) !important; align-items:center !important; min-height:348px !important; padding:clamp(25px,3.2vw,44px) !important; margin:0 0 27px !important; position:relative !important; isolation:isolate !important; overflow:hidden !important; border:1px solid rgba(255,255,255,.13) !important; border-radius:7px !important; background:radial-gradient(ellipse at 84% 20%,rgba(239,84,134,.12),transparent 31%),linear-gradient(112deg,#11121d 0%,#11111c 55%,#1a1224 100%) !important; box-shadow:0 28px 80px rgba(0,0,0,.36),inset 0 1px 0 rgba(255,255,255,.04) !important; }
+.vp-hero:before { content:'VPH / NIGHT INTELLIGENCE  ·  VOL. 01' !important; position:absolute !important; top:13px !important; right:15px !important; z-index:3 !important; background:none !important; color:#88869c !important; font:700 .52rem 'Space Grotesk',sans-serif !important; letter-spacing:.16em !important; opacity:.9 !important; mask-image:none !important; }
+.vp-hero:after { content:'' !important; position:absolute !important; left:-12%; bottom:-72%; width:56%; height:100%; background:radial-gradient(ellipse,rgba(62,117,187,.13),transparent 70%) !important; filter:blur(22px) !important; z-index:-1 !important; }
+.vp-hero-copy { z-index:2 !important; padding-top:10px !important; }
+.vp-hero-topline { color:#f6bc83 !important; font-size:.61rem !important; letter-spacing:.17em !important; font-weight:800 !important; }
+.vp-live-dot { background:#ff5c93 !important; box-shadow:0 0 13px rgba(255,92,147,.8) !important; }
+.vp-hero h1 { color:#f7f1f7 !important; font:400 clamp(2.8rem,4.7vw,4.7rem)/.91 'Instrument Serif',serif !important; letter-spacing:-.038em !important; margin:.8rem 0 .95rem !important; max-width:760px !important; text-shadow:0 5px 35px rgba(0,0,0,.25) !important; }
+.vp-hero h1 span { color:#ff6f9c !important; background:none !important; -webkit-text-fill-color:#ff6f9c !important; text-decoration:none !important; }
+.vp-hero p { color:#aaa9bc !important; font-size:.9rem !important; line-height:1.78 !important; max-width:580px !important; }
+.vp-hero-tags { margin-top:21px !important; gap:7px !important; }
+.vp-hero-tags span { background:rgba(255,255,255,.025) !important; color:#cfcbdb !important; border:1px solid rgba(221,216,239,.13) !important; border-radius:3px !important; padding:7px 9px !important; font-size:.56rem !important; letter-spacing:.1em !important; }
+.vp-hero-art { min-height:276px !important; position:relative !important; display:grid !important; place-items:stretch !important; overflow:hidden !important; border:1px solid rgba(255,255,255,.15) !important; border-radius:4px !important; background:#0a0d16 !important; box-shadow:0 13px 45px rgba(0,0,0,.35),0 0 35px rgba(255,92,147,.05) !important; }
+.vp-hero-art:before { content:'' !important; position:absolute !important; inset:0 !important; z-index:1 !important; pointer-events:none !important; background:linear-gradient(0deg,rgba(5,7,14,.52),transparent 45%,rgba(8,10,20,.10)) !important; }
+.vp-hero-art svg { display:block !important; width:100% !important; height:100% !important; min-height:276px !important; filter:saturate(.94) contrast(1.04) !important; }
+.vp-art-label { color:#fff0dc !important; left:14px !important; top:13px !important; font-size:.52rem !important; letter-spacing:.17em !important; z-index:2 !important; }
+.vp-art-caption { color:#f5d8d9 !important; left:14px !important; bottom:12px !important; background:rgba(10,10,20,.72) !important; border:1px solid rgba(255,255,255,.24) !important; border-radius:2px !important; padding:6px 8px !important; font-size:.53rem !important; letter-spacing:.1em !important; z-index:2 !important; backdrop-filter:blur(7px) !important; }
+
+/* Night-shift dashboard metrics and research cards */
+.vp-eyebrow { color:#ff6f9c !important; font-size:.6rem !important; letter-spacing:.19em !important; font-weight:800 !important; }
+.vp-section-title { color:#f5eff7 !important; font:400 2rem/1.05 'Instrument Serif',serif !important; }
+.vp-page-head { border-bottom:1px solid rgba(213,216,242,.13) !important; padding-bottom:1.15rem !important; margin-bottom:1.45rem !important; }
+.vp-page-head h1 { color:#f7f0f6 !important; font:400 clamp(2rem,3vw,3rem)/.98 'Instrument Serif',serif !important; letter-spacing:-.025em !important; }
+.vp-page-head p, .vp-muted { color:#a4a3b6 !important; font-size:.86rem !important; line-height:1.72 !important; }
+.vp-pill { color:#f5c2d3 !important; border:1px solid rgba(255,92,147,.26) !important; background:rgba(255,92,147,.07) !important; border-radius:3px !important; }
+.vp-pill:before { background:#ff5c93 !important; box-shadow:0 0 10px rgba(255,92,147,.5) !important; }
+.vp-card { height:100% !important; min-height:130px !important; padding:18px 19px 17px !important; border-radius:6px !important; border:1px solid rgba(209,214,242,.12) !important; border-top:2px solid rgba(255,92,147,.58) !important; background:linear-gradient(145deg,rgba(19,20,34,.98),rgba(12,14,24,.98)) !important; box-shadow:0 11px 28px rgba(0,0,0,.16),inset 0 1px 0 rgba(255,255,255,.025) !important; }
+.vp-card:nth-child(2n) { border-top-color:rgba(118,227,226,.52) !important; }
+.vp-card:hover { border-color:rgba(255,92,147,.3) !important; transform:translateY(-2px) !important; box-shadow:0 18px 34px rgba(0,0,0,.23) !important; }
+.vp-metric-label { color:#a7a5b8 !important; font-size:.7rem !important; }
+.vp-metric-value { color:#f8f1f7 !important; font:600 clamp(1.7rem,2vw,2.2rem)/1.08 'Space Grotesk',sans-serif !important; letter-spacing:-.06em !important; }
+.vp-metric-note { color:#77788f !important; font-size:.66rem !important; }
+.vp-panel { background:linear-gradient(155deg,rgba(17,19,32,.96),rgba(10,12,22,.98)) !important; border:1px solid rgba(211,216,241,.11) !important; border-radius:7px !important; padding:clamp(15px,1.45vw,22px) !important; margin-bottom:14px !important; box-shadow:0 12px 28px rgba(0,0,0,.12) !important; }
+.vp-panel-title { color:#f6eff6 !important; font:600 1rem/1.4 'Space Grotesk',sans-serif !important; }
+.vp-empty { background:rgba(17,19,32,.55) !important; border:1px dashed rgba(187,192,226,.23) !important; border-radius:6px !important; color:#a6a4b7 !important; }
+.vp-record-card { height:100% !important; min-height:225px !important; padding:18px !important; border:1px solid rgba(211,216,241,.13) !important; border-radius:6px !important; background:linear-gradient(150deg,rgba(20,21,35,.98),rgba(11,13,23,.99)) !important; box-shadow:0 14px 32px rgba(0,0,0,.18) !important; gap:11px !important; }
+.vp-record-card:hover { border-color:rgba(255,92,147,.34) !important; transform:translateY(-2px) !important; box-shadow:0 20px 44px rgba(0,0,0,.26) !important; }
+.vp-record-kicker { color:#f6bc83 !important; }
+.vp-record-score { color:#ffc0d5 !important; background:rgba(255,92,147,.08) !important; border:1px solid rgba(255,92,147,.25) !important; border-radius:3px !important; }
+.vp-record-card h3 { color:#f6f0f7 !important; font:600 1.02rem/1.42 'Space Grotesk',sans-serif !important; }
+.vp-record-summary { color:#aaa8bb !important; font-size:.81rem !important; line-height:1.64 !important; }
+.vp-record-chip { color:#cbc8da !important; background:rgba(255,255,255,.035) !important; border:1px solid rgba(207,211,236,.12) !important; border-radius:3px !important; }
+.vp-record-chip.status { color:#c7b9ff !important; background:rgba(156,134,255,.09) !important; border-color:rgba(156,134,255,.22) !important; }
+.vp-record-chip.fact { color:#f7c99b !important; background:rgba(246,188,131,.07) !important; border-color:rgba(246,188,131,.18) !important; }
+.vp-record-meta { color:#77788e !important; }
+.vp-record-footer { border-top:1px solid rgba(207,211,236,.11) !important; }
+.vp-record-footer a { color:#76e3e2 !important; }
+.vp-record-footer span { color:#7f8097 !important; }
+.vp-result-row { border:1px solid rgba(211,216,241,.12) !important; border-radius:5px !important; padding:16px 17px !important; background:linear-gradient(138deg,rgba(20,21,35,.97),rgba(11,13,23,.99)) !important; box-shadow:0 10px 25px rgba(0,0,0,.11) !important; }
+.vp-result-row:hover { border-color:rgba(255,92,147,.3) !important; }
+.vp-result-eyebrow { color:#f6bc83 !important; }
+.vp-result-title { color:#f6f0f7 !important; }
+.vp-result-summary { color:#aaa8bb !important; }
+.vp-result-chip { color:#cbc8da !important; background:rgba(255,255,255,.035) !important; border:1px solid rgba(207,211,236,.12) !important; }
+.vp-result-chip.status { color:#c7b9ff !important; background:rgba(156,134,255,.09) !important; border-color:rgba(156,134,255,.22) !important; }
+.vp-result-chip.fact { color:#f7c99b !important; background:rgba(246,188,131,.07) !important; border-color:rgba(246,188,131,.18) !important; }
+.vp-result-date { color:#77788e !important; }
+.vp-brief-hero, .vp-analytics-hero, .vp-detail-hero { background:linear-gradient(145deg,#171624,#0c0e19) !important; border:1px solid rgba(255,92,147,.2) !important; border-radius:6px !important; box-shadow:0 16px 40px rgba(0,0,0,.2) !important; }
+.vp-brief-title, .vp-analytics-hero h2, .vp-detail-title { color:#faf2f7 !important; }
+.vp-brief-lead, .vp-analytics-hero p { color:#bdb7ca !important; }
+.vp-brief-card, .vp-detail-field, .vp-setting-status, .vp-setting-value, .vp-chart-panel { background:rgba(17,19,32,.96) !important; border:1px solid rgba(211,216,241,.12) !important; border-radius:6px !important; box-shadow:none !important; }
+.vp-brief-card h4, .vp-detail-field-label { color:#ff84a9 !important; }
+.vp-brief-card p, .vp-detail-field, .vp-detail-url { color:#d7d1e1 !important; }
+.vp-brief-tag { border:1px solid rgba(118,227,226,.2) !important; background:rgba(118,227,226,.06) !important; color:#9ceceb !important; border-radius:3px !important; }
+.vp-setting-status-label, .vp-setting-value-label, .vp-chart-subtitle { color:#828299 !important; }
+.vp-setting-status-value, .vp-setting-value-data, .vp-chart-title { color:#f5eff6 !important; }
+.vp-settings-section { border-top:1px solid rgba(211,216,241,.12) !important; }
+.vp-settings-section h2 { color:#f8f0f7 !important; }
+.vp-settings-section p { color:#aaa8bb !important; }
+.vp-analytics-section-intro { border-left:3px solid #ff5c93 !important; background:rgba(255,92,147,.055) !important; border-radius:0 4px 4px 0 !important; }
+.vp-analytics-section-intro .eyebrow { color:#ff84a9 !important; }
+.vp-analytics-section-intro h2 { color:#f8f0f7 !important; }
+
+/* Controls are dark, quiet, and consistently aligned */
+.stTextInput input, .stTextArea textarea, .stNumberInput input, .stDateInput input,
+.stSelectbox div[data-baseweb="select"], .stMultiSelect div[data-baseweb="select"] { background:#10121e !important; border:1px solid rgba(194,198,230,.18) !important; border-radius:5px !important; color:#f3eff5 !important; min-height:40px !important; font-size:.86rem !important; }
+.stTextInput input:focus, .stTextArea textarea:focus, .stNumberInput input:focus { border-color:rgba(255,92,147,.65) !important; box-shadow:0 0 0 1px rgba(255,92,147,.2) !important; }
+.stTextInput input::placeholder, .stTextArea textarea::placeholder { color:#70738a !important; }
+.stButton > button, .stDownloadButton > button, [data-testid="stLinkButton"] a { min-height:2.45rem !important; border-radius:5px !important; border:1px solid rgba(205,210,236,.17) !important; background:#151725 !important; color:#e7e2ed !important; font-size:.79rem !important; font-weight:650 !important; box-shadow:none !important; transition:transform .16s ease,background .16s ease,border-color .16s ease !important; }
+.stButton > button:hover, .stDownloadButton > button:hover, [data-testid="stLinkButton"] a:hover { border-color:rgba(255,92,147,.38) !important; background:#202033 !important; color:#fff !important; transform:translateY(-1px) !important; }
+button[kind="primary"] { background:linear-gradient(105deg,#e84d83,#8a65ea) !important; border:1px solid rgba(255,255,255,.16) !important; color:#fff !important; box-shadow:0 6px 20px rgba(232,77,131,.17) !important; }
+button[kind="primary"]:hover { filter:brightness(1.08) !important; }
+.stRadio [role="radiogroup"] { gap:6px !important; }
+.stRadio [role="radio"] { padding:7px 10px !important; border-radius:4px !important; }
+.stSlider [role="slider"] { border:2px solid #fff !important; box-shadow:0 0 0 3px rgba(255,92,147,.23) !important; }
+.stSlider [data-testid="stTickBar"] { display:none !important; }
+[data-testid="stAlert"] { border-radius:5px !important; }
+[data-testid="stExpander"] { border:1px solid rgba(211,216,241,.13) !important; border-radius:5px !important; background:#10121e !important; overflow:hidden !important; }
+[data-testid="stDataFrame"], [data-testid="stDataEditor"] { border:1px solid rgba(211,216,241,.13) !important; border-radius:5px !important; overflow:hidden !important; }
+[data-testid="stPlotlyChart"] { border:1px solid rgba(211,216,241,.12) !important; border-radius:5px !important; overflow:hidden !important; background:#10121e !important; }
+[data-testid="stTabs"] button { color:#b7b3c8 !important; font-weight:650 !important; }
+[data-testid="stCaptionContainer"] { color:#85839a !important; }
+.vp-footer { margin-top:28px !important; padding:13px 0 !important; border:0 !important; border-top:1px solid rgba(211,216,241,.12) !important; background:transparent !important; color:#77788e !important; font-size:.65rem !important; }
+.vp-footer strong { color:#ff7da5 !important; }
+
+/* Dark cinematic modal keeps original close + safe deletion behavior */
+div[data-testid="stDialog"] div[role="dialog"] { border:1px solid rgba(255,92,147,.28) !important; border-radius:7px !important; background:linear-gradient(155deg,#171725,#0a0c16 78%) !important; color:#f3eff5 !important; box-shadow:0 30px 100px rgba(0,0,0,.7),0 0 38px rgba(255,92,147,.08) !important; }
+div[data-testid="stDialog"] div[role="dialog"] h2, div[data-testid="stDialog"] div[role="dialog"] p, div[data-testid="stDialog"] div[role="dialog"] label { color:#f3eff5 !important; }
+div[data-testid="stDialog"] { backdrop-filter:blur(10px) !important; background:rgba(3,4,11,.66) !important; }
+@media (max-width:1050px) {
+ .block-container { padding:1rem 1rem 2.2rem !important; }
+ .vp-hero { grid-template-columns:1fr !important; min-height:0 !important; }
+ .vp-hero-art, .vp-hero-art svg { min-height:220px !important; }
+ .vp-page-head { align-items:flex-start !important; }
+ .vp-page-head .vp-pill { display:none !important; }
+ .vp-record-card { min-height:0 !important; }
+}
+@media (max-width:700px) {
+ .block-container { padding:.65rem .65rem 1.6rem !important; }
+ .vp-topbar-brand { gap:7px !important; }
+ .vp-topbar-mark { width:32px !important; height:32px !important; flex-basis:32px !important; }
+ .vp-topbar-name { font-size:.85rem !important; }
+ .vp-topbar-sub { font-size:.45rem !important; letter-spacing:.08em !important; }
+ .vp-topbar-status-label { font-size:.43rem !important; }
+ .vp-topbar-status-value { font-size:.56rem !important; }
+ .vp-topbar-rule { margin:.4rem 0 1.1rem !important; }
+ .vp-hero { padding:22px 17px !important; gap:17px !important; }
+ .vp-hero h1 { font-size:2.55rem !important; }
+ .vp-hero p { font-size:.83rem !important; }
+ .vp-hero-art, .vp-hero-art svg { min-height:180px !important; }
+ .vp-page-head { flex-direction:column !important; margin-bottom:1.1rem !important; padding-bottom:.9rem !important; }
+ .vp-page-head h1 { font-size:2.3rem !important; }
+ .vp-card { min-height:112px !important; padding:14px !important; }
+ .vp-panel { padding:14px !important; }
+ .vp-record-card { padding:15px !important; }
+ .vp-brief-hero, .vp-analytics-hero { padding:17px !important; }
+ .vp-brief-card, .vp-detail-field { padding:14px !important; }
+ .vp-topbar-status { padding-top:6px; }
+}
+
 </style>
 """, unsafe_allow_html=True)
 
@@ -887,7 +1258,7 @@ def render_record_cards(
                 st.session_state[page_key] = current_page - 1
                 st.rerun()
         with page_info:
-            st.markdown(f'<div style="text-align:center;padding:10px 4px;color:#98a9c2;font-size:.8rem">Page <b style="color:#f5f7ff">{current_page + 1}</b> of {total_pages}</div>', unsafe_allow_html=True)
+            st.markdown(f'<div style="text-align:center;padding:10px 4px;color:#62666C;font-size:.8rem">Page <b style="color:#202329">{current_page + 1}</b> of {total_pages}</div>', unsafe_allow_html=True)
         with page_next:
             if st.button("Next →", key=f"{key_prefix}_next_page", disabled=current_page >= total_pages - 1, use_container_width=True):
                 st.session_state[page_key] = current_page + 1
@@ -967,7 +1338,7 @@ def render_record_cards(
                     st.rerun()
             with action_cols[1]:
                 if source_url.startswith(("https://", "http://")):
-                    st.markdown(f'<div style="padding:10px 0"><a style="color:#82e8f6;font-weight:700;font-size:.76rem;text-decoration:none" href="{html.escape(source_url, quote=True)}" target="_blank" rel="noopener noreferrer">Open source ↗</a></div>', unsafe_allow_html=True)
+                    st.markdown(f'<div style="padding:10px 0"><a style="color:#2D4BEA;font-weight:800;font-size:.76rem;text-decoration:none" href="{html.escape(source_url, quote=True)}" target="_blank" rel="noopener noreferrer">Open source ↗</a></div>', unsafe_allow_html=True)
 
     if total_pages > 1:
         st.caption(f"Showing {len(shown)} records on this page. Use Previous / Next to browse the rest without cluttering the workspace.")
@@ -1209,18 +1580,18 @@ def _analytics_theme(title: str) -> str:
 
 
 def _plotly_layout(fig: Any, height: int = 330) -> Any:
-    """Apply the shared dark-cinematic visual language to a Plotly figure."""
+    """Apply the shared light editorial visual language to a Plotly figure."""
     fig.update_layout(
         height=height,
         margin=dict(l=12, r=16, t=24, b=12),
         paper_bgcolor="rgba(0,0,0,0)",
         plot_bgcolor="rgba(0,0,0,0)",
-        font=dict(family="DM Sans, sans-serif", color="#c6d2e6", size=12),
+        font=dict(family="DM Sans, sans-serif", color="#45494F", size=12),
         title=None,
-        legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="left", x=0, font=dict(color="#9cacbf")),
-        xaxis=dict(showgrid=False, zeroline=False, linecolor="rgba(151,169,202,.18)", tickfont=dict(color="#9aaac3")),
-        yaxis=dict(showgrid=True, gridcolor="rgba(151,169,202,.10)", zeroline=False, linecolor="rgba(151,169,202,.12)", tickfont=dict(color="#9aaac3")),
-        hoverlabel=dict(bgcolor="#111a2d", bordercolor="#8b5cf6", font=dict(color="#f5f7ff")),
+        legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="left", x=0, font=dict(color="#62666C")),
+        xaxis=dict(showgrid=False, zeroline=False, linecolor="rgba(32,35,41,.18)", tickfont=dict(color="#62666C")),
+        yaxis=dict(showgrid=True, gridcolor="rgba(32,35,41,.10)", zeroline=False, linecolor="rgba(32,35,41,.12)", tickfont=dict(color="#62666C")),
+        hoverlabel=dict(bgcolor="#202329", bordercolor="#2D4BEA", font=dict(color="#FFFCF6")),
     )
     return fig
 
@@ -1740,22 +2111,33 @@ with nav_brand_col:
     st.markdown(
         '<div class="vp-topbar-brand"><div class="vp-topbar-mark">VP</div><div>'
         '<div class="vp-topbar-name">VICE<span>PLUG</span> HUB</div>'
-        '<div class="vp-topbar-sub">GTA VI SIGNAL ROOM</div></div></div>',
+        '<div class="vp-topbar-sub">AFTER DARK / GTA VI INTELLIGENCE</div></div></div>',
         unsafe_allow_html=True,
     )
+def _handle_workspace_change() -> None:
+    """Commit the selectbox value before Streamlit reruns the page body."""
+    selected = st.session_state.get("vp_workspace_selector")
+    valid_pages = [label for label, _icon in NAV_ITEMS]
+    if selected in valid_pages:
+        close_record_detail()
+        st.session_state.active_tab = selected
+        st.session_state._vp_last_active_tab = selected
+
 with nav_select_col:
     nav_labels = [label for label, _icon in NAV_ITEMS]
-    if st.session_state.get("vp_workspace_selector") != st.session_state.active_tab:
+    # Keep the widget synchronized only when navigation changes programmatically
+    # (e.g. a dashboard Quick Action), never while a user selection is in flight.
+    if "vp_workspace_selector" not in st.session_state:
+        st.session_state.vp_workspace_selector = st.session_state.active_tab
+    if st.session_state.get("_vp_last_active_tab", st.session_state.active_tab) != st.session_state.active_tab:
         st.session_state.vp_workspace_selector = st.session_state.active_tab
     selected_workspace = st.selectbox(
-        "Workspace", nav_labels,
-        index=nav_labels.index(st.session_state.active_tab) if st.session_state.active_tab in nav_labels else 0,
-        key="vp_workspace_selector", label_visibility="collapsed",
+        "Jump to section", nav_labels,
+        key="vp_workspace_selector", label_visibility="visible",
+        on_change=_handle_workspace_change,
+        help="Choose a workspace to navigate. Your selection is applied immediately.",
     )
-    if selected_workspace != st.session_state.active_tab:
-        close_record_detail()
-        st.session_state.active_tab = selected_workspace
-        st.rerun()
+    st.session_state._vp_last_active_tab = st.session_state.active_tab
 with nav_status_col:
     connection_color = "" if sheet_status == "connected" else " offline"
     connection_text = "SHEETS CONNECTED" if sheet_status == "connected" else "SHEETS OFFLINE"
@@ -1778,21 +2160,53 @@ with col_main:
         st.markdown("""
         <section class="vp-hero">
           <div class="vp-hero-copy">
-            <div class="vp-hero-topline"><span class="vp-live-dot"></span> VICE CITY INTELLIGENCE / CREATOR TERMINAL</div>
-            <h1>Find the signal.<br><span>Make the moment.</span></h1>
-            <p>Your GTA VI research and content workspace. Surface stories, rank opportunities, build evidence-aware Shorts, and move every idea through human review.</p>
-            <div class="vp-hero-tags"><span>01 / DISCOVER</span><span>02 / VERIFY</span><span>03 / CREATE</span><span>04 / PUBLISH</span></div>
+            <div class="vp-hero-topline"><span class="vp-live-dot"></span> VICE CITY INTELLIGENCE / NIGHT SHIFT</div>
+            <h1>Stories from<br><span>the neon coast.</span></h1>
+            <p>Follow the signals, separate confirmed details from speculation, and turn the strongest GTA VI stories into content worth watching.</p>
+            <div class="vp-hero-tags"><span>RESEARCH</span><span>VERIFICATION</span><span>STORY DEVELOPMENT</span><span>REVIEW</span></div>
           </div>
-          <div class="vp-hero-art" aria-hidden="true">
-            <div class="vp-hero-code top">VP / SIGNAL ANALYSIS</div>
-            <div class="vp-orbit vp-orbit-one"></div><div class="vp-orbit vp-orbit-two"></div><div class="vp-orbit vp-orbit-three"></div>
-            <div class="vp-hero-core">VP</div>
-            <div class="vp-hero-code bottom">INTELLIGENCE UNIT · 06</div>
+          <div class="vp-hero-art" aria-label="Decorative Vice City editorial poster">
+            <div class="vp-art-label">VICE CITY / FIELD NOTES</div>
+            <svg viewBox="0 0 560 360" role="img" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
+              <defs>
+                <linearGradient id="nightSky" x1="0" y1="0" x2="0.1" y2="1"><stop offset="0" stop-color="#080b18"/><stop offset=".43" stop-color="#332044"/><stop offset=".72" stop-color="#e05d73"/><stop offset="1" stop-color="#f5a36b"/></linearGradient>
+                <linearGradient id="waterRoad" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#14172b"/><stop offset=".52" stop-color="#291a38"/><stop offset="1" stop-color="#071019"/></linearGradient>
+                <linearGradient id="sunGlow" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffd5a1"/><stop offset="1" stop-color="#f06b89"/></linearGradient>
+                <radialGradient id="haze"><stop offset="0" stop-color="#ff9b8c" stop-opacity=".55"/><stop offset="1" stop-color="#ff9b8c" stop-opacity="0"/></radialGradient>
+                <filter id="softGlow"><feGaussianBlur stdDeviation="8"/></filter>
+              </defs>
+              <rect width="560" height="360" fill="url(#nightSky)"/>
+              <circle cx="385" cy="132" r="115" fill="url(#haze)"/>
+              <circle cx="385" cy="126" r="76" fill="url(#sunGlow)"/>
+              <g stroke="#372039" stroke-width="8" opacity=".72"><path d="M308 112H462M315 131H455M326 151H444M342 171H428"/></g>
+              <path d="M0 204L0 178H28V151H53V177H72V137H104V191H128V165H153V188H178V145H203V185H226V163H251V192H278V151H309V188H335V169H360V202H389V176H416V196H443V156H465V188H488V143H520V180H560V360H0Z" fill="#111322"/>
+              <g fill="#ed8c99" opacity=".8">
+                <path d="M38 164h5v9h-5zM51 164h5v9h-5zM88 149h5v8h-5zM99 149h5v8h-5zM184 158h5v8h-5zM197 158h5v8h-5zM286 166h5v8h-5zM299 166h5v8h-5zM450 167h5v9h-5zM463 167h5v9h-5zM499 154h5v9h-5zM511 154h5v9h-5z"/>
+              </g>
+              <g fill="#0b101a"><rect x="0" y="215" width="560" height="145"/></g>
+              <path d="M0 234L560 218V360H0Z" fill="url(#waterRoad)"/>
+              <path d="M0 256Q120 248 228 263T560 247" fill="none" stroke="#ee668e" stroke-width="2" opacity=".7"/>
+              <path d="M0 284Q125 271 250 289T560 273M0 320Q120 305 246 325T560 307" fill="none" stroke="#7ce7e6" stroke-width="2" opacity=".28"/>
+              <path d="M268 360L338 215H374L468 360Z" fill="#070b13" opacity=".9"/>
+              <path d="M332 360L356 244H363L367 360Z" fill="#f6c18d" opacity=".76"/>
+              <path d="M302 360L345 242" stroke="#ff5c9e" stroke-width="5" opacity=".8" filter="url(#softGlow)"/>
+              <path d="M420 360L386 242" stroke="#53dadd" stroke-width="4" opacity=".8" filter="url(#softGlow)"/>
+              <path d="M420 360L386 242" stroke="#53dadd" stroke-width="1.5" opacity=".95"/>
+              <path d="M302 360L345 242" stroke="#ff5c9e" stroke-width="1.5" opacity=".95"/>
+              <!-- palm silhouette -->
+              <path d="M502 241Q505 191 490 136" fill="none" stroke="#070b13" stroke-width="9" stroke-linecap="round"/>
+              <path d="M491 140Q453 123 440 91Q471 103 495 130Q479 90 486 62Q505 92 501 127Q520 92 546 86Q530 118 503 136Q541 119 559 129Q533 150 503 145" fill="#080c16"/>
+              <g fill="#fff0d6" opacity=".78"><circle cx="32" cy="49" r="1.2"/><circle cx="88" cy="36" r="1"/><circle cx="142" cy="70" r="1.2"/><circle cx="228" cy="31" r="1"/><circle cx="286" cy="58" r="1.2"/><circle cx="454" cy="35" r="1"/><circle cx="530" cy="62" r="1.2"/></g>
+              <path d="M24 24H160" stroke="#f7d3bf" stroke-width="1" opacity=".7"/>
+              <text x="26" y="45" fill="#fff0dc" font-family="DM Sans,sans-serif" font-size="10" font-weight="800" letter-spacing="3">VICEPLUG / NIGHT SHIFT</text>
+              <text x="26" y="336" fill="#f6d7c4" font-family="DM Sans,sans-serif" font-size="11" font-weight="800" letter-spacing="2.3">THE CITY NEVER STOPS TALKING.</text>
+            </svg>
+            <div class="vp-art-caption">RESEARCH · SIGNAL · STORIES</div>
           </div>
         </section>
-        <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin:0 0 13px;flex-wrap:wrap">
-          <div><div class="vp-eyebrow">THE WORKSPACE</div><div style="font:700 1.18rem 'Space Grotesk',sans-serif;color:#f4f7ef;margin-top:4px;letter-spacing:-.04em">Today at a glance</div></div>
-          <div style="font-size:.7rem;color:#83918a">LIVE OVERVIEW · WORKSPACE STATUS</div>
+        <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:12px;margin:0 0 15px;flex-wrap:wrap">
+          <div><div class="vp-eyebrow">THE DESK</div><div class="vp-section-title">Today at a glance</div></div>
+          <div style="font-size:.64rem;color:#777A7E;letter-spacing:.12em;font-weight:800">LIVE OVERVIEW / WORKSPACE STATUS</div>
         </div>
         """, unsafe_allow_html=True)
 
@@ -1806,11 +2220,11 @@ with col_main:
         stories_count = int(len(df))
         avg_score = f"{scores.mean():.0f}/100" if len(scores) else "—"
         metrics = st.columns(5, gap="large")
-        with metrics[0]: metric_card("Research Records", str(stories_count), "Rows loaded from your sheet" if sheet_status == "connected" else "Connect Sheets for live counts", "📰", "#ff2e93")
-        with metrics[1]: metric_card("Scored Ideas", str(int(len(scores))), "Records with a numeric score", "🎯", "#38d9f5")
-        with metrics[2]: metric_card("Average Score", avg_score, "Based on available score fields", "⭐", "#a855f7")
-        with metrics[3]: metric_card("Needs Review", str(pending_count) if status_col else "—", "Based on your status column", "🧾", "#f43f5e")
-        with metrics[4]: metric_card("Approved / Published", str(approved_count) if status_col else "—", "Based on your status column", "✅", "#10b981")
+        with metrics[0]: metric_card("Research Records", str(stories_count), "Rows loaded from your sheet" if sheet_status == "connected" else "Connect Sheets for live counts", "📰", "#E95740")
+        with metrics[1]: metric_card("Scored Ideas", str(int(len(scores))), "Records with a numeric score", "🎯", "#2D4BEA")
+        with metrics[2]: metric_card("Average Score", avg_score, "Based on available score fields", "⭐", "#D6B83F")
+        with metrics[3]: metric_card("Needs Review", str(pending_count) if status_col else "—", "Based on your status column", "🧾", "#B87518")
+        with metrics[4]: metric_card("Approved / Published", str(approved_count) if status_col else "—", "Based on your status column", "✅", "#2C7E62")
 
         st.markdown("<div style='height:12px'></div>", unsafe_allow_html=True)
         main_col, side_col = st.columns([1.5, 1], gap="large")
@@ -1827,13 +2241,13 @@ with col_main:
                 st.info("Your worksheet does not appear to have a Review Status or Status column, so pipeline counts are unavailable.")
             else:
                 pipeline_stages = [
-                    ("Research", len(df), "#38d9f5"),
-                    ("Needs Review", int(statuses.str.contains("review|pending|needs", regex=True).sum()), "#f59e0b"),
-                    ("Approved", int(statuses.str.contains("approved", regex=True).sum()), "#10b981"),
-                    ("Published", int(statuses.str.contains("published", regex=True).sum()), "#a855f7"),
+                    ("Research", len(df), "#2D4BEA"),
+                    ("Needs Review", int(statuses.str.contains("review|pending|needs", regex=True).sum()), "#B87518"),
+                    ("Approved", int(statuses.str.contains("approved", regex=True).sum()), "#2C7E62"),
+                    ("Published", int(statuses.str.contains("published", regex=True).sum()), "#E95740"),
                 ]
                 for stage, count, color in pipeline_stages:
-                    st.markdown(f'<div style="display:flex;justify-content:space-between;gap:10px;padding:12px 2px;border-bottom:1px solid #1a263b"><span style="color:#cbd5e1">● &nbsp;{stage}</span><b style="color:{color}">{count}</b></div>', unsafe_allow_html=True)
+                    st.markdown(f'<div style="display:flex;justify-content:space-between;gap:10px;padding:12px 2px;border-bottom:1px solid #E0DAD0"><span style="color:#62666C">● &nbsp;{stage}</span><b style="color:{color}">{count}</b></div>', unsafe_allow_html=True)
             st.markdown('<div class="vp-panel" style="margin-top:12px"><div class="vp-panel-title">🧠 Quick Actions</div></div>', unsafe_allow_html=True)
             quick1, quick2 = st.columns(2)
             with quick1:
@@ -1900,7 +2314,7 @@ with col_main:
                         st.session_state[discovery_page_key] = discovery_page - 1
                         st.rerun()
                 with discovery_info:
-                    st.markdown(f'<div style="text-align:center;padding:10px 4px;color:#98a9c2;font-size:.8rem">Page <b style="color:#f5f7ff">{discovery_page + 1}</b> of {discovery_total_pages} · {len(found)} results</div>', unsafe_allow_html=True)
+                    st.markdown(f'<div style="text-align:center;padding:10px 4px;color:#62666C;font-size:.8rem">Page <b style="color:#f5f7ff">{discovery_page + 1}</b> of {discovery_total_pages} · {len(found)} results</div>', unsafe_allow_html=True)
                 with next_discovery:
                     if st.button("Next results →", key="news_discovery_next", disabled=discovery_page >= discovery_total_pages - 1, use_container_width=True):
                         st.session_state[discovery_page_key] = discovery_page + 1
@@ -2327,7 +2741,7 @@ with col_main:
                         timeline = timeline_rows.groupby("Day").size().rename("Records").reset_index()
                         if PLOTLY_AVAILABLE:
                             fig = px.area(timeline, x="Day", y="Records", markers=True)
-                            fig.update_traces(line=dict(color="#c084fc", width=3), fillcolor="rgba(192,132,252,.15)", marker=dict(size=7, color="#ff66ae"), hovertemplate="%{x|%b %d}<br>Records: %{y}<extra></extra>")
+                            fig.update_traces(line=dict(color="#2D4BEA", width=3), fillcolor="rgba(45,75,234,.12)", marker=dict(size=7, color="#E95740"), hovertemplate="%{x|%b %d}<br>Records: %{y}<extra></extra>")
                             _plotly_layout(fig, 340)
                             fig.update_xaxes(tickformat="%b %d")
                             st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False, "responsive": True})
@@ -2344,7 +2758,7 @@ with col_main:
                         dist["Score band"] = dist["Score band"].astype(str)
                         if PLOTLY_AVAILABLE:
                             fig = px.bar(dist, x="Score band", y="Records")
-                            fig.update_traces(marker_color="#ff5ca8", marker_line_color="rgba(255,255,255,.12)", marker_line_width=1, hovertemplate="%{x}<br>Records: %{y}<extra></extra>")
+                            fig.update_traces(marker_color="#E95740", marker_line_color="rgba(32,35,41,.18)", marker_line_width=1, hovertemplate="%{x}<br>Records: %{y}<extra></extra>")
                             _plotly_layout(fig, 340)
                             fig.update_xaxes(title=None, tickangle=-22)
                             fig.update_yaxes(title=None, dtick=1 if dist["Records"].max() <= 10 else None)
@@ -2361,7 +2775,7 @@ with col_main:
                         topic_counts = filtered["_analytics_theme"].value_counts().head(9).sort_values()
                         if PLOTLY_AVAILABLE and len(topic_counts):
                             fig = px.bar(x=topic_counts.values, y=topic_counts.index, orientation="h", labels={"x": "Records", "y": "Theme"})
-                            fig.update_traces(marker_color="#48cde3", marker_line_width=0, hovertemplate="%{y}<br>Records: %{x}<extra></extra>")
+                            fig.update_traces(marker_color="#2D4BEA", marker_line_width=0, hovertemplate="%{y}<br>Records: %{x}<extra></extra>")
                             _plotly_layout(fig, max(280, 38 * len(topic_counts) + 70))
                             fig.update_xaxes(title=None)
                             fig.update_yaxes(title=None, showgrid=False)
@@ -2377,7 +2791,7 @@ with col_main:
                     source_counts = filtered["_analytics_source_label"].replace("", "Source not recorded").value_counts().head(8)
                     if PLOTLY_AVAILABLE and len(source_counts):
                         fig = px.pie(values=source_counts.values, names=source_counts.index, hole=.68)
-                        fig.update_traces(textposition="inside", textinfo="percent", marker=dict(line=dict(color="#0b1020", width=3)), hovertemplate="%{label}<br>%{value} records (%{percent})<extra></extra>")
+                        fig.update_traces(textposition="inside", textinfo="percent", marker=dict(line=dict(color="#FFFCF6", width=3)), hovertemplate="%{label}<br>%{value} records (%{percent})<extra></extra>")
                         _plotly_layout(fig, 320)
                         fig.update_layout(margin=dict(l=8, r=110, t=18, b=8), showlegend=True, legend=dict(orientation="v", x=1.01, y=.5, xanchor="left", yanchor="middle", font=dict(color="#aab8d0", size=9)))
                         st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False, "responsive": True})
@@ -2392,7 +2806,7 @@ with col_main:
                     status_counts = filtered["_analytics_status"].replace("", "Unspecified").value_counts().head(9)
                     if PLOTLY_AVAILABLE and len(status_counts):
                         fig = px.pie(values=status_counts.values, names=status_counts.index, hole=.62)
-                        fig.update_traces(textposition="inside", textinfo="percent", marker=dict(line=dict(color="#0b1020", width=3)), hovertemplate="%{label}<br>%{value} records (%{percent})<extra></extra>")
+                        fig.update_traces(textposition="inside", textinfo="percent", marker=dict(line=dict(color="#FFFCF6", width=3)), hovertemplate="%{label}<br>%{value} records (%{percent})<extra></extra>")
                         _plotly_layout(fig, 315)
                         st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False, "responsive": True})
                     elif len(status_counts):
@@ -2418,7 +2832,7 @@ with col_main:
                         view_rows = view_rows.sort_values("Views", ascending=False).head(12).sort_values("Views")
                         if PLOTLY_AVAILABLE:
                             fig = px.bar(view_rows, x="Views", y="Title", orientation="h")
-                            fig.update_traces(marker_color="#51d7e8", hovertemplate="%{y}<br>Views: %{x:,.0f}<extra></extra>")
+                            fig.update_traces(marker_color="#2D4BEA", hovertemplate="%{y}<br>Views: %{x:,.0f}<extra></extra>")
                             _plotly_layout(fig, max(280, len(view_rows) * 31 + 60))
                             fig.update_xaxes(title=None, tickformat="~s")
                             fig.update_yaxes(title=None, showgrid=False)
